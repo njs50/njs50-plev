@@ -1618,6 +1618,81 @@ send('group')</script>
 					<integer>1</integer>
 				</regexCodePropertyList>
 			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>pause/resume murder mode</name>
+				<script>if (matches[2] == 'paused') then
+
+	murder.sleepMode = 'paused'
+	
+	common.setParryState(true, 'murder mode paused', function () 
+		send('gt holding off on the murdering')
+	end, true)
+	
+else 
+	common.setParryState(false, 'murder mode resumed', function ()
+		send('gt resuming the murdering')
+	end, false)
+		
+	murder.sleepMode = 'next'
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^\S+ tells the group[^:]*: "murder time (paused|resumed)</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>command by leader or authority figure</name>
+				<script>local acceptableMasters = {
+  Gnoggh = true,
+  Taldoran = true,
+  Trongle = true,
+  Marsuvious = true,
+  Altus = true,
+  Mojune = true,
+  Myrth = true,
+  Darion = true,
+  Darius = true,
+  Grehild = true,
+}
+
+
+if(matches[2] == group.leader or acceptableMasters[matches[2]]) then
+  cecho('&lt;greenTEAMWORK: &lt;white&gt;command issued by leader')
+  send('reply running command: ' .. matches[3])
+	expandAlias(matches[3])
+else
+	cecho('&lt;red&gt;TEAMWORK: &lt;white&gt;command issued by non leader')
+  send('reply command ignored due to not being leader or whitelisted')
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^([A-Za-z]+) tells you:\s*"do (.+)"$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
 		</TriggerGroup>
 		<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 			<name>tells</name>
@@ -2060,88 +2135,6 @@ send('wear ' .. common.dotCase(matches[3]))</script>
 				</regexCodePropertyList>
 			</Trigger>
 		</TriggerGroup>
-		<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-			<name>teamwork</name>
-			<script></script>
-			<triggerType>0</triggerType>
-			<conditonLineDelta>0</conditonLineDelta>
-			<mStayOpen>0</mStayOpen>
-			<mCommand></mCommand>
-			<packageName></packageName>
-			<mFgColor>#ff0000</mFgColor>
-			<mBgColor>#ffff00</mBgColor>
-			<mSoundFile></mSoundFile>
-			<colorTriggerFgColor>#000000</colorTriggerFgColor>
-			<colorTriggerBgColor>#000000</colorTriggerBgColor>
-			<regexCodeList />
-			<regexCodePropertyList />
-			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-				<name>pause/resume murder mode</name>
-				<script>if (matches[2] == 'paused') then
-
-	murder.sleepMode = 'paused'
-	
-	common.setParryState(true, 'murder mode paused', function () 
-		send('gt holding off on the murdering')
-	end, true)
-	
-else 
-	common.setParryState(false, 'murder mode resumed', function ()
-		send('gt resuming the murdering')
-	end, false)
-		
-	murder.sleepMode = 'next'
-end</script>
-				<triggerType>0</triggerType>
-				<conditonLineDelta>0</conditonLineDelta>
-				<mStayOpen>0</mStayOpen>
-				<mCommand></mCommand>
-				<packageName></packageName>
-				<mFgColor>#ff0000</mFgColor>
-				<mBgColor>#ffff00</mBgColor>
-				<mSoundFile></mSoundFile>
-				<colorTriggerFgColor>#000000</colorTriggerFgColor>
-				<colorTriggerBgColor>#000000</colorTriggerBgColor>
-				<regexCodeList>
-					<string>^\S+ tells the group[^:]*: "murder time (paused|resumed)</string>
-				</regexCodeList>
-				<regexCodePropertyList>
-					<integer>1</integer>
-				</regexCodePropertyList>
-			</Trigger>
-			<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-				<name>team member is dea!</name>
-				<script>   -- +--                 --+
-      -- Myrth is DEAD!!
-  -- +--                 --+
-	-- 
-local vic = matches[2]
-
-if (group.members[vic]) then
-	send('get all ' .. vic)
-	murder.stop()
-	tempTimer(5, function ()
-	end, 'death alarm')
-end
-</script>
-				<triggerType>0</triggerType>
-				<conditonLineDelta>0</conditonLineDelta>
-				<mStayOpen>0</mStayOpen>
-				<mCommand></mCommand>
-				<packageName></packageName>
-				<mFgColor>#ff0000</mFgColor>
-				<mBgColor>#ffff00</mBgColor>
-				<mSoundFile></mSoundFile>
-				<colorTriggerFgColor>#000000</colorTriggerFgColor>
-				<colorTriggerBgColor>#000000</colorTriggerBgColor>
-				<regexCodeList>
-					<string>^\s+(\w+) is DEAD!!$</string>
-				</regexCodeList>
-				<regexCodePropertyList>
-					<integer>1</integer>
-				</regexCodePropertyList>
-			</Trigger>
-		</TriggerGroup>
 	</TriggerPackage>
 	<TimerPackage>
 		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
@@ -2320,6 +2313,29 @@ end)</script>
 			<command></command>
 			<packageName></packageName>
 			<regex>^plev install$</regex>
+		</Alias>
+		<Alias isActive="yes" isFolder="no">
+			<name>plev update</name>
+			<script>-- backup your profile before we destroy it...
+saveProfile()
+
+-- reinstall njs50-plev package
+local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-plev.xml"
+
+local function d(_, f)
+  if not f:find("njs50-plev", 1, true) then return end
+  uninstallPackage("njs50-plev")
+  installPackage(f)
+  os.remove(f)
+  cecho("&lt;lime_green&gt;njs50-plev updated!\n")
+end
+
+registerAnonymousEventHandler("sysDownloadDone", d)
+
+downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/njs50-plev.xml" or "/njs50-plev.zip"), URL)</script>
+			<command></command>
+			<packageName></packageName>
+			<regex>^plev update$</regex>
 		</Alias>
 		<Alias isActive="yes" isFolder="no">
 			<name>set optiion</name>

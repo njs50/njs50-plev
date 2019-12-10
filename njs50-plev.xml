@@ -2322,15 +2322,13 @@ saveProfile()
 -- reinstall njs50-plev package
 local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-plev.xml"
 
-local function d(_, f)
+common.onNextEvent("sysDownloadDone", function (_, f)
   if not f:find("njs50-plev", 1, true) then return end
   uninstallPackage("njs50-plev")
   installPackage(f)
   os.remove(f)
   cecho("&lt;lime_green&gt;njs50-plev updated!\n")
-end
-
-registerAnonymousEventHandler("sysDownloadDone", d)
+end)
 
 downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/njs50-plev.xml" or "/njs50-plev.zip"), URL)</script>
 			<command></command>

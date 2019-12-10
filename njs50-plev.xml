@@ -1951,16 +1951,8 @@ if player.parryQueue &lt; 0 then
   cecho('\n&lt;red&gt;PARRY: &lt;white&gt;attempted to reduce queue below zero\n')
 end
 
-if (player.pendingParryChange ~= true) then
-  
-	player.pendingParryChange = true
-  
-  common.onNextEvent(common.events.PARSED_PROMPT, function (evt, args)
-  	raiseEvent(common.events.PARRY_STATE_CHANGE)
-  	player.pendingParryChange = false
-  end)
-	
-end
+
+raiseEvent(common.events.PARRY_STATE_CHANGE)
 </script>
 				<triggerType>0</triggerType>
 				<conditonLineDelta>0</conditonLineDelta>
@@ -2977,31 +2969,34 @@ common.setParryState = function (state, reason, callback, permanent)
 	local cb = callback
 
 	player.parryQueue = player.parryQueue or 0
-	
+  
+  -- if we have queued parry changes defer until they have all happened
+  if (player.parryQueue &gt; 0) then
+    common.onNextEvent(common.events.PARRY_STATE_CHANGE, function (evt, args)
+  		  common.setParryState(state, reason, callback, permanent)
+    end)
+    return
+  end
+  
 	local currentState = player.parry
-	
-	if (player.parryQueue % 2 == 1) then
-		currentState = not currentState
-	end
-	
 		
 	if (player.parryRevertTimer) then
 		killTimer(player.parryRevertTimer)
 		player.parryRevertTimer = nil
 	end 
-
-	-- if we are turning parry on, make sure we have a plan to turn it off again
-	if (not permanent) then 
-		player.parryRevertTimer = tempTimer(15, function ()
-			if (player.parry) then
-				common.setParryState(false, 'opt parry has been on too long!')
-			end
-		end)
-	end
 	
 
 	-- if we need to swap opt parry
 	if (currentState ~= state) then	
+  
+  	-- if we are turning parry on, make sure we have a plan to turn it off again
+  	if (not permanent and state) then 
+  		player.parryRevertTimer = tempTimer(15, function ()
+  			if (player.parry) then
+  				common.setParryState(false, 'opt parry has been on too long!')
+  			end
+  		end)
+  	end  
   
   	cecho('\n&lt;green&gt;PARRY: &lt;white&gt;setting  - ' .. tostring(state) .. ' - ' .. reason or '?' .. '\n')
   	send('opt parry')	

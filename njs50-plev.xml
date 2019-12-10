@@ -615,15 +615,24 @@ end
 				<name>tank returned</name>
 				<script>murder.tankState = 'here'
 
+local combatStarted
+local combatEnded
+local roomChanged
+local resumeTimer
+
 -- kill countdown if combat ends in this time
 local killResumeTimer = function ()
-	if murder.resumeTimer then
-		killTimer(murder.resumeTimer)
+	
+  if resumeTimer ~= nil then
+		killTimer(resumeTimer)
 		cecho('\n&lt;green&gt;MURDER: &lt;white&gt;killed waiting for tank action timer: ')
-		murder.resumeTimer = nil
-	-- else
-		-- cecho('\n&lt;green&gt;MURDER: &lt;white&gt;tank action timer was already dead: ')
+		resumeTimer = nil
+     -- kill any remaining event watchers
+    combatStarted()
+    combatEnded()
+    roomChanged()
 	end
+ 
 end
 
 
@@ -633,7 +642,8 @@ if (murder.resumeTimer) then
 end
 
 -- setup timer to resume in x secs if no action...
-murder.resumeTimer = tempTimer(90, function ()
+resumeTimer = tempTimer(90, function ()
+  killResumeTimer()
 	cecho('\n&lt;yellow&gt;MURDER: &lt;white&gt;tank returned and no action within 60s')
 	send('gt seems like a suspect pause....')
 	send('gt resume')
@@ -644,14 +654,14 @@ end, 'waitng for tank to do something after resuming (60s)')
 
 -- the problematic one seems to be when we switch rooms right as
 -- the tank returns because there is no mob to kill
-common.onNextEvent(tfe.events.ROOM_CHANGED, function ()
+roomChanged = common.onNextEvent(tfe.events.ROOM_CHANGED, function ()
   cecho('\n&lt;green&gt;MURDER:&lt;white&gt; cleared resume timer\n')
   killResumeTimer()
 	-- common.onNextEvent(tfe.events.ROOM_CHANGED, killResumeTimer)
 end)
 
-common.onNextEvent(common.events.COMBAT_ENDED, killResumeTimer)	
-common.onNextEvent(common.events.COMBAT_STARTED, killResumeTimer)	</script>
+combatEnded = common.onNextEvent(common.events.COMBAT_ENDED, killResumeTimer)	
+combatStarted = common.onNextEvent(common.events.COMBAT_STARTED, killResumeTimer)	</script>
 				<triggerType>0</triggerType>
 				<conditonLineDelta>0</conditonLineDelta>
 				<mStayOpen>0</mStayOpen>
@@ -855,7 +865,8 @@ elseif (murder.sleepMode == 'chopping') then
   		send('k ' .. vic)
   	-- end
 	end)
-	
+
+-- can be in dance-pending if we miss during the previous dance-pending 
 elseif (murder.sleepMode == 'dancing') then
 	
 	murder.sleepMode = 'dance-pending'
@@ -888,13 +899,16 @@ elseif (murder.sleepMode == 'dancing') then
     		
     	end, 1)
   		
+    else  
+      cecho('\n\n&lt;red&gt;MURDER: &lt;white&gt;wtf is the tank?\n')
   	end
 	
 	end)
 	
 end
 
-</script>
+
+cecho(' &lt;-- &lt;white&gt;' .. murder.sleepMode .. '\n')</script>
 				<triggerType>0</triggerType>
 				<conditonLineDelta>0</conditonLineDelta>
 				<mStayOpen>0</mStayOpen>
@@ -993,17 +1007,24 @@ end</script>
 			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>missed mob</name>
-				<script>
-local target = common.dotCase(common.toMurderString(matches[3]))
--- 
--- murder.sleepMode = 'chopping'
+				<script>-- this will fail if we are parrying 
+-- but mob should be reslept anyway
 
-if (player.parry) then
-	-- send('opt par &amp; k ' .. target .. ' &amp; queue opt par')
-	cecho('&lt;red&gt;MURDER: &lt;white&gt;missed mob during parry')
-else 
-	send('k ' .. target)
-end</script>
+local target = common.dotCase(common.toMurderString(matches[3]))
+
+if (murder.sleepMode == 'dance-pending') then
+  
+  -- try agian next sleep
+  cecho('\n\n&lt;yellow&gt;MURDER: &lt;white&gt;missed mob during dancing phase\n\n')
+  murder.sleepMode = 'dancing'
+
+else
+
+  send('k ' .. target)
+
+end
+
+</script>
 				<triggerType>0</triggerType>
 				<conditonLineDelta>0</conditonLineDelta>
 				<mStayOpen>0</mStayOpen>
@@ -1153,6 +1174,29 @@ end</script>
 				<colorTriggerBgColor>#000000</colorTriggerBgColor>
 				<regexCodeList>
 					<string>[Exits:</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>2</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>mob isn't here?</name>
+				<script>cecho('&lt;red&gt; &lt;-- mob missing?!\n')
+if (murder.sleepMode ~= 'paused') then
+	murder.sleepMode = 'next'
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>The room doesn't contain any beings matching</string>
 				</regexCodeList>
 				<regexCodePropertyList>
 					<integer>2</integer>
@@ -1951,7 +1995,6 @@ if player.parryQueue &lt; 0 then
   cecho('\n&lt;red&gt;PARRY: &lt;white&gt;attempted to reduce queue below zero\n')
 end
 
-
 raiseEvent(common.events.PARRY_STATE_CHANGE)
 </script>
 				<triggerType>0</triggerType>
@@ -2286,8 +2329,10 @@ expandAlias("setOption Numerical.Damage true")
 expandAlias("setOption Auto.Assist true")
 expandAlias("setOption Join.Fight true")
 expandAlias("setOption Numeric true")
+expandAlias("setOption Show.Language false")
 send('opt autoscan 3')
 send('opt autoloot 3')
+send('opt room.info 1')
 
 
 -- set prompt
@@ -3001,8 +3046,10 @@ common.setParryState = function (state, reason, callback, permanent)
   	cecho('\n&lt;green&gt;PARRY: &lt;white&gt;setting  - ' .. tostring(state) .. ' - ' .. reason or '?' .. '\n')
   	send('opt parry')	
 		player.parryQueue = player.parryQueue + 1
+    cecho('&lt;yellow&gt; &lt;-- parry queue -- (' .. player.parryQueue .. ')')
   	
   	common.onNextEvent(common.events.PARRY_STATE_CHANGE, function (evt, args)
+      cecho('\n&lt;green&gt;PARRY: &lt;white&gt;state change happened!\n')
   		if (cb) then cb() end
     end)
 		

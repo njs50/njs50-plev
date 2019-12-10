@@ -2385,6 +2385,14 @@ send('opt ' .. option)</script>
 				<packageName></packageName>
 				<regex>^(gear-reset|put your usual gear back on)</regex>
 			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>gear-save</name>
+				<script>saveGearSet(matches[2])
+</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^gear-save (.*)</regex>
+			</Alias>
 		</AliasGroup>
 	</AliasPackage>
 	<ActionPackage />

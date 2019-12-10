@@ -99,7 +99,7 @@ raiseEvent(common.events.PARSED_PROMPT)
 			<colorTriggerFgColor>#000000</colorTriggerFgColor>
 			<colorTriggerBgColor>#000000</colorTriggerBgColor>
 			<regexCodeList>
-				<string>^&lt;(\w+\|)?(\d+)hp (\d+)e \[?(\d+)mv\]? (\d+)wm\s+\d+xp (\d+)?(lhp\s|\?\?\s)?([NESWneswUDud]+|-Dark-|none|\?\?)(\s.+)?&gt;</string>
+				<string>^&lt;(\w+\|)?(\d+)hp (\d+)e \[?(\d+)mv\]? (\d+)wm\s+[0-9-]+xp (\d+)?(lhp\s|\?\?\s)?([NESWneswUDud]+|-Dark-|none|\?\?)(\s.+)?&gt;</string>
 			</regexCodeList>
 			<regexCodePropertyList>
 				<integer>1</integer>

@@ -259,6 +259,32 @@ end)
 				<integer>1</integer>
 			</regexCodePropertyList>
 		</Trigger>
+		<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+			<name>snack break</name>
+			<script>local vessel = player.vessel or 'leather.waterskin'
+
+send('drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; queue give empty.' .. vessel .. ' ' .. group.leader)
+send('queue gt fill my ' .. vessel)
+send('gt snack me')
+send('eat food &amp; eat food &amp; eat food &amp; eat food')
+send('drop all.food &amp; get 4*food')</script>
+			<triggerType>0</triggerType>
+			<conditonLineDelta>0</conditonLineDelta>
+			<mStayOpen>0</mStayOpen>
+			<mCommand></mCommand>
+			<packageName></packageName>
+			<mFgColor>#ff0000</mFgColor>
+			<mBgColor>#ffff00</mBgColor>
+			<mSoundFile></mSoundFile>
+			<colorTriggerFgColor>#000000</colorTriggerFgColor>
+			<colorTriggerBgColor>#000000</colorTriggerBgColor>
+			<regexCodeList>
+				<string>^.* tells the group[^:]*:\s+"snack break"$</string>
+			</regexCodeList>
+			<regexCodePropertyList>
+				<integer>1</integer>
+			</regexCodePropertyList>
+		</Trigger>
 		<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 			<name>parsing stuff</name>
 			<script></script>
@@ -596,7 +622,7 @@ end
 				</regexCodePropertyList>
 			</Trigger>
 		</TriggerGroup>
-		<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+		<TriggerGroup isActive="no" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 			<name>sleep-murder</name>
 			<script></script>
 			<triggerType>0</triggerType>
@@ -679,32 +705,6 @@ combatStarted = common.onNextEvent(common.events.COMBAT_STARTED, killResumeTimer
 					<integer>1</integer>
 				</regexCodePropertyList>
 			</Trigger>
-			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-				<name>snack break</name>
-				<script>local vessel = player.vessel or 'leather.waterskin'
-
-send('drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; queue give empty.' .. vessel .. ' ' .. group.leader)
-send('queue gt fill my ' .. vessel)
-send('gt snack me')
-send('eat food &amp; eat food &amp; eat food &amp; eat food')
-send('drop all.food &amp; get 4*food')</script>
-				<triggerType>0</triggerType>
-				<conditonLineDelta>0</conditonLineDelta>
-				<mStayOpen>0</mStayOpen>
-				<mCommand></mCommand>
-				<packageName></packageName>
-				<mFgColor>#ff0000</mFgColor>
-				<mBgColor>#ffff00</mBgColor>
-				<mSoundFile></mSoundFile>
-				<colorTriggerFgColor>#000000</colorTriggerFgColor>
-				<colorTriggerBgColor>#000000</colorTriggerBgColor>
-				<regexCodeList>
-					<string>^.* tells the group[^:]*:\s+"snack break"$</string>
-				</regexCodeList>
-				<regexCodePropertyList>
-					<integer>1</integer>
-				</regexCodePropertyList>
-			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>mob state</name>
 				<script>local damState = {
@@ -725,6 +725,11 @@ send('drop all.food &amp; get 4*food')</script>
  ['DEAD!'] = 0
 }
 
+
+player.dance_threshold = player.dance_threshold or damState['bleeding freely']
+
+
+
 if (murder.pendingActionTimer) then
 	killTimer(murder.pendingActionTimer)
 	murder.pendingActionTimer = nil
@@ -744,7 +749,7 @@ end
 
 
 
-if health &lt;= damState['many nasty wounds'] then 
+if health &lt;= player.dance_threshold then 
 -- if (matches[3] ~= 'DEAD!') then
 	
 	murder.sleepMode = 'dancing'
@@ -883,14 +888,42 @@ elseif (murder.sleepMode == 'dancing') then
 			
   		murder.tankState = 'out-pending'
     	tempRegexTrigger([[^\S+ tells the group[^:]*: "(out|failed to leave)"]], function ()
-    		murder.tankState = 'out-confirmed'
+    		
+        murder.tankState = 'out-confirmed'
+        
     		if (matches[2] == 'out') then
-  				cecho('\n&lt;orange&gt;PARRY: &lt;white&gt;setting  - temp off (dance hit)')
-          send('opt parry &amp; stand &amp; mount &amp; k ' .. vic .. ' &amp; queue opt parry')
-          send('queue gt return ' .. vic)
-					player.parryQueue = player.parryQueue + 2
+  				
+          cecho('\n&lt;orange&gt;PARRY: &lt;white&gt;setting  - temp off (dance hit then reenable)')
+          player.parryQueue = player.parryQueue + 2
+          
+          
+          local returnModes = {before = true, after = true, with = true}
+          if (not reutnModes[player.danceReturnMode]) then
+            player.danceReturnMode = 'after'
+          end
+          
+          player.danceReturnMode = player.danceReturnMode or 'after'
+
+          if (player.danceReturnMode == 'before') then
+            send('queue gt return ' .. vic)
+          end
+   
+          send('queue opt parry &amp; queue stand &amp; queue mount &amp;')
+          
+          if (player.danceReturnMode == 'with') then
+            send('queue gt return ' .. vic)
+          end
+          
+          send('queue k ' .. vic .. ' &amp; queue opt parry')
+          
+          
+          if (player.danceReturnMode == 'after') then
+            send('queue gt return ' .. vic)
+          end
+          
+					
     		else
-  				cecho('\n&lt;orange&gt;PARRY: &lt;white&gt;setting  - temp off (dance hit)')
+  				cecho('\n&lt;orange&gt;PARRY: &lt;white&gt;setting  - temp off (dance hit then reenable)')
           send('opt parry &amp; stand &amp; mount &amp; k ' .. vic .. ' &amp; queue opt parry' )
           send('queue gt wtf??? - stabbing it anyway')
 					player.parryQueue = player.parryQueue + 2
@@ -1110,7 +1143,7 @@ end</script>
 					<integer>1</integer>
 				</regexCodePropertyList>
 			</Trigger>
-			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+			<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>sleep failed</name>
 				<script></script>
 				<triggerType>0</triggerType>
@@ -1131,36 +1164,10 @@ end</script>
 				</regexCodePropertyList>
 			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-				<name>set next assist mob</name>
-				<script>local vic = matches[4]
-
-player.nextTarget = vic
-</script>
-				<triggerType>0</triggerType>
-				<conditonLineDelta>0</conditonLineDelta>
-				<mStayOpen>0</mStayOpen>
-				<mCommand></mCommand>
-				<packageName></packageName>
-				<mFgColor>#ff0000</mFgColor>
-				<mBgColor>#ffff00</mBgColor>
-				<mSoundFile></mSoundFile>
-				<colorTriggerFgColor>#000000</colorTriggerFgColor>
-				<colorTriggerBgColor>#000000</colorTriggerBgColor>
-				<regexCodeList>
-					<string>^(.*) tells? (your|the) group[^:]*: "next is (.*)"</string>
-				</regexCodeList>
-				<regexCodePropertyList>
-					<integer>1</integer>
-				</regexCodePropertyList>
-			</Trigger>
-			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>Assist on Exits</name>
-				<script>
-if (player.nextTarget) then
-
+				<script>if (player.nextTarget) then
 	send('k ' .. player.nextTarget)
 	player.nextTarget =  nil
-	
 end</script>
 				<triggerType>0</triggerType>
 				<conditonLineDelta>0</conditonLineDelta>
@@ -1174,9 +1181,11 @@ end</script>
 				<colorTriggerBgColor>#000000</colorTriggerBgColor>
 				<regexCodeList>
 					<string>[Exits:</string>
+					<string>^\|\s+Exits:</string>
 				</regexCodeList>
 				<regexCodePropertyList>
 					<integer>2</integer>
+					<integer>1</integer>
 				</regexCodePropertyList>
 			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
@@ -1528,7 +1537,7 @@ send('look')
 
 tempTimer(2, function ()
 
-  mapper.gotoRoom(rnum, function ()
+  tfe.gotoRoom(rnum, function ()
   	tempTimer(1, function ()
   		send('gt ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
   	end)
@@ -1553,6 +1562,28 @@ end)</script>
 				</regexCodePropertyList>
 			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>set next assist mob</name>
+				<script>local vic = matches[4]
+player.nextTarget = vic
+</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^(.*) tells? (your|the) group[^:]*: "next is (.*)"</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>go to x</name>
 				<script>local pname = matches[3]
 local rnum = matches[4]
@@ -1562,7 +1593,7 @@ if (pname == player.name) then
 
   tempTimer(2, function ()
 
-    mapper.gotoRoom(rnum, function ()
+    tfe.gotoRoom(rnum, function ()
     	tempTimer(1, function ()
     		send('gt ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
     	end)
@@ -2182,6 +2213,204 @@ send('wear ' .. common.dotCase(matches[3]))</script>
 	</TimerPackage>
 	<AliasPackage>
 		<AliasGroup isActive="yes" isFolder="yes">
+			<name>power leveling</name>
+			<script></script>
+			<command></command>
+			<packageName></packageName>
+			<regex></regex>
+			<Alias isActive="yes" isFolder="no">
+				<name>plev install</name>
+				<script>-- backup your profile before we destroy it...
+saveProfile()
+
+-- uninstall the generic mapper
+uninstallPackage("generic_mapper")
+
+-- download and install latest tfe mapper
+local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/tfe-mapper.xml"
+common.onNextEvent("sysDownloadDone", function (_, f)
+  if not f:find("tfe-mapper", 1, true) then 
+    return 
+  end
+  uninstallPackage("tfe-mapper")
+  installPackage(f)
+  os.remove(f)
+  cecho("&lt;lime_green&gt;Package installed!\n") 
+  
+  -- install map
+  -- download and install latest tfe mapper
+    local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/njs50-map.dat"
+    common.onNextEvent("sysDownloadDone", function (_, f)
+      if not f:find("njs50-map", 1, true) then 
+        return 
+      end
+      local loadOK = loadMap(f)
+      if not loadOK then
+       cecho("&lt;red&gt;INSTALL: &lt;white&gt;Couldn't load - was the mapper open? :(\n")
+      else
+        cecho("&lt;green&gt;INSTALL: &lt;white&gt;Loaded fine!\n")
+      end
+      os.remove(f)
+    end)
+    downloadFile(getMudletHomeDir()..(URL:ends("dat") and "/njs50-map.dat"), URL)
+  
+  
+end)
+downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/tfe-mapper.xml" or "/tfe-mapper.zip"), URL)
+
+
+-- set options
+
+send('color columns 150')
+send('color lines 150')
+expandAlias("setOption Numerical.Damage true")
+expandAlias("setOption Auto.Assist true")
+expandAlias("setOption Join.Fight true")
+expandAlias("setOption Numeric true")
+expandAlias("setOption Show.Language false")
+send('opt autoscan 3')
+send('opt autoloot 3')
+send('opt room.info 1')
+
+
+-- set prompt
+
+send("prompt ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;")
+
+-- setup aliases
+send('alias *ef eat food &amp; eat food &amp; drop all.food &amp; get 4*food')
+send('alias *dw drink ' .. player.vessel)
+
+
+tempTimer(10, function()
+  cecho("\n\n&lt;green&gt;INSTALL: &lt;white&gt;Install complete?! - it might be a good idea to restart mudlet\n\n\n")
+end)</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^plev install$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>plev update</name>
+				<script>-- backup your profile before we destroy it...
+saveProfile()
+
+-- reinstall njs50-plev package
+local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-plev.xml"
+
+common.onNextEvent("sysDownloadDone", function (_, f)
+  if not f:find("njs50-plev", 1, true) then return end
+  uninstallPackage("njs50-plev")
+  installPackage(f)
+  os.remove(f)
+  cecho("&lt;lime_green&gt;njs50-plev updated!\n")
+end)
+
+downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/njs50-plev.xml" or "/njs50-plev.zip"), URL)</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^plev update$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>set optiion</name>
+				<script>local option = matches[2]
+local desiredVal = matches[3]
+
+
+local kilTempTimedTrig = common.timedTempTrigger(1, 2, '^' .. option .. [[ set to (\S+)\.$]] , function()
+  
+  if (matches[2] ~= desiredVal) then
+    cecho(' &lt;orange&gt;&lt;--- incorrect option value\n')
+    send('opt ' .. option)
+  else
+    cecho(' &lt;green&gt;&lt;--- correct option value\n')
+  end
+
+end)
+
+send('opt ' .. option)</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^setOption (\S+) (true|false)$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>plev commands</name>
+				<script>
+local returnModes = {before = true, after = true, with = true}
+
+local damState = {
+ ['perfect health'] = 1,
+ ['slightly scratched'] = 0.95,
+ ['few bruises'] = 0.85,
+ ['some cuts'] = 0.75,
+ ['several wounds'] = 0.65,
+ ['badly wounded'] = 0.55,
+ ['many nasty wounds'] = 0.45,
+ ['bleeding freely'] = 0.35,
+ ['covered in blood'] = 0.25,
+ ['leaking guts'] = 0.15,
+ ['mostly dead'] = 0.1,
+ ['stunned'] = 0,
+ ['incapacitated'] = 0,
+ ['mortally wounded'] = 0,
+ ['DEAD!'] = 0
+}
+    
+
+local commands = {
+  
+  stop = function () 
+    disableTrigger('sleep-murder')
+    send('gt powerleveling is disabled')
+  end,
+  
+  start = function () 
+    enableTrigger('sleep-murder')
+    send('gt powerleveling is enabled')
+  end,
+  
+  ['dance-threshold'] = function ()
+    
+    player.dance_threshold = player.dance_threshold or damState['bleeding freely']
+    
+    local newState
+    
+    if (matches[3]:match([[^%d+$]])) then
+      newState = tonumber(matches[3]) / 100
+    elseif(damState[matches[3]] ~= nil) then
+      newState = damState[matches[3]]
+    else
+      cecho('\n&lt;red&gt;njs50-plev: &lt;white&gt;unknwon damage state, use 0-100 or a string from help damage\n')
+      return
+    end
+    
+    player.dance_threshold = newState
+    
+    send('gt will now start the dance when a mob reaches ' .. tostring(player.dance_threshold * 100) .. '% hp')
+    cecho('\n&lt;green&gt;njs50-plev: &lt;white&gt;current dancing once mob health reaches ' .. tostring(player.dance_threshold * 100) .. '%\n')
+    
+  end,
+  
+  ['dance-return'] = function ()
+  
+    if ( returnModes[matches[3]] ) then
+      player.danceReturnMode = matches[3]
+      cecho('\n&lt;green&gt;njs50-plev: &lt;white&gt;will send tank return command ' .. player.danceReturnMode .. ' kill command\n')
+    else
+      cecho('\n&lt;red&gt;njs50-plev: &lt;white&gt;unknwon return mode, valid modes are: before, with and after\n')
+    end
+  
+  end,
+
+}
+
+
+commands[matches[2]]()</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^plev (start|stop|dance-threshold|dance-return) ?(.*)$</regex>
+			</Alias>
+		</AliasGroup>
+		<AliasGroup isActive="yes" isFolder="yes">
 			<name>drop junk</name>
 			<script></script>
 			<command></command>
@@ -2280,120 +2509,6 @@ end</script>
 				<regex>^killEvent (\d+)$</regex>
 			</Alias>
 		</AliasGroup>
-		<Alias isActive="yes" isFolder="no">
-			<name>plev install</name>
-			<script>-- backup your profile before we destroy it...
-saveProfile()
-
--- uninstall the generic mapper
-uninstallPackage("generic_mapper")
-
--- download and install latest tfe mapper
-local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/tfe-mapper.xml"
-common.onNextEvent("sysDownloadDone", function (_, f)
-  if not f:find("tfe-mapper", 1, true) then 
-    return 
-  end
-  uninstallPackage("tfe-mapper")
-  installPackage(f)
-  os.remove(f)
-  cecho("&lt;lime_green&gt;Package installed!\n") 
-  
-  -- install map
-  -- download and install latest tfe mapper
-    local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/njs50-map.dat"
-    common.onNextEvent("sysDownloadDone", function (_, f)
-      if not f:find("njs50-map", 1, true) then 
-        return 
-      end
-      local loadOK = loadMap(f)
-      if not loadOK then
-       cecho("&lt;red&gt;INSTALL: &lt;white&gt;Couldn't load - was the mapper open? :(\n")
-      else
-        cecho("&lt;green&gt;INSTALL: &lt;white&gt;Loaded fine!\n")
-      end
-      os.remove(f)
-    end)
-    downloadFile(getMudletHomeDir()..(URL:ends("dat") and "/njs50-map.dat"), URL)
-  
-  
-end)
-downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/tfe-mapper.xml" or "/tfe-mapper.zip"), URL)
-
-
--- set options
-
-send('color columns 150')
-send('color lines 150')
-expandAlias("setOption Numerical.Damage true")
-expandAlias("setOption Auto.Assist true")
-expandAlias("setOption Join.Fight true")
-expandAlias("setOption Numeric true")
-expandAlias("setOption Show.Language false")
-send('opt autoscan 3')
-send('opt autoloot 3')
-send('opt room.info 1')
-
-
--- set prompt
-
-send("prompt ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;")
-
--- setup aliases
-send('alias *ef eat food &amp; eat food &amp; drop all.food &amp; get 4*food')
-send('alias *dw drink ' .. player.vessel)
-
-
-tempTimer(10, function()
-  cecho("\n\n&lt;green&gt;INSTALL: &lt;white&gt;Install complete?! - it might be a good idea to restart mudlet\n\n\n")
-end)</script>
-			<command></command>
-			<packageName></packageName>
-			<regex>^plev install$</regex>
-		</Alias>
-		<Alias isActive="yes" isFolder="no">
-			<name>plev update</name>
-			<script>-- backup your profile before we destroy it...
-saveProfile()
-
--- reinstall njs50-plev package
-local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-plev.xml"
-
-common.onNextEvent("sysDownloadDone", function (_, f)
-  if not f:find("njs50-plev", 1, true) then return end
-  uninstallPackage("njs50-plev")
-  installPackage(f)
-  os.remove(f)
-  cecho("&lt;lime_green&gt;njs50-plev updated!\n")
-end)
-
-downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/njs50-plev.xml" or "/njs50-plev.zip"), URL)</script>
-			<command></command>
-			<packageName></packageName>
-			<regex>^plev update$</regex>
-		</Alias>
-		<Alias isActive="yes" isFolder="no">
-			<name>set optiion</name>
-			<script>local option = matches[2]
-local desiredVal = matches[3]
-
-
-local kilTempTimedTrig = common.timedTempTrigger(1, 2, '^' .. option .. [[ set to (\S+)\.$]] , function()
-  
-  if (matches[2] ~= desiredVal) then
-    cecho(' &lt;orange&gt;&lt;--- incorrect option value\n')
-    send('opt ' .. option)
-  else
-    cecho(' &lt;green&gt;&lt;--- correct option value\n')
-  end
-
-end)
-
-send('opt ' .. option)</script>
-			<command></command>
-			<packageName></packageName>
-			<regex>^setOption (\S+) (true|false)$</regex>
-		</Alias>
 		<AliasGroup isActive="yes" isFolder="yes">
 			<name>gear swap</name>
 			<script></script>
@@ -2450,7 +2565,6 @@ player.defaultConfig = function ()
   player.hasFoodBasket = 'false'
 	player.caster = false
 	player.gearSet = 'default'
-  
 
 end
 

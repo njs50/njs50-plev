@@ -898,7 +898,7 @@ elseif (murder.sleepMode == 'dancing') then
           
           
           local returnModes = {before = true, after = true, with = true}
-          if (not reutnModes[player.danceReturnMode]) then
+          if (not returnModes[player.danceReturnMode]) then
             player.danceReturnMode = 'after'
           end
           

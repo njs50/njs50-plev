@@ -2447,11 +2447,12 @@ commands[matches[2]]()</script>
 			<Alias isActive="yes" isFolder="no">
 				<name>sort halfling junk</name>
 				<script>send('drop all.brown.pants, all.studd.leather, all.homespun.blue, all.bron.ham, all.steel.short, all.ragg.pant, all.simp.mug' ..
-	 	'leath.journ, empty.saddleb, all.wood.shield, all.high.hard, all.wood.shield, all.leather.armor, all.wood.spear,')
+	 	'leath.journ, all.wood.shield, all.high.hard, all.wood.shield, all.leather.armor, all.wood.spear,')
 		
 send('drop all.banded.armor, all.cloth.robe, all.maple.staff, all.bronze.scale, all.meat.cleaver, all.iron.two-, all.bron.two-,' ..
 		 'all.decrep.armor, all.steel.two-, all.hatchet, all.mug.simple, all.old.boot')
-		</script>
+		
+send('label saddleb as deadHalfies &amp; open deadH &amp; get all deadH &amp; drop deadH')</script>
 				<command></command>
 				<packageName></packageName>
 				<regex>^sort halfling junk$</regex>
@@ -2466,7 +2467,7 @@ send('drop all.banded.armor, all.cloth.robe, all.maple.staff, all.bronze.scale, 
 			</Alias>
 			<Alias isActive="yes" isFolder="no">
 				<name>^sort stonies junk$</name>
-				<script>send('give all.thimb, all.rag, all.coin, all.pillow ' .. group.leader)
+				<script>send('give all.thimb, all.rag, all.coin, all.yeti.pillow ' .. group.leader)
 send('drop all.thick.deer.skin &amp; drop all.frying &amp; drop all.apron &amp; drop all.dress &amp; drop all.slab &amp; drop all.berries')</script>
 				<command></command>
 				<packageName></packageName>

@@ -2228,6 +2228,8 @@ saveProfile()
 -- uninstall the generic mapper
 uninstallPackage("generic_mapper")
 
+
+
 -- download and install latest tfe mapper
 local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/tfe-mapper.xml"
 common.onNextEvent("sysDownloadDone", function (_, f)
@@ -2235,27 +2237,40 @@ common.onNextEvent("sysDownloadDone", function (_, f)
     return 
   end
   uninstallPackage("tfe-mapper")
-  installPackage(f)
-  os.remove(f)
-  cecho("&lt;lime_green&gt;Package installed!\n") 
-  
-  -- install map
-  -- download and install latest tfe mapper
-    local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/njs50-map.dat"
-    common.onNextEvent("sysDownloadDone", function (_, f)
-      if not f:find("njs50-map", 1, true) then 
-        return 
-      end
-      local loadOK = loadMap(f)
-      if not loadOK then
-       cecho("&lt;red&gt;INSTALL: &lt;white&gt;Couldn't load - was the mapper open? :(\n")
-      else
-        cecho("&lt;green&gt;INSTALL: &lt;white&gt;Loaded fine!\n")
-      end
-      os.remove(f)
-    end)
-    downloadFile(getMudletHomeDir()..(URL:ends("dat") and "/njs50-map.dat"), URL)
-  
+  tempTimer(2, function()
+    installPackage(f)
+    os.remove(f)
+    cecho("&lt;lime_green&gt;Package installed!\n") 
+    
+    -- install map
+    -- download and install latest tfe mapper
+      local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/njs50-map.dat"
+      common.onNextEvent("sysDownloadDone", function (_, f)
+        if not f:find("njs50-map", 1, true) then 
+          return 
+        end
+        local loadOK = loadMap(f)
+        if not loadOK then
+         cecho("&lt;red&gt;INSTALL: &lt;white&gt;Couldn't load - was the mapper open? :(\n")
+        else
+          cecho("&lt;green&gt;INSTALL: &lt;white&gt;Loaded fine!\n")
+        end
+        os.remove(f)
+        
+        -- install dark theme
+        local downloaded_package = function(a,b)
+          if not b:find("DarkTheme",1,true)then return end 
+          installPackage(b)
+          os.remove(b)
+        end 
+        
+        common.onNextEvent("sysDownloadDone", downloaded_package)
+        
+        downloadFile(getMudletHomeDir().."/DarkTheme.mpackage","https://forums.mudlet.org/download/file.php?id=1783&amp;sid=fb6b2766fa87fccdb1acffcd8cc9cf91")
+        
+      end)
+      downloadFile(getMudletHomeDir()..(URL:ends("dat") and "/njs50-map.dat"), URL)
+  end)
   
 end)
 downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/tfe-mapper.xml" or "/tfe-mapper.zip"), URL)
@@ -2311,9 +2326,11 @@ local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-ple
 common.onNextEvent("sysDownloadDone", function (_, f)
   if not f:find("njs50-plev", 1, true) then return end
   uninstallPackage("njs50-plev")
-  installPackage(f)
-  os.remove(f)
-  cecho("&lt;lime_green&gt;njs50-plev updated!\n")
+  tempTimer(2, function() 
+    installPackage(f)
+    os.remove(f)
+    cecho("&lt;lime_green&gt;njs50-plev updated!\n")
+  end)
 end)
 
 downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/njs50-plev.xml" or "/njs50-plev.zip"), URL)</script>

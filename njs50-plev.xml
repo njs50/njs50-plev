@@ -3329,7 +3329,7 @@ common.comeToMe = function (callback)
 		mapper.paused = true
 
   	atTrig = tempRegexTrigger([[^.+ tells the group[^:]*: "(\w+) is now at (\d+)"]], function ()
-  		if (tostring(common.roomId) == matches[3]) then
+  		if (tostring(tfe.roomInfo.vnum) == matches[3]) then
 
 				roll[matches[2]] = true
 
@@ -3342,12 +3342,12 @@ common.comeToMe = function (callback)
 
 			else
 				send('mutter')
-				send('gt ' .. matches[2] .. ' go to ' .. tostring(common.roomId))
+				send('gt ' .. matches[2] .. ' go to ' .. tostring(tfe.roomInfo.vnum))
 			end
 
   	end)
 
-		send('gt meet at ' .. tostring(common.roomId))
+		send('gt meet at ' .. tostring(tfe.roomInfo.vnum))
 
 
 	end, 'comeToMe')
@@ -3968,6 +3968,12 @@ murder.clearIdleScanTimer = function()
 	end
 end
 </script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>last script (to trigger dependencies!)</name>
+			<packageName></packageName>
+			<script>raiseEvent('njs50PlevLoaded')</script>
 			<eventHandlerList />
 		</Script>
 	</ScriptPackage>

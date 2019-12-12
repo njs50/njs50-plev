@@ -2259,32 +2259,41 @@ end)
 downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/tfe-mapper.xml" or "/tfe-mapper.zip"), URL)
 
 
--- set options
-
-send('color columns 150')
-send('color lines 150')
-expandAlias("setOption Numerical.Damage true")
-expandAlias("setOption Auto.Assist true")
-expandAlias("setOption Join.Fight true")
-expandAlias("setOption Numeric true")
-expandAlias("setOption Show.Language false")
-send('opt autoscan 3')
-send('opt autoloot 3')
-send('opt room.info 1')
 
 
--- set prompt
-
-send("prompt ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;")
-
--- setup aliases
-send('alias *ef eat food &amp; eat food &amp; drop all.food &amp; get 4*food')
-send('alias *dw drink ' .. player.vessel)
-
-
-tempTimer(10, function()
-  cecho("\n\n&lt;green&gt;INSTALL: &lt;white&gt;Install complete?! - it might be a good idea to restart mudlet\n\n\n")
-end)</script>
+common.onNextEvent('njs50PlevLoaded', function()
+  -- set options
+  
+  common.initPlayer()
+  
+  tempTimer(2, function()
+    
+    send('color columns 150')
+    send('color lines 150')
+    expandAlias("setOption Numerical.Damage true")
+    expandAlias("setOption Auto.Assist true")
+    expandAlias("setOption Join.Fight true")
+    expandAlias("setOption Numeric true")
+    expandAlias("setOption Show.Language false")
+    send('opt autoscan 3')
+    send('opt autoloot 3')
+    send('opt room.info 1')
+    
+    
+    -- set prompt
+    
+    send("prompt ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;")
+    
+    -- setup aliases
+    send('alias *ef eat food &amp; eat food &amp; drop all.food &amp; get 4*food')
+    send('alias *dw drink ' .. player.vessel)
+  end)  
+  
+  tempTimer(5, function()
+    cecho("\n\n&lt;green&gt;INSTALL: &lt;white&gt;Install complete?! - it might be a good idea to restart mudlet\n\n\n")
+  end)
+  
+ end, true)</script>
 				<command></command>
 				<packageName></packageName>
 				<regex>^plev install$</regex>

@@ -130,161 +130,6 @@ end
 				<integer>1</integer>
 			</regexCodePropertyList>
 		</Trigger>
-		<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-			<name>dead thing</name>
-			<script>-- send('skin corpse &amp; eat corpse &amp; get all &amp; drop all.corpse')
--- hope you are a troll or orc!
-send('eat corpse')
-</script>
-			<triggerType>0</triggerType>
-			<conditonLineDelta>0</conditonLineDelta>
-			<mStayOpen>0</mStayOpen>
-			<mCommand></mCommand>
-			<packageName></packageName>
-			<mFgColor>#ff0000</mFgColor>
-			<mBgColor>#ffff00</mBgColor>
-			<mSoundFile></mSoundFile>
-			<colorTriggerFgColor>#000000</colorTriggerFgColor>
-			<colorTriggerBgColor>#000000</colorTriggerBgColor>
-			<regexCodeList>
-				<string>^You receive \d+ experience points.</string>
-			</regexCodeList>
-			<regexCodePropertyList>
-				<integer>1</integer>
-			</regexCodePropertyList>
-		</Trigger>
-		<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-			<name>get full</name>
-			<script>player.gettingFull = player.gettingFull or false
-
-if (not player.gettingFull) then 
-	player.gettingFull = true
-  send('ef &amp; dw &amp; dismount')
-  
-  tempTimer(2, function () 
-  	send('sit couch &amp; sit chair &amp; sit pad &amp; sit boulder')
-  	expandAlias('sl')
-  	common.onFull( function () 
-			expandAlias('st')
-      send('mount')
-    	-- expandAlias('give all.coin batso &amp; drop all.food &amp; get 2*food')
-      
-  		tempTimer(3, function ()
-				player.gettingFull = false
-  			expandAlias('gt ready (' .. player.name .. ')')
-  		end)
-    		
-    end)
-  end)
-	
-else	
-	cecho('\n&lt;green&gt;PREP: &lt;white&gt;already getting full\n')
-end
-
-</script>
-			<triggerType>0</triggerType>
-			<conditonLineDelta>0</conditonLineDelta>
-			<mStayOpen>0</mStayOpen>
-			<mCommand></mCommand>
-			<packageName></packageName>
-			<mFgColor>#ff0000</mFgColor>
-			<mBgColor>#ffff00</mBgColor>
-			<mSoundFile></mSoundFile>
-			<colorTriggerFgColor>#000000</colorTriggerFgColor>
-			<colorTriggerBgColor>#000000</colorTriggerBgColor>
-			<regexCodeList>
-				<string>^.* tells? (?:your|the) group[^:]*: "(pfull|get full)"</string>
-			</regexCodeList>
-			<regexCodePropertyList>
-				<integer>1</integer>
-			</regexCodePropertyList>
-		</Trigger>
-		<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-			<name>get full if under x%</name>
-			<script>local amt =  tonumber(matches[3]) / 100
-
-local player = group[player.name]
-
-local getFull = false
-
-	
-local pFullTrig = tempRegexTrigger([[^\w+ tells the group[^:]*: "getting full"]], function ()
-	getFull = true
-	send('gt righto')
-end, 1)	
-	
-	
-tempTimer(3, function () 
-
-	killTrigger(pFullTrig)
-
-	if (getFull) then
-  
-  	send('sit couch &amp; sit chair &amp; sit pad &amp; sit boulder')
-  	expandAlias('sl')
-  	common.onFull( function () 
-  		expandAlias('st')
-
-  		tempTimer(3, function ()
-  			player.gettingFull = false
-  			expandAlias('gt ready (' .. player.name .. ')')
-  		end)
-    		
-    end)
-	
-	else	
-	
-		send('gt ready (Myrth)')
-		
-	end
-	
-	
-end)
- 
-</script>
-			<triggerType>0</triggerType>
-			<conditonLineDelta>0</conditonLineDelta>
-			<mStayOpen>0</mStayOpen>
-			<mCommand></mCommand>
-			<packageName></packageName>
-			<mFgColor>#ff0000</mFgColor>
-			<mBgColor>#ffff00</mBgColor>
-			<mSoundFile></mSoundFile>
-			<colorTriggerFgColor>#000000</colorTriggerFgColor>
-			<colorTriggerBgColor>#000000</colorTriggerBgColor>
-			<regexCodeList>
-				<string>^.* tells? (your|the) group[^:]*: "get full if under (\d+)% mana"</string>
-			</regexCodeList>
-			<regexCodePropertyList>
-				<integer>1</integer>
-			</regexCodePropertyList>
-		</Trigger>
-		<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-			<name>snack break</name>
-			<script>local vessel = player.vessel or 'leather.waterskin'
-
-send('drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; queue give empty.' .. vessel .. ' ' .. group.leader)
-send('queue gt fill my ' .. vessel)
-send('gt snack me')
-send('eat food &amp; eat food &amp; eat food &amp; eat food')
-send('drop all.food &amp; get 4*food')</script>
-			<triggerType>0</triggerType>
-			<conditonLineDelta>0</conditonLineDelta>
-			<mStayOpen>0</mStayOpen>
-			<mCommand></mCommand>
-			<packageName></packageName>
-			<mFgColor>#ff0000</mFgColor>
-			<mBgColor>#ffff00</mBgColor>
-			<mSoundFile></mSoundFile>
-			<colorTriggerFgColor>#000000</colorTriggerFgColor>
-			<colorTriggerBgColor>#000000</colorTriggerBgColor>
-			<regexCodeList>
-				<string>^.* tells the group[^:]*:\s+"snack break"$</string>
-			</regexCodeList>
-			<regexCodePropertyList>
-				<integer>1</integer>
-			</regexCodePropertyList>
-		</Trigger>
 		<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 			<name>parsing stuff</name>
 			<script></script>
@@ -1211,6 +1056,161 @@ end</script>
 				</regexCodeList>
 				<regexCodePropertyList>
 					<integer>2</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>get full if under x%</name>
+				<script>local amt =  tonumber(matches[3]) / 100
+
+local player = group[player.name]
+
+local getFull = false
+
+	
+local pFullTrig = tempRegexTrigger([[^\w+ tells the group[^:]*: "getting full"]], function ()
+	getFull = true
+	send('gt righto')
+end, 1)	
+	
+	
+tempTimer(3, function () 
+
+	killTrigger(pFullTrig)
+
+	if (getFull) then
+  
+  	send('sit couch &amp; sit chair &amp; sit pad &amp; sit boulder')
+  	expandAlias('sl')
+  	common.onFull( function () 
+  		expandAlias('st')
+
+  		tempTimer(3, function ()
+  			player.gettingFull = false
+  			expandAlias('gt ready (' .. player.name .. ')')
+  		end)
+    		
+    end)
+	
+	else	
+	
+		send('gt ready (Myrth)')
+		
+	end
+	
+	
+end)
+ 
+</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^.* tells? (your|the) group[^:]*: "get full if under (\d+)% mana"</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>get full</name>
+				<script>player.gettingFull = player.gettingFull or false
+
+if (not player.gettingFull) then 
+	player.gettingFull = true
+  send('ef &amp; dw &amp; dismount')
+  
+  tempTimer(2, function () 
+  	send('sit couch &amp; sit chair &amp; sit pad &amp; sit boulder')
+  	expandAlias('sl')
+  	common.onFull( function () 
+			expandAlias('st')
+      send('mount')
+    	-- expandAlias('give all.coin batso &amp; drop all.food &amp; get 2*food')
+      
+  		tempTimer(3, function ()
+				player.gettingFull = false
+  			expandAlias('gt ready (' .. player.name .. ')')
+  		end)
+    		
+    end)
+  end)
+	
+else	
+	cecho('\n&lt;green&gt;PREP: &lt;white&gt;already getting full\n')
+end
+
+</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^.* tells? (?:your|the) group[^:]*: "(pfull|get full)"</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>dead thing</name>
+				<script>-- send('skin corpse &amp; eat corpse &amp; get all &amp; drop all.corpse')
+-- hope you are a troll or orc!
+send('eat corpse')
+</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^You receive \d+ experience points.</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>snack break</name>
+				<script>local vessel = player.vessel or 'leather.waterskin'
+
+send('drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; queue give empty.' .. vessel .. ' ' .. group.leader)
+send('queue gt fill my ' .. vessel)
+send('gt snack me')
+send('eat food &amp; eat food &amp; eat food &amp; eat food')
+send('drop all.food &amp; get 4*food')</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^.* tells the group[^:]*:\s+"snack break"$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
 				</regexCodePropertyList>
 			</Trigger>
 		</TriggerGroup>

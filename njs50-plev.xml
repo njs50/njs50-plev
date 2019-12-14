@@ -1319,8 +1319,14 @@ end</script>
 
 if (player.caster) then
 	
+  disableTrigger('empty juice')
+  
   send('cast create water ' .. vessel)
   send('drink ' .. vessel)
+  
+  tempTimer(3, function()
+    enableTrigger('empty juice')
+  end)
 
 else
 	
@@ -2447,10 +2453,10 @@ commands[matches[2]]()</script>
 			<Alias isActive="yes" isFolder="no">
 				<name>sort halfling junk</name>
 				<script>send('drop all.brown.pants, all.studd.leather, all.homespun.blue, all.bron.ham, all.steel.short, all.ragg.pant, all.simp.mug' ..
-	 	'leath.journ, all.wood.shield, all.high.hard, all.wood.shield, all.leather.armor, all.wood.spear,')
+	 	'leath.journ, all.wood.shield, all.high.hard, all.wood.shield, all.leather.armor, all.wood.spear, all.wolf.skin')
 		
 send('drop all.banded.armor, all.cloth.robe, all.maple.staff, all.bronze.scale, all.meat.cleaver, all.iron.two-, all.bron.two-,' ..
-		 'all.decrep.armor, all.steel.two-, all.hatchet, all.mug.simple, all.old.boot')
+		 'all.decrep.armor, all.steel.two-, all.hatchet, all.mug.simple, all.old.boot, all.leather.journal')
 		
 send('label saddleb as deadHalfies &amp; open deadH &amp; get all deadH &amp; drop deadH')</script>
 				<command></command>
@@ -4092,7 +4098,7 @@ murder.idleScanner = function ()
 
 	murder.clearIdleScanTimer()
 	
-	if (murder.enabledif and not murder.speedwalking) then
+	if (murder.enabled and not murder.speedwalking) then
   	cecho('\n&lt;green&gt;MURDER: &lt;white&gt;started idle scan timer!\n')
   	murder.idleTimer = tempTimer(10, function ()
   		cecho('\n&lt;orange&gt;MURDER: &lt;white&gt;scannign due to idle for 10s!\n')

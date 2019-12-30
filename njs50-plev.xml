@@ -2402,11 +2402,18 @@ combat.target = ''
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>unassigned damage</name>
 					<script>
+-- removing things with 's in em due to tyrant's wife
+
+-- ^((\S+).*?) (\** ?\w+ ?\**) \[(\d+)\]\s*((\S+).*)'s.*[!.]\s+\[\s+(.*?)\s+\]$
+
+
 -- these should be legit:
 
 -- The sword's thrust devastates [25] a beautiful witch!  [ slightly scratched ]
 -- A raging inferno *** DISINTEGRATES *** [437] a blue-skinned demon!  [ bleeding freely ]
 -- Your fire shield singes [1] a flying snake.  [ several wounds ]
+
+-- A raging inferno ** INCINERATES ** [278] a tyrant's wife!
 
 
 
@@ -2523,11 +2530,9 @@ end
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^((\S+).*?) (\** ?\w+ ?\**) \[(\d+)\]\s*((\S+).*)'s.*[!.]\s+\[\s+(.*?)\s+\]$</string>
 						<string>^((\S+).*?) (\** ?\w+ ?\**) \[(\d+)\]\s*((\S+).*)[!.]\s+\[\s+(.*?)\s+\]$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
-						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
@@ -2720,6 +2725,42 @@ uninstallPackage("generic_mapper")
 
 
 
+local finishInstall = function()
+  -- set options
+  
+  common.initPlayer()
+  
+  tempTimer(2, function()
+    
+    send('color columns 150')
+    send('color lines 150')
+    expandAlias("setOption Auto.Assist true")
+    expandAlias("setOption Numeric true")
+    expandAlias("setOption Numerical.Damage true")
+    expandAlias("setOption Auto.Assist true")
+    expandAlias("setOption Join.Fight true")
+    expandAlias("setOption Show.Language false")
+    send('opt autoscan 3')
+    send('opt autoloot 3')
+    send('opt room.info 1')
+    
+    
+    -- set prompt
+    
+    send("prompt ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;")
+    
+    -- setup aliases
+    send('alias *ef eat food &amp; eat food &amp; drop all.food &amp; get 4*food')
+    send('alias *dw drink ' .. player.vessel)
+  end)  
+  
+  tempTimer(5, function()
+    cecho("\n\n&lt;green&gt;INSTALL: &lt;white&gt;Install complete?! - it might be a good idea to restart mudlet\n\n\n")
+  end)
+  
+ end
+
+
 -- download and install latest tfe mapper
 local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/tfe-mapper.xml"
 common.onNextEvent("sysDownloadDone", function (_, f)
@@ -2752,6 +2793,9 @@ common.onNextEvent("sysDownloadDone", function (_, f)
           if not b:find("DarkTheme",1,true)then return end 
           installPackage(b)
           os.remove(b)
+          
+          finishInstall()
+          
         end 
         
         common.onNextEvent("sysDownloadDone", downloaded_package)
@@ -2766,41 +2810,7 @@ end)
 downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/tfe-mapper.xml" or "/tfe-mapper.zip"), URL)
 
 
-
-
-common.onNextEvent('njs50PlevLoaded', function()
-  -- set options
-  
-  common.initPlayer()
-  
-  tempTimer(2, function()
-    
-    send('color columns 150')
-    send('color lines 150')
-    expandAlias("setOption Numerical.Damage true")
-    expandAlias("setOption Auto.Assist true")
-    expandAlias("setOption Join.Fight true")
-    expandAlias("setOption Numeric true")
-    expandAlias("setOption Show.Language false")
-    send('opt autoscan 3')
-    send('opt autoloot 3')
-    send('opt room.info 1')
-    
-    
-    -- set prompt
-    
-    send("prompt ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;")
-    
-    -- setup aliases
-    send('alias *ef eat food &amp; eat food &amp; drop all.food &amp; get 4*food')
-    send('alias *dw drink ' .. player.vessel)
-  end)  
-  
-  tempTimer(5, function()
-    cecho("\n\n&lt;green&gt;INSTALL: &lt;white&gt;Install complete?! - it might be a good idea to restart mudlet\n\n\n")
-  end)
-  
- end, true)</script>
+</script>
 				<command></command>
 				<packageName></packageName>
 				<regex>^plev install$</regex>
@@ -3092,78 +3102,72 @@ end
 common.initPlayer = function ()
 
 	echo('\n\nINITIAL STATUS CHECK\n\n')
+ 
+	player.name = gmcp.Char.Score.name
+
+
+	if not (player.scripts and player.scripts[player.name]) then
+    echo('\nSetting  default player script for ' .. player.name .. '!\n')
+    player.scripts[player.name] = player.defaultConfig
+	end
   
+		echo('\nRunning player script for ' .. player.name .. '!\n')
+		player.scripts[player.name]()
+
+	-- if (not common.topContainer) then
+		
+		-- init windows
+    common.topContainer = Geyser.Container:new({
+      name = "top_container",    -- give it a unique name here
+			x=0,
+			y=0,                   
+      width = "100%", 
+			color = "green",
+			height="25%",
+    })
+		
+		common.mapContainer = Geyser.Container:new({
+      name = "map_container",    -- give it a unique name here
+			x=0,
+			y=0,                   
+      width = "40%", 
+			height="100%",
+    }, common.topContainer)
+		
+		common.chatContainer = Geyser.Container:new({
+      name = "chat_container",    -- give it a unique name here
+			x="40%",
+			y=0,                   
+      width = "60%", 
+			height="100%",
+    }, common.topContainer)
+		
+				-- init windows
+    common.mapper = Geyser.Mapper:new({
+      name = "geyser_map",    -- give it a unique name here
+			x="2%",
+			y="2%",                   
+      width = "96%", 
+			height="96%",
+    }, common.mapContainer)
+		
+    common.chatConsole = Geyser.MiniConsole:new({
+      name = "geyser_chat",    -- give it a unique name here
+			x="2%",
+			y="2%",                   
+      width = "96%", 
+			height="96%",
+			autoWrap = true,
+      color = "black",
+      scrollBar = true,
+      fontSize = 14,
+    }, common.chatContainer)
+		
+	-- end
   
-	
-	
-	-- GET PLAYER NAME
-  timedTempTrigger(5, 1, [[^\s*([A-Z][a-z]+)\s*$]], function ()
-		-- echo('\ncharacter is: [' .. matches[2] .. ']\n')
-		player.name = matches[2]
+  echo('\n\nloading gear sets. if it fails you should do luaSaveGearSet("default") to save a default set\n\n')
+  loadSavedGearSets()
 
-		if not (player.scripts and player.scripts[player.name]) then
-      echo('\nSetting  default player script for ' .. player.name .. '!\n')
-      player.scripts[player.name] = player.defaultConfig
-		end
-    
-			echo('\nRunning player script for ' .. player.name .. '!\n')
-			player.scripts[player.name]()
-
-		-- if (not common.topContainer) then
-  		
-			-- init windows
-      common.topContainer = Geyser.Container:new({
-        name = "top_container",    -- give it a unique name here
-  			x=0,
-  			y=0,                   
-        width = "100%", 
-				color = "green",
-  			height="25%",
-      })
-			
-			common.mapContainer = Geyser.Container:new({
-        name = "map_container",    -- give it a unique name here
-  			x=0,
-  			y=0,                   
-        width = "40%", 
-  			height="100%",
-      }, common.topContainer)
-			
-			common.chatContainer = Geyser.Container:new({
-        name = "chat_container",    -- give it a unique name here
-  			x="40%",
-  			y=0,                   
-        width = "60%", 
-  			height="100%",
-      }, common.topContainer)
-  		
-  				-- init windows
-      common.mapper = Geyser.Mapper:new({
-        name = "geyser_map",    -- give it a unique name here
-  			x="2%",
-  			y="2%",                   
-        width = "96%", 
-  			height="96%",
-      }, common.mapContainer)
-  		
-      common.chatConsole = Geyser.MiniConsole:new({
-        name = "geyser_chat",    -- give it a unique name here
-  			x="2%",
-  			y="2%",                   
-        width = "96%", 
-  			height="96%",
-  			autoWrap = true,
-        color = "black",
-        scrollBar = true,
-        fontSize = 14,
-      }, common.chatContainer)
-  		
-		-- end
-    
-    echo('\n\nloading gear sets. if it fails you should do luaSaveGearSet("default") to save a default set\n\n')
-    loadSavedGearSets()
-
-	end)
 
 	send('score &amp; eq &amp; group &amp; inv &amp; typo &amp; prep')
 
@@ -3723,7 +3727,7 @@ combat.startTimer = function ()
 		combat.clear_timer = nil
 		cecho('&lt;green&gt;&lt;-- CLEAR !!! \n')
 		if (player.position == 'standing') then
-			send('scan')
+			send('queue level &amp; queue scan')
 		end	
 	end, 'combat clear timer')
 end
@@ -3819,7 +3823,7 @@ combat.remove = function() -- mob
   	if (combat.mobs == 0) then
   		combat.active = false
   		echo(' -=[ PEACE ]=-')
-			send('scan')
+			send('queue level &amp; queue scan')
   		raiseEvent(common.events.COMBAT_ENDED)
   		combat.startTimer()			
   	end

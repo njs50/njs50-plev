@@ -1386,7 +1386,7 @@ local vessel = common.dotCase(matches[2])
 if (player.caster) then
   
   if (common and common.getManaAndCast) then
-    
+    send('remove blanket')
     common.getManaAndCast(10, 'create water', vessel, false, function ()
     	send('drink ' .. vessel)
     end)
@@ -1394,10 +1394,10 @@ if (player.caster) then
   else
   
     timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function () 
-  		send('stand &amp; empty ' .. vessel .. ' &amp; cast create water .. ' .. vessel .. ' &amp; sleep')
+  		send('stand &amp; remove blanket &amp; empty ' .. vessel .. ' &amp; cast create water .. ' .. vessel .. ' &amp; wear blanket &amp; sleep')
     end)
   
-    send('cast create water ' .. vessel)
+    send('remove blanket &amp; cast create water ' .. vessel)
     send('drink ' .. vessel)
     
   end
@@ -1433,11 +1433,11 @@ end
 if player.caster and matches[3] ~= 'water' then
 
   timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function () 
-		send('stand &amp; empty ' .. vessel .. ' &amp; cast create water .. ' .. vessel .. ' &amp; sleep')
+		send('stand &amp; remove blanket &amp; empty ' .. vessel .. ' &amp; cast create water .. ' .. vessel .. ' &amp; wear blanket &amp; sleep')
   end)
 	
 	send('empty ' .. vessel)
-  send('cast create water ' .. vessel)
+  send('remove blanket &amp; cast create water ' .. vessel)
 
 else 
 
@@ -1602,6 +1602,38 @@ end</script>
 					<regexCodePropertyList>
 						<integer>2</integer>
 						<integer>2</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>sprawling</name>
+					<script>disableTrigger('sprawling')
+send('stand &amp; ord all stand &amp; k &amp; l')
+tempTimer(2, function () enableTrigger('sprawling') end)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^A(n)? .* sends you sprawling on the ground!</string>
+						<string>^A(n)? .* delivers a quick kick, knocking you down to the ground!</string>
+						<string>^Perhaps you should stand first.</string>
+						<string>^The fall .* you!</string>
+						<string>^.* knocks you head over heels!$</string>
+						<string>^You fall</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
 			</TriggerGroup>
@@ -2950,9 +2982,11 @@ commands[matches[2]]()</script>
 	 	'leath.journ, all.wood.shield, all.high.hard, all.wood.shield, all.leather.armor, all.wood.spear, all.wolf.skin')
 		
 send('drop all.banded.armor, all.cloth.robe, all.maple.staff, all.bronze.scale, all.meat.cleaver, all.iron.two-, all.bron.two-,' ..
-		 'all.decrep.armor, all.steel.two-, all.hatchet, all.mug.simple, all.old.boot, all.leather.journal')
+		 'all.decrep.armor, all.steel.two-, all.hatchet, all.mug.simple, all.old.boot, all.leather.journal, short.ash.staff')
 		
-send('label saddleb as deadHalfies &amp; open deadH &amp; get all deadH &amp; drop deadH')</script>
+send('label saddleb as deadHalfies &amp; open deadH &amp; get all deadH &amp; drop deadH &amp; get all.leather.cord')
+
+send('give all.silver.coin, all.copper.coin to mojune')</script>
 				<command></command>
 				<packageName></packageName>
 				<regex>^sort halfling junk$</regex>

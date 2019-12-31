@@ -1862,6 +1862,7 @@ end</script>
   Darion = true,
   Darius = true,
   Grehild = true,
+  Bimgore = true,
 }
 
 
@@ -4038,6 +4039,7 @@ common.newRollCall = function (excludeSelf)
     Grehild = true,
     Darion = true,
     Darius = true,
+    Bimgore = true,
   }
 
 	for name, value in pairs(group.members) do
@@ -4524,6 +4526,87 @@ common.toMurderString = function (victim)
 	victim = rex.gsub(victim, [[\.$]], '')
 
 	return victim
+
+end
+</script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>status checks / prep</name>
+			<packageName></packageName>
+			<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external Scripts --
+-------------------------------------------------
+
+common.getAffects =  function (cb)
+	common.onNextEvent(common.events.PARSED_AFFECTS, function (evt, affects)
+		cb(affects)
+	end)
+	send('affects')
+end
+
+common.onClear = function(action)
+	common.onNextEvent(common.events.ROOM_CLEAR, action)
+end
+
+
+common.checkShields = function (cbGood, cbBad)
+
+
+  -- Affect                                            Source
+  -- 
+  -- ------                                            ------
+  -- You sense a divine protection.                    leech: a male vyan
+  -- You feel righteous.                               leech: a male vyan
+	
+	local affectWatcher = nil
+	
+	local tempAffects = false
+	local affectCount = 0
+	
+	local okayTempAffects = {
+		['You feel sick!'] = true,
+		['Your battlemind is divinely focused.'] = true,
+		['You are embraced by earthen protection.'] = true,
+	}
+
+	common.getAffects( function (affects)
+
+
+
+		for affect, source in pairs(affects) do
+		
+
+
+  	
+  		if (source == 'temporary') then
+  			-- earthen protection is always tempporary				
+  			if not okayTempAffects[affect] then
+  				cecho('&lt;white&gt;--== &lt;red&gt;expiring : ' .. affect .. ' &lt;white&gt; =-\n')
+  				tempAffects = true
+  			end
+  			
+  		end
+  		affectCount = affectCount + 1
+			
+		end
+		
+		if (tempAffects) then
+			cecho('\n&lt;red&gt;WARNING: &lt;white&gt;Affects Checked!, some shields will expire!\n')
+			if (cbBad) then
+				cbBad(player.affects)
+			end
+		else
+			cecho('\n&lt;green&gt;Affects Checked!, ' .. tostring(affectCount) .. ' affects are good\n')
+			if (cbGood) then
+				cbGood(player.affects)
+			end
+		end
+		
+	end)
+		
 
 end
 </script>

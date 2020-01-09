@@ -1863,6 +1863,7 @@ end</script>
   Darius = true,
   Grehild = true,
   Bimgore = true,
+  Eluard = true,
 }
 
 
@@ -2701,7 +2702,7 @@ local attackData = {
   subject = subject,
   move = matches[3],
   mob = matches[5],
-  damge = tonumber(matches[6]),
+  damage = tonumber(matches[6]),
   damageType = 'melee',
 }
 
@@ -2726,6 +2727,53 @@ end</script>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>player hit</name>
+					<script>-- The flying pages MUTILATE [64] Darion!  [ some cuts ]
+-- A palace librarian's quick bite MUTILATES [66] Darion's body!  [ some cuts ]
+
+-- An orcish palace servant's wild kick MUTILATES [57] your hand!
+
+-- The boiling water * IMMOLATES * [116] you!
+
+
+local subject = matches[3]
+local amount = tonumber(matches[2])
+
+if (subject == 'you' or subject == 'your') then
+  subject = player.name
+end
+
+if (group.members[subject]) then
+  
+  local attackData = {
+    subject = subject,
+    amount = amount,
+  }
+
+  raiseEvent(common.events.COMBAT_PLAYER_HIT, attackData)
+end
+
+
+
+</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#133d0e</mFgColor>
+					<mBgColor>#d9f413</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>\[(\d+)\]\s+(\w+?)['.! ]</string>
+					</regexCodeList>
+					<regexCodePropertyList>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
@@ -3622,6 +3670,7 @@ common.events = {
 	COMBAT_ENDED = 'COMMON::combat_ended',
 	COMBAT_STARTED = 'COMMON::combat_started',
   COMBAT_ATTACK = 'COMMON:: combat_attack',
+  COMBAT_PLAYER_HIT = 'COMMON:: combat_player_hit',
 	WALK_DONE = 'COMMON::speedwalk_completed',
 	ROOM_CLEAR = 'COMMON::current_room_is_clear',
 	PARRY_STATE_CHANGE = 'COMMON::parry_state_change',

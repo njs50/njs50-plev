@@ -2804,9 +2804,9 @@ saveProfile()
 -- uninstall the generic mapper
 uninstallPackage("generic_mapper")
 
+njs50plev = njs50plev or {}
 
-
-local finishInstall = function()
+njs50plev.finishInstall = function()
   -- set options
   
   common.initPlayer()
@@ -2875,7 +2875,7 @@ common.onNextEvent("sysDownloadDone", function (_, f)
           installPackage(b)
           os.remove(b)
           
-          finishInstall()
+          njs50plev.finishInstall()
           
         end 
         

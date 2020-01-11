@@ -2856,7 +2856,7 @@ common.onNextEvent("sysDownloadDone", function (_, f)
     
     -- install map
     -- download and install latest tfe mapper
-      local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/njs50-map.dat"
+      local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-map.dat"
       common.onNextEvent("sysDownloadDone", function (_, f)
         if not f:find("njs50-map", 1, true) then 
           return 

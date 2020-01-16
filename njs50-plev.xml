@@ -2807,11 +2807,12 @@ uninstallPackage("generic_mapper")
 njs50plev = njs50plev or {}
 
 njs50plev.finishInstall = function()
-  -- set options
   
   common.initPlayer()
   
   tempTimer(2, function()
+	
+		saveGearSet('default')
     
     send('color columns 150')
     send('color lines 150')
@@ -3334,7 +3335,15 @@ end
 
 function loadSavedGearSets () 
 	player.gearSets = {}
-	table.load(getMudletHomeDir() .. "/gearsets.dat", player.gearSets)	
+	
+	local gearFile = getMudletHomeDir() .. "/gearsets.dat"
+	
+	local is_file = io.open(gearFile)
+	
+	if (is_file ~= nil) then
+		table.load(gearFile, player.gearSets)
+	end
+	
 end
 
 

@@ -1604,7 +1604,7 @@ end</script>
 						<integer>2</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>sprawling</name>
 					<script>disableTrigger('sprawling')
 send('stand &amp; ord all stand &amp; k &amp; l')
@@ -2747,7 +2747,7 @@ if (subject == 'you' or subject == 'your') then
   subject = player.name
 end
 
-if (group.members[subject]) then
+if (group.members and group.members[subject]) then
   
   local attackData = {
     subject = subject,
@@ -2771,7 +2771,7 @@ end
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>\[(\d+)\]\s+(\w+?)['.! ]</string>
+						<string>\S+\s+\[(\d+)\]\s+(\w+?)['.! ]</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -3174,7 +3174,7 @@ player.defaultConfig = function ()
 	player.bag = 'backpack.holding'
 	player.pack = 'black.silk.bag'
   player.vessel = 'leather.waterskin'
-  player.hasFoodBasket = 'false'
+  player.hasFoodBasket = false
 	player.caster = false
 	player.gearSet = 'default'
 

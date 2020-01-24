@@ -713,7 +713,14 @@ end
 if (murder.sleepMode == 'next') then
 	
 	send('gt pause')
-	murder.sleepMode = 'chopping'
+	
+	-- go straight to dance mode if our threshold is 100%
+	-- looking at you charging warriors / assasinating thieves
+	if (player.dance_threshold == 1) then
+		murder.sleepMode = 'dancing'
+	else
+		murder.sleepMode = 'chopping'
+	end
 
 end
 
@@ -1735,6 +1742,30 @@ end</script>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>^(An? .+?|The .+?|\w+) tells the group[^:]*: "(\w+) go to (\d+)"</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>where are you</name>
+					<script>local pname = matches[3]
+
+if (pname == "" or pname == player.name) then
+   send('gt ' .. player.name .. ' is at ' .. tostring(tfe.roomInfo.vnum))
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^(An? .+?|The .+?|\w+) tells the group[^:]*: "(\w*) ?where are you\?"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -3159,6 +3190,30 @@ end</script>
 				<regex>^gear-save (.*)</regex>
 			</Alias>
 		</AliasGroup>
+		<AliasGroup isActive="yes" isFolder="yes">
+			<name>misc</name>
+			<script></script>
+			<command></command>
+			<packageName></packageName>
+			<regex></regex>
+			<Alias isActive="yes" isFolder="no">
+				<name>display gates</name>
+				<script>cecho('\n&lt;green&gt;Brithbarad &lt;white&gt;&gt; Outback')
+cecho('\n&lt;green&gt;Chiiron &lt;white&gt;&gt; Wayward')
+cecho('\n&lt;green&gt;Medienne &lt;white&gt;&gt; Knight')
+cecho('\n&lt;green&gt;Kha-da &lt;white&gt;&gt; Cairn')
+cecho('\n&lt;green&gt;Voaleth &lt;white&gt;&gt; Whisper')
+cecho('\n&lt;green&gt;Vaasa &lt;white&gt;&gt; Blade')
+cecho('\n&lt;green&gt;Pennan &lt;white&gt;&gt; Hollow')
+cecho('\n&lt;green&gt;Narak &lt;white&gt;&gt; Corsair')
+cecho('\n&lt;green&gt;Sos-kul &lt;white&gt;&gt; Fire')
+cecho('\n&lt;green&gt;Orlumber &lt;white&gt;&gt; Midnight')
+cecho('\n&lt;green&gt;Brembledon &lt;white&gt;&gt; Amber')</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^gates$</regex>
+			</Alias>
+		</AliasGroup>
 	</AliasPackage>
 	<ActionPackage />
 	<ScriptPackage>
@@ -4086,6 +4141,65 @@ common.comeToMe = function (callback)
 
 end
 
+common.collectFollowers = function (callback)
+	
+	if (not murder.paused) then
+		murder.pause()
+	end
+	
+	
+	local roll = common.newRollCall(true)
+
+	send('stand &amp; remove blanket')
+	
+	local outStandingResponses = group.memberCount - 1
+	
+	local onAllResponded = function ()
+	
+  	for key, value in pairs(roll) do
+  		if (value ~= true) then
+  			cecho('\n\n&lt;red&gt;MURDER: &lt;white&gt;' .. key .. ' is lost at ' .. tostring(value) .. '\n')
+				tfe.gotoRoom(value, function()
+					common.collectFollowers(callback)
+				end)
+				return
+  		end
+  	end	
+		
+		-- if we got to here then everyone is here already
+		cecho('\n\n&lt;green&gt;MURDER: &lt;white&gt;everyone is collected now!\n')
+		if (murder.paused) then
+  		murder.resume()
+  	end
+		callback()
+	
+	end
+	
+	
+	tempRegexTrigger([[^.+ tells the group[^:]*: "(\w+) is at (\d+)"]], function ()
+		
+		local vnum = tonumber(matches[3])
+		
+		if (tfe.roomInfo.vnum == vnum) then
+			roll[matches[2]] = true
+		else
+			roll[matches[2]] = vnum
+		end
+				
+		outStandingResponses = outStandingResponses - 1
+
+		if (outStandingResponses == 0) then
+			onAllResponded()
+		end
+		
+	end, 1)
+	
+	send('gt where are you?')
+	
+	display(roll)
+
+end
+
 
 common.newRollCall = function (excludeSelf)
 
@@ -4098,6 +4212,8 @@ common.newRollCall = function (excludeSelf)
     Darion = true,
     Darius = true,
     Bimgore = true,
+		Marial = true,
+		Grackle = true,
   }
 
 	for name, value in pairs(group.members) do

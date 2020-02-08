@@ -1611,7 +1611,7 @@ end</script>
 						<integer>2</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>sprawling</name>
 					<script>disableTrigger('sprawling')
 send('stand &amp; ord all stand &amp; k &amp; l')
@@ -4222,11 +4222,47 @@ common.collectFollowers = function (callback)
 			onAllResponded()
 		end
 		
-	end, 1)
+	end, outStandingResponses)
 	
 	send('gt where are you?')
 	
-	display(roll)
+end
+
+
+common.fixConditions = function (callback)
+	
+	if (not murder.paused) then
+		murder.pause()
+	end
+
+	local roll = common.newRollCall(false)
+
+	local healthyCheckId = tempRegexTrigger([[^.+ reports? group status: "healthy - (\w+)"]], function ()
+		local vic = matches[2]
+		if (vic == 'You') then vic = player.name end
+		roll[matches[2]] = true
+	end)
+	
+	send('gstatus condition report')
+	
+	tempTimer(5, function ()
+		
+		killTrigger(healthyCheckId)
+		
+		if common.rollCheck(roll) then
+			send('gstatus all healthy')
+			if (murder.paused) then
+    		murder.resume()
+    	end
+  		callback()
+		else
+			send('gstatus not yet healthy enough... retrying')
+			tempTimer(10, function()
+				common.fixConditions(callback)
+			end, 'waiting for cures before checking conditions')
+		end
+		
+	end)
 
 end
 
@@ -4905,6 +4941,8 @@ end
 
 mapper = mapper or {}
 murder = murder or {}
+
+murder.tankState = murder.tankState or 'here'
 
 mapper.gotoRoom = function(rnum, callback) 
   tfe.gotoRoom(rnum, {callback = callback})

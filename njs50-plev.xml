@@ -3129,7 +3129,8 @@ send('drop all.thick.deer.skin &amp; drop all.frying &amp; drop all.apron &amp; 
 
 local dropJunk = "drop all.ringm,all.furred.steel.shield,all.hard leather,"..
 	'all.low.boot,all.steel.scim,all.great.scim,all.furr.cloak,' ..
-	"all.jag.longs,all.wide.belt,all.spik.helm,all.yeti.foot,all.studded.leather" 
+	"all.jag.longs,all.wide.belt,all.spik.helm,all.yeti.foot,all.studded.leather," ..
+  "all.iron.longs" 
 
 send(dropJunk)</script>
 				<command></command>

@@ -843,7 +843,12 @@ cecho(' &lt;-- &lt;white&gt;' .. murder.sleepMode .. '\n')</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>resume murdering on mob kill</name>
-					<script>tempRegexTrigger([[^\S+ tells the group[^:]*: "(back|still here|saw it die)"]], function ()
+					<script>if (player.onDeadTrig ~= nil) then
+  killTrigger(player.onDeadTrig)
+  player.onDeadTrig = nil
+end
+
+player.onDeadTrig = tempRegexTrigger([[^\S+ tells the group[^:]*: "(back|still here|saw it die)"]], function ()
 	
 	if (murder.sleepMode ~= 'paused') then
 	
@@ -854,7 +859,7 @@ cecho(' &lt;-- &lt;white&gt;' .. murder.sleepMode .. '\n')</script>
   	end)
 		
 	end
-	
+	player.onDeadTrig = nil
 end, 1)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>

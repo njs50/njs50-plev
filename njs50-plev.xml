@@ -966,7 +966,12 @@ end
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>mortal wound</name>
-					<script>local vic = common.dotCase(common.toMurderString(matches[3]))
+					<script>disableTrigger('mortal wound')
+tempTimer(2, function()
+  enableTrigger('mortal wound')
+end)
+
+local vic = common.dotCase(common.toMurderString(matches[3]))
 cecho('\n&lt;yellow&gt;PARRY: &lt;white&gt;MORTAL WOUND')
 
 if (murder.tankState == 'here') then
@@ -2844,6 +2849,122 @@ end
 					</regexCodePropertyList>
 				</Trigger>
 			</TriggerGroup>
+			<TriggerGroup isActive="no" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>improve-things</name>
+				<script></script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList />
+				<regexCodePropertyList />
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>improve ice shie</name>
+					<script>improves.queueSpell('cast ice shie &amp; queue leech ice shield')</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>The ice crystals whirling around you stop and fall to the ground.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>2</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>improve displace</name>
+					<script>improves.queueSpell('cast displace &amp; queue leech displace')</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>You are no longer displaced.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>2</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>improve ion shield</name>
+					<script>improves.queueSpell('cast ion shie &amp; queue leech ion shield')</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Your shield of electricity sparks once and fades away.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>2</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>improve invuln</name>
+					<script>improves.queueSpell('cast invuln &amp; queue leech invuln')</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>You feel more vulnerable to injury.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>2</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>imp haste</name>
+					<script>improves.queueSpell('cast haste &amp; queue leech haste')</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>Your movements slow and the world returns to normal speed.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>2</integer>
+					</regexCodePropertyList>
+				</Trigger>
+			</TriggerGroup>
 		</TriggerGroup>
 	</TriggerPackage>
 	<TimerPackage>
@@ -2853,6 +2974,22 @@ end
 			<command></command>
 			<packageName></packageName>
 			<time>00:01:00.000</time>
+		</Timer>
+		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+			<name>stay hydrated</name>
+			<script>send('drink soup')</script>
+			<command></command>
+			<packageName></packageName>
+			<time>00:01:15.000</time>
+		</Timer>
+		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+			<name>improve ticker</name>
+			<script>cecho('\n&lt;white&gt;Improve - halftick\n')
+improves.castSpell()
+send('drink soup')</script>
+			<command></command>
+			<packageName></packageName>
+			<time>00:00:35.000</time>
 		</Timer>
 	</TimerPackage>
 	<AliasPackage>
@@ -4230,7 +4367,7 @@ common.collectFollowers = function (callback)
 		
 	end, outStandingResponses)
 	
-	send('gt where are you?')
+	send('gt 6where are you?')
 	
 end
 
@@ -5030,6 +5167,63 @@ end</script>
 			<eventHandlerList>
 				<string>gmcp.Char.Fighting</string>
 			</eventHandlerList>
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>improves</name>
+			<packageName></packageName>
+			<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external scripts --
+-------------------------------------------------
+
+improves = improves or {}
+
+improves.castQueue = improves.castQueue or {}
+
+improves.fillerSpell = 'filler'
+
+improves.castFillerLastTick = true
+
+improves.queueSpell = function(spell)
+	table.insert(improves.castQueue, spell)
+end
+
+
+improves.setFiller = function (spell)
+	improves.fillerSpell  = spell
+end
+
+
+
+improves.castSpell = function ()
+
+	if (#improves.castQueue == 0) then
+		
+		cecho('\n\n -= ' .. improves.fillerSpell .. ' =-\n\n')
+		send(improves.fillerSpell)
+		improves.castFillerLastTick = true
+		
+	else
+	
+		if (improves.castFillerLastTick) then
+			
+			improves.castFillerLastTick = false
+			cecho('\n\n -= holding filler for real spell next tick =-\n\n')
+			
+		else
+		
+			local spell = table.remove(improves.castQueue, 1)
+			improves.castFillerLastTick = true
+			cecho('\n\n -= ' .. spell .. ' =-\n\n')
+			send(spell)
+		
+		end
+		
+	end
+
+end</script>
+			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">
 			<name>last script (to trigger dependencies!)</name>

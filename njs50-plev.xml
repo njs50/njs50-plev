@@ -2941,7 +2941,7 @@ end
 				<regexCodePropertyList />
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>improve ice shie</name>
-					<script>improves.queueSpell('cast ice shie &amp; queue leech ice shield')</script>
+					<script>improves.improveLeech('ice shield')</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2961,7 +2961,7 @@ end
 				</Trigger>
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>improve displace</name>
-					<script>improves.queueSpell('cast displace &amp; queue leech displace')</script>
+					<script>improves.improveLeech('displace')</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2981,7 +2981,8 @@ end
 				</Trigger>
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>improve ion shield</name>
-					<script>improves.queueSpell('cast ion shie &amp; queue leech ion shield')</script>
+					<script>improves.improveLeech('ion shield')
+</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -3000,28 +3001,8 @@ end
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>improve invuln</name>
-					<script>improves.queueSpell('cast invuln &amp; queue leech invuln')</script>
-					<triggerType>0</triggerType>
-					<conditonLineDelta>0</conditonLineDelta>
-					<mStayOpen>0</mStayOpen>
-					<mCommand></mCommand>
-					<packageName></packageName>
-					<mFgColor>#ff0000</mFgColor>
-					<mBgColor>#ffff00</mBgColor>
-					<mSoundFile></mSoundFile>
-					<colorTriggerFgColor>#000000</colorTriggerFgColor>
-					<colorTriggerBgColor>#000000</colorTriggerBgColor>
-					<regexCodeList>
-						<string>You feel more vulnerable to injury.</string>
-					</regexCodeList>
-					<regexCodePropertyList>
-						<integer>2</integer>
-					</regexCodePropertyList>
-				</Trigger>
-				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>imp haste</name>
-					<script>improves.queueSpell('cast haste &amp; queue leech haste')</script>
+					<script>improves.improveLeech('haste')</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -3040,8 +3021,9 @@ end
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>invuln</name>
-					<script>improves.queueSpell('cast invuln &amp; queue leech invuln')</script>
+					<name>invulnerability</name>
+					<script>improves.improveLeech('invulnerability')
+</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -3061,7 +3043,7 @@ end
 				</Trigger>
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>mysic shield</name>
-					<script>improves.queueSpell('cast mystic &amp; queue leech mystic')</script>
+					<script>improves.improveLeech('mystic shield')</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -3080,8 +3062,8 @@ end
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>hyper</name>
-					<script>improves.queueSpell('cast hyper &amp; queue leech hyper')</script>
+					<name>hypermetabolism</name>
+					<script>improves.improveLeech('hypermetabolism')</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -3101,11 +3083,7 @@ end
 				</Trigger>
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>attacks (non casting)</name>
-					<script>-- send('cast ' .. player.attack_spell .. ' &amp; cast ' .. player.attack_spell)
-
-local spells = {'arc light', 'ice lance'}
-
-send('cast ' .. spells[math.random(#spells)])</script>
+					<script>send(improves.getImproveSpell())</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -3127,7 +3105,7 @@ send('cast ' .. spells[math.random(#spells)])</script>
 				</Trigger>
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>ogre strength</name>
-					<script>improves.queueSpell('cast ogre &amp; queue leech ogre')</script>
+					<script>improves.improveLeech('ogre strength')</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -3147,7 +3125,7 @@ send('cast ' .. spells[math.random(#spells)])</script>
 				</Trigger>
 				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>float</name>
-					<script>improves.queueSpell('cast float &amp; queue leech float')</script>
+					<script>improves.improveLeech('float')</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -5451,6 +5429,14 @@ improves.spellList = improves.spellList or improves.defaultMageList
 
 improves.setImproveList = function (improveList)
   improves.spellList = improveList
+end
+
+improves.improveLeech = function (spell)
+  if (player.skills[spell] &lt; 10) then
+    improves.queueSpell('cast ' .. spell .. ' &amp; queue leech ' .. spell)
+  else
+    cecho('\n\n&lt;green&gt; ' .. spell .. ' is maxxed, hooray!\n')
+  end
 end
 
 improves.getImproveSpell = function ()

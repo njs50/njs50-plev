@@ -494,6 +494,81 @@ end
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>parse skills</name>
+					<script>-- replicate             unk        1920    8    minor enchantment [7] &amp; continual light [7]
+-- riding                 10                     
+-- ryoushi               unk          16    5    
+
+-- cecho('&lt;green&gt; &lt;--- incoming skills')
+
+player.skills = player.skills or {}
+local skillParser = tempRegexTrigger([[^(.+?)\s{2,}(\d+|unk)]], function()
+  
+  local skill = matches[2]
+  local level
+  if (matches[3] == 'unk') then 
+    level = 0
+  else
+    level = tonumber(matches[3])
+  end
+  player.skills[skill] = level
+end)
+
+common.onNextEvent(common.events.PARSED_PROMPT, function ()
+  -- cecho('&lt;green&gt; &lt;--- incoming skills done')
+  killTrigger(skillParser)
+  display(player.skills)
+end)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^Skill\s+Level\s+Cost\s+Pracs\s+Prerequsites\s*$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>improve</name>
+					<script>-- ** You improve at escape. **
+
+local skill = matches[2]
+
+if (player.skills and player.skills[skill] ~= nil and player.skills[skill] &gt; 0) then
+  
+  player.skills[skill] = player.skills[skill] + 1
+  
+else
+  
+  send('abil all')
+  
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^\*\* You improve at (.*)\. \*\*</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
 			</TriggerGroup>
 			<TriggerGroup isActive="no" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>sleep-murder</name>
@@ -5350,6 +5425,58 @@ improves.castSpell = function ()
 		
 	end
 
+end
+
+improves.defaultMageList = {
+  'shock',
+  'burning hands',
+  'chilling touch',
+  'corrosive touch',
+  'fireball',
+  'freeze',
+  'lightning bolt',
+  'sleep',
+  'acid blast',
+  'mists of sleep',
+  'chain lightning',
+  'ice storm',
+  'flame strike',
+  'acid storm',
+  'arc lightning',
+  'ice lance',
+  'conflagration'
+}
+
+improves.spellList = improves.spellList or improves.defaultMageList
+
+improves.setImproveList = function (improveList)
+  improves.spellList = improveList
+end
+
+improves.getImproveSpell = function ()
+
+  if (#improves.spellList == 0) then
+    return ''
+  end
+
+  player.impAttempt = player.impAttempt or 0
+  
+  player.impAttempt = (player.impAttempt % #improves.spellList) + 1
+  
+  local spell = improves.spellList[player.impAttempt]
+  
+  if (player.skillls == nil or player.skill[spell] == nil) then
+    send('abil all')
+  else 
+    if (player.skills[spell] &gt;= 10 or player.skills[spell] == 0) then
+      -- remove this maxxed out spell and return the next one in the list
+      table.remove(improves.spellList, player.impAttempt)
+      return improves.getImproveSpell()
+    end
+  end
+
+  return 'cast ' .. spell
+  
 end</script>
 			<eventHandlerList />
 		</Script>

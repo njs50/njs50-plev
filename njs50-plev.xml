@@ -3232,7 +3232,7 @@ downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/tfe-mapper.xml" or "/tfe
 saveProfile()
 
 -- reinstall njs50-plev package
-local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-plev.xml?e=" .. tostring(getEpoch())
+local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-plev.xml"
 
 common.onNextEvent("sysDownloadDone", function (_, f)
   if not f:find("njs50-plev", 1, true) then return end

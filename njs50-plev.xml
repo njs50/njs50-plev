@@ -518,7 +518,7 @@ end)
 common.onNextEvent(common.events.PARSED_PROMPT, function ()
   -- cecho('&lt;green&gt; &lt;--- incoming skills done')
   killTrigger(skillParser)
-  display(player.skills)
+  -- display(player.skills)
 end)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -5465,11 +5465,12 @@ improves.getImproveSpell = function ()
   
   local spell = improves.spellList[player.impAttempt]
   
-  if (player.skillls == nil or player.skill[spell] == nil) then
+  if (player.skills == nil) then
     send('abil all')
   else 
-    if (player.skills[spell] &gt;= 10 or player.skills[spell] == 0) then
-      -- remove this maxxed out spell and return the next one in the list
+    -- remove this maxxed out or unlearned spell and return the next one in the list
+    if (player.skills[spell] == nil or player.skills[spell] &gt;= 10 or player.skills[spell] == 0) then
+      cecho('\n&lt;yellow&gt;removing ' .. spell .. ' from impprove list\n')
       table.remove(improves.spellList, player.impAttempt)
       return improves.getImproveSpell()
     end

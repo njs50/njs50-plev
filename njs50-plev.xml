@@ -810,20 +810,30 @@ elseif (murder.sleepMode == 'chopping') then
 	
 	common.setParryState(false, 'sleepmode: chopping', function () 
   			 	
-  	-- if (player.mp &gt; 30 and murder.castingLocked == nil) then
-			-- cecho(' &lt;-- set casting lock')
-			-- murder.castingLocked = tempTimer(35, function () 
-				-- murder.castingLocked = nil
-			-- end, 'casting locked for 35s')
-  		-- 
-			-- tempTimer(2, function ()
-				-- send('c ' .. vic .. ' &amp; k ' .. vic)
-			-- end, 'delay in case of tank queued sleep')
-			-- 
-  	-- else 
+  	if (improves and improves.spellList and #improves.spellList &gt; 0 and player.mp &gt; 90 and murder.castingLocked == nil) then
+  		
+      local spell = improves.getImproveSpell()
+
+			
+      if (spell ~= '') then
+      
+        cecho(' &lt;-- set casting lock')
+  			murder.castingLocked = tempTimer(35, function () 
+  				murder.castingLocked = nil
+  			end, 'casting locked for 35s')
+        
+        tempTimer(2, function ()
+          send(spell .. ' ' .. vic .. ' &amp; k ' .. vic)
+        end, 'delay in case of tank queued sleep?')
+      
+      else
+			  send('k ' .. vic)
+      end
+
+  	else 
 			-- cecho('\n&lt;green&gt;MURDER: &lt;white&gt;didn\'t cast, mp: ' .. tostring(player.mp) .. ', cl: ' .. tostring(murder.castingLocked) .. '\n')
   		send('k ' .. vic)
-  	-- end
+  	end
 	end)
 
 -- can be in dance-pending if we miss during the previous dance-pending 
@@ -5413,9 +5423,9 @@ improves.defaultMageList = {
   'fireball',
   'freeze',
   'lightning bolt',
-  'sleep',
+  -- 'sleep',
   'acid blast',
-  'mists of sleep',
+  -- 'mists of sleep',
   'chain lightning',
   'ice storm',
   'flame strike',

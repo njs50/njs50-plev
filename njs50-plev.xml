@@ -3676,6 +3676,33 @@ end</script>
 			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">
+			<name>player.config.example.template</name>
+			<packageName></packageName>
+			<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external Scripts --
+-------------------------------------------------
+
+player = player or {}
+player.scripts = player.scripts or {}
+
+-- nb: must match exactly. i.e don't forget the capital letter
+player.scripts.YOUR_NAME_HERE = function ()
+	
+	player.bag = 'bag.holding'
+	player.pack = 'backpack.holding'
+	player.reagentBag = 'bag.reagents'
+	player.gearSet = 'default'
+	player.vessel = 'leather.waterskin'
+	player.caster = false
+	player.hasFoodBasket = false
+  player.useBerserk = false
+
+end</script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
 			<name>swap</name>
 			<packageName></packageName>
 			<script>-------------------------------------------------
@@ -4614,6 +4641,7 @@ common.newRollCall = function (excludeSelf)
     Bimgore = true,
 		Marial = true,
 		Grackle = true,
+    Raksha = true,
   }
 
 	for name, value in pairs(group.members) do

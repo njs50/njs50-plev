@@ -36,13 +36,13 @@ else
   -- b - berserk skill active
   -- f - focus skill active
   -- M - you have new mudmail
-	
+
 	local promptFlags = matches[2]
-	
+
 	-- set parry state
 	if string.find(promptFlags, 'p') then player.parry = true else player.parry = false end
 
-	
+
 	if string.find(promptFlags, '[chi]') then player.hidden = true else player.hidden = false end
 
 
@@ -113,13 +113,13 @@ if (matches[3] and matches[3] ~= '') then
 
   local prompt = matches[2]
   local stuff = matches[3]
-  
+
   deleteLine() -- this will prevent any further triggers matching this line!?
-  
+
   feedTriggers(prompt .. '\n')
   feedTriggers(stuff .. '\n')
   cecho('&lt;green&gt; ^^ was appended to prompt')
-  
+
 end
 </script>
 			<triggerType>0</triggerType>
@@ -241,7 +241,7 @@ if (matches[3]) then
     status.moves_max = tonumber(matches[8])
     status.xp = matches[9]
 
-    -- 
+    --
     selectString(matches[1],1)
     replace(matches[1]:gsub(matches[9], common.commaCase(matches[9])))
     -- cecho(' &lt;- &lt;green&gt;replaced some numbers\n')
@@ -438,33 +438,33 @@ player.itemSlot = player.itemSlot or {}
 
 if (matches[2] == 'Equipment') then
 	-- start of parsing
-	
+
 	player.gear.parsing = true
 	player.gear = {}
 	-- cecho(' &lt;--- parsing start')
-	
+
 elseif (matches[2] == 'Weight') then
-	
+
 	-- end of parsing
 	player.gear.parsing = nil
 	player.gear.currentSlot = nil
-	
+
 	raiseEvent(common.events.PARSED_EQUIPMENT)
 	-- cecho(' &lt; --- parsing end')
 	-- display(player.gear)
 
 else
- 
+
  	-- if this line has a slot, get rid of the redundant part and set it to be the current slot
 	if (matches[2] ~= '') then
 		player.gear.currentSlot = rex.gsub(matches[2], [[^(floating|worn on|worn around|worn about) ]], "", 1)
 	end
-	
+
 	local item = common.itemSanitize(matches[4])
-	
+
 	player.gear[player.gear.currentSlot] = player.gear[player.gear.currentSlot] or {}
 	player.gear[player.gear.currentSlot][matches[3]] = {item = item, condition = matches[5] }
-	
+
 	player.itemSlot[item] = {slot=player.gear.currentSlot, layer=matches[3]}
 	-- cecho(' &lt;--- its some gear ')
 
@@ -497,17 +497,17 @@ end
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>parse skills</name>
 					<script>-- replicate             unk        1920    8    minor enchantment [7] &amp; continual light [7]
--- riding                 10                     
--- ryoushi               unk          16    5    
+-- riding                 10
+-- ryoushi               unk          16    5
 
 -- cecho('&lt;green&gt; &lt;--- incoming skills')
 
 player.skills = player.skills or {}
 local skillParser = tempRegexTrigger([[^(.+?)\s{2,}(\d+|unk)]], function()
-  
+
   local skill = matches[2]
   local level
-  if (matches[3] == 'unk') then 
+  if (matches[3] == 'unk') then
     level = 0
   else
     level = tonumber(matches[3])
@@ -544,13 +544,13 @@ end)</script>
 local skill = matches[2]
 
 if (player.skills and player.skills[skill] ~= nil and player.skills[skill] &gt; 0) then
-  
+
   player.skills[skill] = player.skills[skill] + 1
-  
+
 else
-  
+
   send('abil all')
-  
+
 end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -596,7 +596,7 @@ local resumeTimer
 
 -- kill countdown if combat ends in this time
 local killResumeTimer = function ()
-	
+
   if resumeTimer ~= nil then
 		killTimer(resumeTimer)
 		cecho('\n&lt;green&gt;MURDER: &lt;white&gt;killed waiting for tank action timer: ')
@@ -606,7 +606,7 @@ local killResumeTimer = function ()
     combatEnded()
     roomChanged()
 	end
- 
+
 end
 
 
@@ -634,7 +634,7 @@ roomChanged = common.onNextEvent(tfe.events.ROOM_CHANGED, function ()
 	-- common.onNextEvent(tfe.events.ROOM_CHANGED, killResumeTimer)
 end)
 
-combatEnded = common.onNextEvent(common.events.COMBAT_ENDED, killResumeTimer)	
+combatEnded = common.onNextEvent(common.events.COMBAT_ENDED, killResumeTimer)
 combatStarted = common.onNextEvent(common.events.COMBAT_STARTED, killResumeTimer)	</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -683,8 +683,8 @@ if (murder.pendingActionTimer) then
 	murder.pendingActionTimer = nil
 end
 
-if (murder.sleepMode == 'paused') then 
-	return 
+if (murder.sleepMode == 'paused') then
+	return
 end
 
 
@@ -697,20 +697,20 @@ end
 
 
 
-if health &lt;= player.dance_threshold then 
+if health &lt;= player.dance_threshold then
 -- if (matches[3] ~= 'DEAD!') then
-	
+
 	murder.sleepMode = 'dancing'
-		
+
 elseif (matches[3] == 'DEAD!') then
-		
+
 	-- back to the start
 	murder.sleepMode = 'next'
 
 else
 
 	murder.sleepMode = 'chopping'
-		
+
 end
 
 cecho(' &lt;-- &lt;white&gt;' .. health * 100 .. '% : ' .. murder.sleepMode .. '\n')
@@ -772,23 +772,23 @@ local setActionPending = function ()
 	if (murder.pendingActionTimer) then
 		killTimer(murder.pendingActionTimer)
 	end
-	
+
 	if (murder.sleepMoode ~= 'paused') then
   	murder.pendingActionTimer = tempTimer(10, function ()
   		cecho('\n\n&lt;yellow&gt;MURDER: &lt;White&gt;pending action didn\'t occur within 10s\n')
      	murder.sleepMode = 'next'
   		murder.pendingActionTimer = nil
   	end, 'pending action timer (chop/dance)')
-	end 
-	
+	end
+
 
 end
 
--- 
+--
 if (murder.sleepMode == 'next') then
-	
+
 	send('gt pause')
-	
+
 	-- go straight to dance mode if our threshold is 100%
 	-- looking at you charging warriors / assasinating thieves
 	if (player.dance_threshold == 1) then
@@ -804,105 +804,105 @@ if (murder.sleepMode == 'paused') then
 	cecho('&lt;white&gt; &lt;- ignoring (murdering paused)')
 
 elseif (murder.sleepMode == 'chopping') then
-	
+
 	murder.sleepMode = 'chop-pending'
 	setActionPending()
-	
-	common.setParryState(false, 'sleepmode: chopping', function () 
-  			 	
+
+	common.setParryState(false, 'sleepmode: chopping', function ()
+
   	if (improves and improves.spellList and #improves.spellList &gt; 0 and player.mp &gt; 90 and murder.castingLocked == nil) then
-  		
+
       local spell = improves.getImproveSpell()
 
-			
+
       if (spell ~= '') then
-      
+
         cecho(' &lt;-- set casting lock')
-  			murder.castingLocked = tempTimer(35, function () 
+  			murder.castingLocked = tempTimer(35, function ()
   				murder.castingLocked = nil
   			end, 'casting locked for 35s')
-        
+
         tempTimer(2, function ()
           send(spell .. ' ' .. vic .. ' &amp; k ' .. vic)
         end, 'delay in case of tank queued sleep?')
-      
+
       else
 			  send('k ' .. vic)
       end
 
-  	else 
+  	else
 			-- cecho('\n&lt;green&gt;MURDER: &lt;white&gt;didn\'t cast, mp: ' .. tostring(player.mp) .. ', cl: ' .. tostring(murder.castingLocked) .. '\n')
   		send('k ' .. vic)
   	end
 	end)
 
--- can be in dance-pending if we miss during the previous dance-pending 
+-- can be in dance-pending if we miss during the previous dance-pending
 elseif (murder.sleepMode == 'dancing') then
-	
+
 	murder.sleepMode = 'dance-pending'
 	setActionPending()
-	
+
 	common.setParryState(true, 'sleepmode: dancing', function ()
-		
+
   	if (murder.tankState == 'here') then
 			-- delay to allow queue to catch up
 			tempTimer(1, function ()
   			send('dismount &amp; stand &amp; sit')
     		send('queue gt leave')
 			end, 'waiting for parry to kick in (queue delay)')
-			
+
   		murder.tankState = 'out-pending'
     	tempRegexTrigger([[^\S+ tells the group[^:]*: "(out|failed to leave)"]], function ()
-    		
+
         murder.tankState = 'out-confirmed'
-        
+
     		if (matches[2] == 'out') then
-  				
+
           cecho('\n&lt;orange&gt;PARRY: &lt;white&gt;setting  - temp off (dance hit then reenable)')
           player.parryQueue = player.parryQueue + 2
-          
-          
+
+
           local returnModes = {before = true, after = true, with = true}
           if (not returnModes[player.danceReturnMode]) then
             player.danceReturnMode = 'after'
           end
-          
+
           player.danceReturnMode = player.danceReturnMode or 'after'
 
           if (player.danceReturnMode == 'before') then
             send('queue gt return ' .. vic)
           end
-   
+
           send('queue opt parry &amp; queue stand &amp; queue mount')
-          
+
           if (player.danceReturnMode == 'with') then
             send('queue gt return ' .. vic)
           end
-          
+
           send('queue k ' .. vic .. ' &amp; queue opt parry')
-          
-          
+
+
           if (player.danceReturnMode == 'after') then
             send('queue gt return ' .. vic)
           end
-          
-					
+
+
     		else
   				cecho('\n&lt;orange&gt;PARRY: &lt;white&gt;setting  - temp off (dance hit then reenable)')
           send('opt parry &amp; stand &amp; mount &amp; k ' .. vic .. ' &amp; queue opt parry' )
           send('queue gt wtf??? - stabbing it anyway')
 					player.parryQueue = player.parryQueue + 2
-  				murder.tankState = 'here'			
+  				murder.tankState = 'here'
     		end
-    		
+
     	end, 1)
-  		
-    else  
+
+    else
       cecho('\n\n&lt;red&gt;MURDER: &lt;white&gt;wtf is the tank?\n')
   	end
-	
+
 	end)
-	
+
 end
 
 
@@ -934,15 +934,15 @@ cecho(' &lt;-- &lt;white&gt;' .. murder.sleepMode .. '\n')</script>
 end
 
 player.onDeadTrig = tempRegexTrigger([[^\S+ tells the group[^:]*: "(back|still here|saw it die)"]], function ()
-	
+
 	if (murder.sleepMode ~= 'paused') then
-	
+
   	murder.sleepMode = 'next'
-  	
-  	common.setParryState(false, 'something died', function () 
+
+  	common.setParryState(false, 'something died', function ()
   		send('gt resume')
   	end)
-		
+
 	end
 	player.onDeadTrig = nil
 end, 1)</script>
@@ -1012,13 +1012,13 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>missed mob</name>
-					<script>-- this will fail if we are parrying 
+					<script>-- this will fail if we are parrying
 -- but mob should be reslept anyway
 
 local target = common.dotCase(common.toMurderString(matches[3]))
 
 if (murder.sleepMode == 'dance-pending') then
-  
+
   -- try agian next sleep
   cecho('\n\n&lt;yellow&gt;MURDER: &lt;white&gt;missed mob during dancing phase\n\n')
   murder.sleepMode = 'dancing'
@@ -1062,16 +1062,18 @@ cecho('\n&lt;yellow&gt;PARRY: &lt;white&gt;MORTAL WOUND')
 if (murder.tankState == 'here') then
 	-- can't do anything at this stage as mage is in combat and can't leave
 	send('gt you should not be ere (might o hit that one too hard)')
-  send('k ' .. vic)
+  common.setParryState(false, 'sleepmode: mortal wound (tank in room)', function ()
+    send('k ' .. vic)
+  end)
 else
-  
+
   send('+gt abort abort, mortal wound detected!')
 
 	-- send('opt parry &amp; stand &amp; k ' .. vic .. ' &amp; queue opt parry')
   common.onNextEvent(common.events.PARSED_PROMPT, function ()
     -- any queued parries will have been dequeued.
     player.parryQueue = 0
-    common.setParryState(false, 'sleepmode: mortal wound', function () 
+    common.setParryState(false, 'sleepmode: mortal wound', function ()
       send('k ' .. vic)
       send('queue gt return ' .. vic)
     end)
@@ -1196,40 +1198,40 @@ local player = group[player.name]
 
 local getFull = false
 
-	
+
 local pFullTrig = tempRegexTrigger([[^\w+ tells the group[^:]*: "getting full"]], function ()
 	getFull = true
 	send('gt righto')
-end, 1)	
-	
-	
-tempTimer(3, function () 
+end, 1)
+
+
+tempTimer(3, function ()
 
 	killTrigger(pFullTrig)
 
 	if (getFull) then
-  
+
   	send('sit couch &amp; sit chair &amp; sit pad &amp; sit boulder')
   	expandAlias('sl')
-  	common.onFull( function () 
+  	common.onFull( function ()
   		expandAlias('st')
 
   		tempTimer(3, function ()
   			player.gettingFull = false
   			expandAlias('gt ready (' .. player.name .. ')')
   		end)
-    		
+
     end)
-	
-	else	
-	
+
+	else
+
 		send('gt ready (Myrth)')
-		
+
 	end
-	
-	
+
+
 end)
- 
+
 </script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -1252,27 +1254,27 @@ end)
 					<name>get full</name>
 					<script>player.gettingFull = player.gettingFull or false
 
-if (not player.gettingFull) then 
+if (not player.gettingFull) then
 	player.gettingFull = true
   send('ef &amp; dw &amp; dismount')
-  
-  tempTimer(2, function () 
+
+  tempTimer(2, function ()
   	send('sit couch &amp; sit chair &amp; sit pad &amp; sit boulder')
   	expandAlias('sl')
-  	common.onFull( function () 
+  	common.onFull( function ()
 			expandAlias('st')
       send('mount')
     	-- expandAlias('give all.coin batso &amp; drop all.food &amp; get 2*food')
-      
+
   		tempTimer(3, function ()
 				player.gettingFull = false
   			expandAlias('gt ready (' .. player.name .. ')')
   		end)
-    		
+
     end)
   end)
-	
-else	
+
+else
 	cecho('\n&lt;green&gt;PREP: &lt;white&gt;already getting full\n')
 end
 
@@ -1363,7 +1365,7 @@ send('drop all.food &amp; get 4*food')</script>
 					<name>Your throat feels dry.</name>
 					<script>send('dw')
 
-timedTempTrigger(0.5, 1, '^You cannot do that while sleeping\.$', function () 
+timedTempTrigger(0.5, 1, '^You cannot do that while sleeping\.$', function ()
 	send('stand &amp; dw &amp; ef')
 	tempTimer(1, function () send('sleep') end)
 end)
@@ -1391,7 +1393,7 @@ end)
 					<name>^You are mildly hungry.</name>
 					<script>send('ef')
 
-timedTempTrigger(0.5, 1, '^You cannot do that while sleeping\.$', function () 
+timedTempTrigger(0.5, 1, '^You cannot do that while sleeping\.$', function ()
 	send('stand &amp; dw &amp; ef')
 	tempTimer(1, function () send('sleep') end)
 end)</script>
@@ -1406,10 +1408,16 @@ end)</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^You are mildly hungry.</string>
+						<string>You are mildly hungry.</string>
+						<string>Your stomach rumbles with pangs of unnatural hunger.</string>
+						<string>You are hungry.</string>
+						<string>You are no longer afflicted by the hunger of the undead.</string>
 					</regexCodeList>
 					<regexCodePropertyList>
-						<integer>1</integer>
+						<integer>2</integer>
+						<integer>2</integer>
+						<integer>2</integer>
+						<integer>2</integer>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
@@ -1421,34 +1429,34 @@ tempTimer(3, function()
 end)
 
 if (player.hasFoodBasket) then
- 
+
   send('search basket &amp; eat food')
-  
+
   -- You reach your hand into the basket and root around, but come up empty-handed.
-  
+
 elseif (player.caster) then
-  
-	
-  
+
+
+
    if (common and common.getManaAndCast) then
-    
+
     common.getManaAndCast(15, 'create food', '', false, function ()
   		send('eat food')
   	end)
-    
+
   else
-  
-    timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function () 
+
+    timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function ()
   		send('stand &amp; cast create food &amp; eat food')
     end)
-  
+
     send('cast create food &amp; eat food')
-    
+
   end
-  
-  
- 
-	
+
+
+
+
 else
 	send('gt out of food')
 end
@@ -1486,27 +1494,27 @@ local vessel = common.dotCase(matches[2])
 
 
 if (player.caster) then
-  
+
   if (common and common.getManaAndCast) then
     send('remove blanket')
     common.getManaAndCast(10, 'create water', vessel, false, function ()
     	send('drink ' .. vessel)
     end)
-    
+
   else
-  
-    timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function () 
+
+    timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function ()
   		send('stand &amp; remove blanket &amp; empty ' .. vessel .. ' &amp; cast create water .. ' .. vessel .. ' &amp; wear blanket &amp; sleep')
     end)
-  
+
     send('remove blanket &amp; cast create water ' .. vessel)
     send('drink ' .. vessel)
-    
+
   end
- 
+
 
 else
-	
+
 	send('gt out of juice')
 
 end
@@ -1531,22 +1539,22 @@ end
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>created bad water</name>
 					<script>local vessel = common.dotCase(matches[2])
-	
+
 if player.caster and matches[3] ~= 'water' then
 
-  timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function () 
+  timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function ()
 		send('stand &amp; remove blanket &amp; empty ' .. vessel .. ' &amp; cast create water .. ' .. vessel .. ' &amp; wear blanket &amp; sleep')
   end)
-	
+
 	send('empty ' .. vessel)
   send('remove blanket &amp; cast create water ' .. vessel)
 
-else 
+else
 
-  timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function () 
+  timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function ()
   	send('stand &amp; drink ' .. vessel .. '.water &amp; sleep')
   end)
-	
+
 	send('drink ' .. vessel .. '.water')
 
 end
@@ -1594,8 +1602,21 @@ end
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>dying of thirst etc</name>
-					<script>send('ct poor management has led me to quit due to hunger or thirst.')
-send('quit')</script>
+					<script>
+common.getAffects(function (affects) 
+
+  if (affects["You feel the hunger of the undead."] == "temporary") then
+    cecho('\n\n&lt;red&gt;HUNGRY: &lt;white&gt;suffering from hunger of the undead!!!\n\n')
+    send('ef')
+  else
+    send('ct poor management has led me to quit due to hunger or thirst.')
+    send('quit')
+  end
+
+end)
+
+
+</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1766,7 +1787,7 @@ tempTimer(2, function ()
   		send('gt ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
   	end)
   end)
-  
+
 end)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -1822,7 +1843,7 @@ if (pname == player.name) then
     		send('gt ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
     	end)
     end)
-    
+
   end)
 end</script>
 					<triggerType>0</triggerType>
@@ -1946,16 +1967,16 @@ send('group')</script>
 					<script>if (matches[2] == 'paused') then
 
 	murder.sleepMode = 'paused'
-	
-	common.setParryState(true, 'murder mode paused', function () 
+
+	common.setParryState(true, 'murder mode paused', function ()
 		send('gt holding off on the murdering')
 	end, true)
-	
-else 
+
+else
 	common.setParryState(false, 'murder mode resumed', function ()
 		send('gt resuming the murdering')
 	end, false)
-		
+
 	murder.sleepMode = 'next'
 end</script>
 					<triggerType>0</triggerType>
@@ -1984,12 +2005,15 @@ end</script>
   Marsuvious = true,
   Altus = true,
   Mojune = true,
+  Mohoonay = true,
   Myrth = true,
   Darion = true,
   Darius = true,
   Grehild = true,
   Bimgore = true,
   Eluard = true,
+  Raksha = true,
+  Gnodrick = true,
 }
 
 
@@ -2026,8 +2050,13 @@ else
   for idx, state in pairs(gmcp.Char.Status.conditions) do
   	if (state ~= 'sober') then
   		send('gstatus ' .. state .. ' - ' .. player.name )
+      
+      if (state == 'hungry') then
+        send('ef &amp; ef')
+      end
+      
   	end
-  end	
+  end
 end
 
 </script>
@@ -2341,7 +2370,7 @@ raiseEvent(common.events.PARRY_STATE_CHANGE)
 				<colorTriggerBgColor>#000000</colorTriggerBgColor>
 				<regexCodeList />
 				<regexCodePropertyList />
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>inc mobs fighting</name>
 					<script>combat.add(matches[3])</script>
 					<triggerType>0</triggerType>
@@ -2367,7 +2396,7 @@ raiseEvent(common.events.PARRY_STATE_CHANGE)
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>dec mobs fighting</name>
 					<script>combat.remove(matches[2])</script>
 					<triggerType>0</triggerType>
@@ -2440,7 +2469,7 @@ send('wear ' .. common.dotCase(matches[3]))</script>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>counterattack</name>
 					<script>combat.counterattack(matches[2])</script>
 					<triggerType>0</triggerType>
@@ -2460,7 +2489,7 @@ send('wear ' .. common.dotCase(matches[3]))</script>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>slept a mob</name>
 					<script>combat.sleeping(matches[3])</script>
 					<triggerType>0</triggerType>
@@ -2510,24 +2539,24 @@ if (caster == 'You') then
 end
 
 if not rex.find(spell, [[^(cure|heal|restoration|group|sleep|mists|purify|neutralize|fear|paralyze|group|slow|web|probe|silence)]]) then
-  
+
   combat.dealer = caster
   combat.type = 'spell'
   combat.spell = spell
   combat.target = ''
 
-else  
+else
 
   cecho('&lt;orange&gt; &lt;- non damage spell\n')
   combat.dealer = caster
   combat.type = ''
   combat.spell = ''
   combat.target = ''
-  
+
 end
-  
-  
-  
+
+
+
 
 </script>
 					<triggerType>0</triggerType>
@@ -2551,7 +2580,7 @@ end
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Melee assignmnet</name>
-					<script>                                                                               
+					<script>
 -- You deflect a blue-skinned demon's obsidian claw rake and smash your shield into him!
 -- Your shield strike SAVAGES [41] a blue-skinned demon!  [ covered in blood ] &lt;- proc Darion : 41
 
@@ -2660,18 +2689,18 @@ if (group.members[spellFirstWord]) then
   combat.type = 'melee'
   combat.spell = ''
   combat.target = target
-  
+
   if rex.match(damageString, [[^(scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|SAVAGES|CRIPPLES|MUTILATES|DISEMBOWELS|\* DISMEMBERS \*|\* EVISCERATES \*|\* MASSACRES \*|\* PULVERIZES \*|\*\* DEMOLISHES \*\*|\*\* EXTIRPATES \*\*|\*\*\* OBLITERATES \*\*\*|\*\*\* ERADICATES \*\*\*|\*\*\* ANNIHILATES \*\*\*)$]]) then
      -- this was melee damage and will be picked up elsewhere
      return
   else
-    
+
     -- setting combat type to proc for any non melee damage done directly by a player.
     -- this should allow us to ignore ion/ice shield etc type damage when determining who a player is hitting
     combat.type = 'proc'
-  
+
   end
-  
+
 end
 
 if (group.members[targetFirstWord]) then
@@ -2689,15 +2718,15 @@ if (combat.type and combat.type ~= '') then
     move = spell,
     mob = target,
     damage = damage
-  }  
-  
+  }
+
   if (combat.type == 'spell') then
     attackData.move = combat.spell
     combat.type = ''
-  else 
+  else
     attackData.damageType = 'proc'
   end
-  
+
   if (group.members[attackData.subject]) then
     raiseEvent(common.events.COMBAT_ATTACK, attackData)
   else
@@ -2811,7 +2840,7 @@ local attackData = {
 if (group.members[attackData.subject]) then
   raiseEvent(common.events.COMBAT_ATTACK, attackData)
 else
-  cecho('&lt;orange&gt; &lt;- non party member fighting\n')  
+  cecho('&lt;orange&gt; &lt;- non party member fighting\n')
 end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -2904,7 +2933,7 @@ if (subject == 'you' or subject == 'your') then
 end
 
 if (group.members and group.members[subject]) then
-  
+
   local attackData = {
     subject = subject,
     amount = amount,
@@ -3199,13 +3228,13 @@ uninstallPackage("generic_mapper")
 njs50plev = njs50plev or {}
 
 njs50plev.finishInstall = function()
-  
+
   common.initPlayer()
-  
+
   tempTimer(2, function()
-	
+
 		saveGearSet('default')
-    
+
     send('color columns 150')
     send('color lines 150')
     expandAlias("setOption Auto.Assist true")
@@ -3217,42 +3246,42 @@ njs50plev.finishInstall = function()
     send('opt autoscan 3')
     send('opt autoloot 3')
     send('opt room.info 1')
-    
-    
+
+
     -- set prompt
-    
+
     send("prompt ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;")
-    
+
     -- setup aliases
     send('alias *ef eat food &amp; eat food &amp; drop all.food &amp; get 4*food')
     send('alias *dw drink ' .. player.vessel)
-  end)  
-  
+  end)
+
   tempTimer(5, function()
     cecho("\n\n&lt;green&gt;INSTALL: &lt;white&gt;Install complete?! - it might be a good idea to restart mudlet\n\n\n")
   end)
-  
+
  end
 
 
 -- download and install latest tfe mapper
 local URL = "https://raw.githubusercontent.com/njs50/tfe-mapper/master/tfe-mapper.xml"
 common.onNextEvent("sysDownloadDone", function (_, f)
-  if not f:find("tfe-mapper", 1, true) then 
-    return 
+  if not f:find("tfe-mapper", 1, true) then
+    return
   end
   uninstallPackage("tfe-mapper")
   tempTimer(2, function()
     installPackage(f)
     os.remove(f)
-    cecho("&lt;lime_green&gt;Package installed!\n") 
-    
+    cecho("&lt;lime_green&gt;Package installed!\n")
+
     -- install map
     -- download and install latest tfe mapper
       local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-map.dat"
       common.onNextEvent("sysDownloadDone", function (_, f)
-        if not f:find("njs50-map", 1, true) then 
-          return 
+        if not f:find("njs50-map", 1, true) then
+          return
         end
         local loadOK = loadMap(f)
         if not loadOK then
@@ -3261,25 +3290,25 @@ common.onNextEvent("sysDownloadDone", function (_, f)
           cecho("&lt;green&gt;INSTALL: &lt;white&gt;Loaded fine!\n")
         end
         os.remove(f)
-        
+
         -- install dark theme
         local downloaded_package = function(a,b)
-          if not b:find("DarkTheme",1,true)then return end 
+          if not b:find("DarkTheme",1,true)then return end
           installPackage(b)
           os.remove(b)
-          
+
           njs50plev.finishInstall()
-          
-        end 
-        
+
+        end
+
         common.onNextEvent("sysDownloadDone", downloaded_package)
-        
+
         downloadFile(getMudletHomeDir().."/DarkTheme.mpackage","https://forums.mudlet.org/download/file.php?id=1783&amp;sid=fb6b2766fa87fccdb1acffcd8cc9cf91")
-        
+
       end)
       downloadFile(getMudletHomeDir()..(URL:ends("dat") and "/njs50-map.dat"), URL)
   end)
-  
+
 end)
 downloadFile(getMudletHomeDir()..(URL:ends("xml") and "/tfe-mapper.xml" or "/tfe-mapper.zip"), URL)
 
@@ -3300,7 +3329,7 @@ local URL = "https://raw.githubusercontent.com/njs50/njs50-plev/master/njs50-ple
 common.onNextEvent("sysDownloadDone", function (_, f)
   if not f:find("njs50-plev", 1, true) then return end
   uninstallPackage("njs50-plev")
-  tempTimer(2, function() 
+  tempTimer(2, function()
     installPackage(f)
     os.remove(f)
     cecho("&lt;lime_green&gt;njs50-plev updated!\n")
@@ -3319,7 +3348,7 @@ local desiredVal = matches[3]
 
 
 local kilTempTimedTrig = common.timedTempTrigger(1, 2, '^' .. option .. [[ set to (\S+)\.$]] , function()
-  
+
   if (matches[2] ~= desiredVal) then
     cecho(' &lt;orange&gt;&lt;--- incorrect option value\n')
     send('opt ' .. option)
@@ -3356,26 +3385,26 @@ local damState = {
  ['mortally wounded'] = 0,
  ['DEAD!'] = 0
 }
-    
+
 
 local commands = {
-  
-  stop = function () 
+
+  stop = function ()
     disableTrigger('sleep-murder')
     send('gt powerleveling is disabled')
   end,
-  
-  start = function () 
+
+  start = function ()
     enableTrigger('sleep-murder')
     send('gt powerleveling is enabled')
   end,
-  
+
   ['dance-threshold'] = function ()
-    
+
     player.dance_threshold = player.dance_threshold or damState['bleeding freely']
-    
+
     local newState
-    
+
     if (matches[3]:match([[^%d+$]])) then
       newState = tonumber(matches[3]) / 100
     elseif(damState[matches[3]] ~= nil) then
@@ -3384,23 +3413,23 @@ local commands = {
       cecho('\n&lt;red&gt;njs50-plev: &lt;white&gt;unknwon damage state, use 0-100 or a string from help damage\n')
       return
     end
-    
+
     player.dance_threshold = newState
-    
+
     send('gt will now start the dance when a mob reaches ' .. tostring(player.dance_threshold * 100) .. '% hp')
     cecho('\n&lt;green&gt;njs50-plev: &lt;white&gt;current dancing once mob health reaches ' .. tostring(player.dance_threshold * 100) .. '%\n')
-    
+
   end,
-  
+
   ['dance-return'] = function ()
-  
+
     if ( returnModes[matches[3]] ) then
       player.danceReturnMode = matches[3]
       cecho('\n&lt;green&gt;njs50-plev: &lt;white&gt;will send tank return command ' .. player.danceReturnMode .. ' kill command\n')
     else
       cecho('\n&lt;red&gt;njs50-plev: &lt;white&gt;unknwon return mode, valid modes are: before, with and after\n')
     end
-  
+
   end,
 
 }
@@ -3422,10 +3451,10 @@ commands[matches[2]]()</script>
 				<name>sort halfling junk</name>
 				<script>send('drop all.brown.pants, all.studd.leather, all.homespun.blue, all.bron.ham, all.steel.short, all.ragg.pant, all.simp.mug' ..
 	 	'leath.journ, all.wood.shield, all.high.hard, all.wood.shield, all.leather.armor, all.wood.spear, all.wolf.skin')
-		
+
 send('drop all.banded.armor, all.cloth.robe, all.maple.staff, all.bronze.scale, all.meat.cleaver, all.iron.two-, all.bron.two-,' ..
 		 'all.decrep.armor, all.steel.two-, all.hatchet, all.mug.simple, all.old.boot, all.leather.journal, short.ash.staff')
-		
+
 send('label saddleb as deadHalfies &amp; open deadH &amp; get all deadH &amp; drop deadH &amp; get all.leather.cord')
 
 send('give all.silver.coin, all.copper.coin to mojune')</script>
@@ -3456,12 +3485,23 @@ send('drop all.thick.deer.skin &amp; drop all.frying &amp; drop all.apron &amp; 
 local dropJunk = "drop all.ringm,all.furred.steel.shield,all.hard leather,"..
 	'all.low.boot,all.steel.scim,all.great.scim,all.furr.cloak,' ..
 	"all.jag.longs,all.wide.belt,all.spik.helm,all.yeti.foot,all.studded.leather," ..
-  "all.iron.longs" 
+  "all.iron.longs"
 
 send(dropJunk)</script>
 				<command></command>
 				<packageName></packageName>
 				<regex>^drop yeti junk$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>drop durkang junk</name>
+				<script>send('drop all.stud.leath,all.low.boot,all.horn.bronze,all.steel.ringm,' .. 
+     'all.bronze.shorts,all.iron.shorts, all.steel.shorts,all.shatt.bottle,' ..
+     'all.hard.leather,all.torch,all.silver.wristband,all.pickaxe, black.robe,' ..
+     'dusty.ledger,all.huge.cleaver,ringed,all.troll.flesh')
+</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^drop durkang junk$</regex>
 			</Alias>
 		</AliasGroup>
 		<AliasGroup isActive="yes" isFolder="yes">
@@ -3580,518 +3620,6 @@ cecho('\n&lt;green&gt;Brembledon &lt;white&gt;&gt; Amber')</script>
 	<ActionPackage />
 	<ScriptPackage>
 		<Script isActive="yes" isFolder="no">
-			<name>player.config</name>
-			<packageName></packageName>
-			<script>common = common or {}
-player = player or {}
-player.scripts = player.scripts or {}
-
-
-player.defaultConfig = function () 
-
-	player.bag = 'backpack.holding'
-	player.pack = 'black.silk.bag'
-  player.vessel = 'leather.waterskin'
-  player.hasFoodBasket = false
-	player.caster = false
-	player.gearSet = 'default'
-
-end
-
-
-
-common.initPlayer = function ()
-
-	echo('\n\nINITIAL STATUS CHECK\n\n')
- 
-	player.name = gmcp.Char.Score.name
-
-
-	if not (player.scripts and player.scripts[player.name]) then
-    echo('\nSetting  default player script for ' .. player.name .. '!\n')
-    player.scripts[player.name] = player.defaultConfig
-	end
-  
-		echo('\nRunning player script for ' .. player.name .. '!\n')
-		player.scripts[player.name]()
-
-	-- if (not common.topContainer) then
-		
-		-- init windows
-    common.topContainer = Geyser.Container:new({
-      name = "top_container",    -- give it a unique name here
-			x=0,
-			y=0,                   
-      width = "100%", 
-			color = "green",
-			height="25%",
-    })
-		
-		common.mapContainer = Geyser.Container:new({
-      name = "map_container",    -- give it a unique name here
-			x=0,
-			y=0,                   
-      width = "40%", 
-			height="100%",
-    }, common.topContainer)
-		
-		common.chatContainer = Geyser.Container:new({
-      name = "chat_container",    -- give it a unique name here
-			x="40%",
-			y=0,                   
-      width = "60%", 
-			height="100%",
-    }, common.topContainer)
-		
-				-- init windows
-    common.mapper = Geyser.Mapper:new({
-      name = "geyser_map",    -- give it a unique name here
-			x="2%",
-			y="2%",                   
-      width = "96%", 
-			height="96%",
-    }, common.mapContainer)
-		
-    common.chatConsole = Geyser.MiniConsole:new({
-      name = "geyser_chat",    -- give it a unique name here
-			x="2%",
-			y="2%",                   
-      width = "96%", 
-			height="96%",
-			autoWrap = true,
-      color = "black",
-      scrollBar = true,
-      fontSize = 14,
-    }, common.chatContainer)
-		
-	-- end
-  
-  echo('\n\nloading gear sets. if it fails you should do luaSaveGearSet("default") to save a default set\n\n')
-  loadSavedGearSets()
-
-
-	send('score &amp; eq &amp; group &amp; inv &amp; typo &amp; prep')
-
-end</script>
-			<eventHandlerList />
-		</Script>
-		<Script isActive="yes" isFolder="no">
-			<name>player.config.example.template</name>
-			<packageName></packageName>
-			<script>-------------------------------------------------
---         Put your Lua functions here.        --
---                                             --
--- Note that you can also use external Scripts --
--------------------------------------------------
-
-player = player or {}
-player.scripts = player.scripts or {}
-
--- nb: must match exactly. i.e don't forget the capital letter
-player.scripts.YOUR_NAME_HERE = function ()
-	
-	player.bag = 'bag.holding'
-	player.pack = 'backpack.holding'
-	player.reagentBag = 'bag.reagents'
-	player.gearSet = 'default'
-	player.vessel = 'leather.waterskin'
-	player.caster = false
-	player.hasFoodBasket = false
-  player.useBerserk = false
-
-end</script>
-			<eventHandlerList />
-		</Script>
-		<Script isActive="yes" isFolder="no">
-			<name>swap</name>
-			<packageName></packageName>
-			<script>-------------------------------------------------
---         Put your Lua functions here.        --
---                                             --
--- Note that you can also use external Scripts --
--------------------------------------------------
-
-player = player or {}
-
-player.swapItems = player.swapItems or {}
-player.gearSets = player.gearSets or {}
-
-
-function equipSet(set, callback) 
-  if (player.gearSets[set]) then
-  
-  	player.gearSet = set
-  	send('gs', true)
-  	equipGearSet(set, function()
-  		send('ps', false)
-			if callback then callback() end	
-    end)
-  
-  else
-  	cecho('\n&lt;red&gt;GEAR: &lt;white&gt;No set found matching: "' .. set .. '"\n')
-  end
-end
-
-function equipPartial(set, callback)
-  if (player.gearSets[set]) then
-  	cecho('\n&lt;green&gt;GEAR: &lt;white&gt;Equip partial set: "' .. set .. '"\n')
-  	send('gs', true)
-  	equipGearSet(set, function()
-  		send('ps', true)
-			if callback then callback() end	
-    end, true)
-  
-  else
-  	cecho('\n&lt;red&gt;GEAR: &lt;white&gt;No set found matching: "' .. set .. '"\n')
-  end
-end
-
-function resetGear(callback)
-
-	
-  if (player.gearSets[player.gearSet]) then
-	
-  	cecho('\n&lt;green&gt;GEAR: &lt;white&gt;resetting gear to set: "' .. player.gearSet .. '"\n')
-  	send('gs', true)
-		
-		equipGearSet(player.gearSet, function()
-  		send('ps', true)
-			if callback then callback() end	
-    end)
-		
-  else
-  	cecho('\n&lt;red&gt;GEAR: &lt;white&gt;No set found matching: "' .. player.gearSet .. '"\n')
-  end
-end
-
-
-
-function saveGearSet (name) 
-	
-	common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
-  	table.save(getMudletHomeDir() .. "/gearsets.backup.dat", player.gearSets)	
-  	player.gearSets[name] = player.gear
-  	table.save(getMudletHomeDir() .. "/gearsets.dat", player.gearSets)	
-	end)
-	send('eq', false)
-	
-end
-
-function loadSavedGearSets () 
-	player.gearSets = {}
-	
-	local gearFile = getMudletHomeDir() .. "/gearsets.dat"
-	
-	local is_file = io.open(gearFile)
-	
-	if (is_file ~= nil) then
-		table.load(gearFile, player.gearSets)
-	end
-	
-end
-
-
-function loadGearSetBackup () 
-	player.gearSets = {}
-	table.load(getMudletHomeDir() .. "/gearsets.backup.dat", player.gearSets)	
-end
-
--- functions below here are probably internal...
-
-function equipGearSet (name, callback, partial)
-
-	
-	cecho('\n&lt;green&gt;Outfit: &lt;white&gt;equip gear set: ' .. name)
-
-  if(player.equippingSet) then
-		cecho('\n&lt;red&gt;Outfit: &lt;white&gt;waiting for prev gear change to complete before equiping ' .. name)
-		
-  	common.onNextEvent(common.events.CHANGED_EQUIPMENT, function()
-			equipGearSet(name, callback, partial)
-  	end)
-    
-    send('eq')
-    
-    timedTempTrigger(0.5, 1, '^You cannot do that while sleeping\.$', function () 
-    	send('stand &amp; eq')
-    end)
-	
-		return
-	end
-	
-	
-	player.equippingSet = true
-
-	
-	common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
-
-  	-- echo('\ncurrent gear established...\n')
-		
-		local newSet = player.gearSets[name]
-		
-		if (newSet == nil) then
-		
-			cecho('&lt;red&gt;Outfit Error: &lt;white&gt;set does not exist')
-			if callback then callback() end
-		
-		else
-			
-			-- reset current swap list
-			player.swapItems = {}
-			
-  		-- remove any items that have empty slots in new set
-			if (not partial) then
-    	  for slot, layers in pairs(player.gear) do
-          for layer, item in pairs(layers) do
-    				if (not (newSet[slot] and newSet[slot][layer])) then
-  						-- echo('\nneed to remove ' .. item.item)
-  						swapItems(item.item, '', slot, layer)
-  					end
-    			end
-        end
-			end
-			
-			-- swap any items different in the new set
-			for slot, layers in pairs(newSet) do
-				if (type(layers) == 'table') then -- in case junk like parsed gets in the data again
-          for layer, item in pairs(layers) do
-  					-- add any items in a layer that doesn't exist in current set
-    				if (not (player.gear[slot] and player.gear[slot][layer])) then
-  						-- echo('\nneed to add new slot ' .. item.item)
-  						swapItems('', item.item, slot, layer)
-  					elseif (player.gear[slot][layer].item ~= item.item)then
-  						swapItems(player.gear[slot][layer].item, item.item, slot, layer)
-  					end
-    			end
-				else
-					-- not sure how parsing is still in there (too lazy to investigate atm)
-					if (slot ~= 'parsing') then
-            
-						cecho('\n&lt;red&gt;GEAR ERROR: &lt;white&gt;invalid data!!! slot: ' .. slot)
-					end
-				end
-      end
-			
-			
-						-- must remove neck.over to change neck.base
-			if (player.gear.neck and player.gear.neck.over and player.swapItems.neck and 
-				(player.swapItems.neck.base and not player.swapItems.neck.over)) then
-				echo('\n\nADDING neck.over!!!\n\n')
-				swapItems(player.gear.neck.over.item, player.gear.neck.over.item, 'neck', 'over')
-			end
-			
-			
-			-- must remove body.base to change body.under
-			if (player.gear.body and player.gear.body.base and player.swapItems.body and 
-				(player.swapItems.body.under and not player.swapItems.body.base)) then
-				-- echo('\n\nADDING body.base!!!\n\n')
-				swapItems(player.gear.body.base.item, player.gear.body.base.item, 'body', 'base')
-			end
-			
-			-- if changing any waist item then keyring needs to be removed/replaced
-			if (player.gear.waist) then  
-
-				-- only need to remove keyring
-				if (player.swapItems.waist and player.gear.waist.over and player.gear.waist.over.item:match('keyring') and not player.swapItems.waist.over) then
-  				-- echo('\n\nADDING KEYRINGS!!!\n\n')
-  				swapItems(player.gear.waist.over.item, player.gear.waist.over.item, 'waist', 'over')
-				end
-								
-				if (player.swapItems.waist and player.gear.waist.top and player.gear.waist.top.item:match('keyring') and not player.swapItems.waist.top) then
-  				-- echo('\n\nADDING KEYRINGS!!!\n\n')
-  				swapItems(player.gear.waist.top.item, player.gear.waist.top.item, 'waist', 'top')
-				end
-				
-			end
-			
-			-- make sure we aren't just switching left/right things
-			
-			local removeRedundantSwap = function (slot, layer) 
-					if (player.swapItems["left " .. slot] and player.swapItems["left " .. slot][layer] and
-						player.swapItems["right " .. slot] and player.swapItems["right " .. slot][layer] and
-						(player.swapItems["left " .. slot][layer].from == player.swapItems["right " .. slot][layer].to) and
-  					(player.swapItems["left " .. slot][layer].to == player.swapItems["right " .. slot][layer].from)) then
-  					-- remove redundant swap
-  					cecho('\n&lt;green&gt;GEAR SWAP: &lt;white&gt;removed redundant swap (left/right ' .. slot .. '.' .. layer .. ')')
-  					player.swapItems["left " .. slot][layer] = nil
-  					player.swapItems["right " .. slot][layer] = nil
-  			end
-			end
-			
-			
-			removeRedundantSwap('hand finger', 'over')
-			removeRedundantSwap('hand finger', 'base')
-			removeRedundantSwap('hand finger', 'top')
-			removeRedundantSwap('wrist', 'base')
-			removeRedundantSwap('wrist', 'over')
-			
-			
-			local cb = function ()
-				callback()
-			end
-			
-			-- lets do it...
-			performSwap(cb)
-						
-		end -- end check if this was a valid set
-		
-  end)
-	
-	send('eq', false)
-	
-end
-
-
-function swapItems (to, from, slot, layer)
-	
-	-- cecho('&lt;green&gt;swap: &lt;white&gt;swap to ' .. to .. ' from ' .. from .. '\n')
-	
-	if (slot == nil) then
-		cecho('&lt;red&gt;ERROR: &lt;white&gt;no slot provided on item swap ' .. to .. ' to ' .. from .. '\n')
-	end
-
-	local swap = {from=common.itemShorten(to), to=common.itemShorten(from)}
-	
-	player.swapItems[slot] = player.swapItems[slot] or {}
-
-	if (player.swapItems[slot][layer]) then
-			
-		if (player.swapItems[slot][layer].to == swap.from) then
-			swap.from = player.swapItems[slot][layer].from
-		else
-			cecho('Error: invalid item switch of items in slot ' .. slot)
-			display(player.swapItems[slot][layer])
-			display(swap)
-		end
-
-	end
-
-	player.swapItems[slot][layer] = swap
-
-end
-
-
-function swapCommands (removeList, wearList)
-
-	if(#wearList &gt; 0) then
-		send('get ' .. table.concat(wearList, ',') .. ' from ' .. player.bag)
-	end
-	
-	if(#removeList &gt; 0) then
-		send('remove ' .. table.concat(removeList, ','))
-	end
-	
-	if(#wearList &gt; 0) then
-		send('wear ' .. table.concat(wearList, ','))
-	end
-	
-	if(#removeList &gt; 0) then
-		send('put ' .. table.concat(removeList, ',') .. ' in ' .. player.bag)
-	end
-	
-	
-end
-
-
-local slots = {
-  "right hand",
-  "left hand",
-  "left hand finger",
-  "right hand finger",
-  "right wrist",
-  "left wrist",
-  "head",
-  "body",
-  "nearby",
-  "arms",
-  "hands",
-  "feet",
-  "legs",
-  "waist",
-  "neck" 
-}
-
-  
-function performSwap (callback)
-		
-	local cb = callback	
-		
-	local removeList = {}
-	local wearList = {}
-	
-	local removeLength = 0
-	local wearLength = 0
-	
-	local idx 
-		
-	local layers = { 'bottom', 'under', 'base', 'over', 'top' }  
-
-  for k, slot in pairs(slots) do
-    
-    if (player.swapItems[slot]) then
-      
-      items = player.swapItems[slot]
-  
-  		for k, layer in pairs(layers) do 
-  		-- for layer, swap in pairs(items) do
-  			local swap = items[layer]
-  		
-  			if (items[layer]) then
-  			
-    			if string.len(swap.from) &gt; 0 then
-    				removeList = common.tfeItemListAdd(removeList, swap.from)
-    				-- this is an approximation since if it's already in the list 
-    				-- we are only actually adding 2 (i.e 2*item)
-    				removeLength = removeLength + string.len(swap.from)
-    			end
-    			
-    			if string.len(swap.to) &gt; 0 then
-  				
-  				  wearList = common.tfeItemListAdd(wearList, swap.to)
-    				-- this is an approximation since if it's already in the list 
-    				-- we are only actually adding 2 (i.e 2*item)
-    				wearLength = wearLength + string.len(swap.to)
-    			end
-  			
-  			end -- check if layer is being swapped
-  			
-  		end -- end layer loop
-      
-  
-  		if (wearLength &gt; 150 or removeLength &gt; 150) then
-  			-- gotta remove items in the reverse order (i.e top layer first)
-  			swapCommands(common.reverseList(removeList), wearList)
-  			removeList = {}
-  			wearList = {}
-  			removeLength = 0
-  			wearLength = 0
-  		end
-  
-  	end -- end slot if
-  end -- slot loop
-	
-	-- display(wearList)
-	-- display(removeList)
-	
-	if (wearLength &gt; 0 or removeLength &gt; 0) then
-		-- gotta remove items in the reverse order (i.e top layer first)
-		swapCommands(common.reverseList(removeList), wearList)
-	end
-
-	send('queue group &amp; queue eq', false)
-	
-	common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
-		player.equippingSet = nil
-		if cb then cb() end
-		raiseEvent(common.events.CHANGED_EQUIPMENT)
-	end)
-
-	player.swapItems = {}
-		
-end</script>
-			<eventHandlerList />
-		</Script>
-		<Script isActive="yes" isFolder="no">
 			<name>common</name>
 			<packageName></packageName>
 			<script>-------------------------------------------------
@@ -4140,10 +3668,10 @@ end
 
 
 common.tfeItemListAdd = function (list, item)
-  
+
 	local idx = 0
 	local match = nil
-	
+
 	-- see if this value is already in the list
 	for index, value in ipairs(list) do
 		match = rex.match(value, '^(\\d+)?\\*?' .. item .. '$')
@@ -4152,7 +3680,7 @@ common.tfeItemListAdd = function (list, item)
 			break
     end
   end
-	
+
 	--  if we found a match, see how many of this item are already in the list
 	if (idx &gt; 0) then
 		local count = 1
@@ -4169,7 +3697,7 @@ common.tfeItemListAdd = function (list, item)
 end
 
 common.reverseList = function(list)
-	
+
 	local i = 1
 	local j = #list
 
@@ -4178,7 +3706,7 @@ common.reverseList = function(list)
 		i = i + 1
 		j = j - 1
 	end
-	
+
 	return list
 
 end
@@ -4189,7 +3717,7 @@ common.setParryState = function (state, reason, callback, permanent)
 	local cb = callback
 
 	player.parryQueue = player.parryQueue or 0
-  
+
   -- if we have queued parry changes defer until they have all happened
   if (player.parryQueue &gt; 0) then
     common.onNextEvent(common.events.PARRY_STATE_CHANGE, function (evt, args)
@@ -4197,41 +3725,787 @@ common.setParryState = function (state, reason, callback, permanent)
     end)
     return
   end
-  
+
 	local currentState = player.parry
-		
+
 	if (player.parryRevertTimer) then
 		killTimer(player.parryRevertTimer)
 		player.parryRevertTimer = nil
-	end 
-	
+	end
+
 
 	-- if we need to swap opt parry
-	if (currentState ~= state) then	
-  
+	if (currentState ~= state) then
+
   	-- if we are turning parry on, make sure we have a plan to turn it off again
-  	if (not permanent and state) then 
+  	if (not permanent and state) then
   		player.parryRevertTimer = tempTimer(15, function ()
   			if (player.parry) then
   				common.setParryState(false, 'opt parry has been on too long!')
   			end
   		end)
-  	end  
-  
+  	end
+
   	cecho('\n&lt;green&gt;PARRY: &lt;white&gt;setting  - ' .. tostring(state) .. ' - ' .. reason or '?' .. '\n')
-  	send('opt parry')	
+  	send('opt parry')
 		player.parryQueue = player.parryQueue + 1
     cecho('&lt;yellow&gt; &lt;-- parry queue -- (' .. player.parryQueue .. ')')
-  	
+
   	common.onNextEvent(common.events.PARRY_STATE_CHANGE, function (evt, args)
       cecho('\n&lt;green&gt;PARRY: &lt;white&gt;state change happened!\n')
   		if (cb) then cb() end
     end)
-		
-	else	
+
+	else
 		cecho('\n&lt;green&gt;PARRY: &lt;white&gt;setting  - ' .. tostring(state) .. ' - skipping as no change needed\n')
 		if (cb) then cb() end
 	end
+
+end</script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>player.config</name>
+			<packageName></packageName>
+			<script>common = common or {}
+player = player or {}
+player.scripts = player.scripts or {}
+
+
+player.defaultConfig = function ()
+
+	player.bag = 'backpack.holding'
+	player.pack = 'black.silk.bag'
+  player.vessel = 'leather.waterskin'
+  player.hasFoodBasket = false
+	player.caster = false
+	player.gearSet = 'default'
+
+end
+
+common.wm = common.wm or {}
+common.wm.gridEntries = common.wm.gridEntries or {};
+
+common.resetWindows = function(event, x, y)
+
+  if (common.topContainer) then
+    local tch = common.topContainer.get_height()
+
+    if (tch ~= common.wm.tc_height) then
+          -- setBorderTop(tch)
+      common.wm.tc_height = tch
+
+      if (common.resizeTimer) then killTimer(common.resizeTimer) end
+
+      common.resizeTimer = tempTimer(0.1, function()
+        setBorderTop(common.wm.tc_height)
+        setBorderLeft(200)
+        common.resizeTimer = nil
+      end)
+
+    end
+  else
+
+    -- player is not yet init. resize once windows are setup
+    tempTimer(1, function()
+      common.resetWindows(event, x, y);
+    end)
+  end
+
+end
+
+
+if (common.resizeEventWatcher) then
+  killAnonymousEventHandler(common.resizeEventWatcher)
+  common.resizeEventWatcher = nil
+end
+
+common.resizeEventWatcher = registerAnonymousEventHandler("sysWindowResizeEvent", common.resetWindows)
+
+
+
+common.addGridEntry = function()
+
+  local idx = tostring(#common.wm.gridEntries)
+
+	local thisGrid = Geyser.Container:new({
+    name = "grid_entry_" .. idx,    -- give it a unique name here
+		x=0,
+		y= #common.wm.gridEntries * 100,
+    width = "100%",
+		height=100,
+  }, common.leftContainer)
+
+
+  local hpbar = Geyser.Gauge:new({
+    name="hpbar-" .. idx,
+    x=5, y=10,
+    width=190, height=40,
+  }, thisGrid)
+
+  hpbar.front:setStyleSheet([[
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f04141, stop: 0.1 #ef2929, stop: 0.49 #cc0000, stop: 0.75 #a40000, stop: 1 #cc0000);
+    border-top: 1px black solid;
+    border-left: 1px black solid;
+    border-bottom: 1px black solid;
+    border-radius: 3;
+    padding: 3px;
+  ]])
+  hpbar.back:setStyleSheet([[
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #bd3333, stop: 0.1 #bd2020, stop: 0.49 #990000, stop: 0.75 #700000, stop: 1 #990000);
+    border-radius: 3;
+    padding: 3px;
+  ]])
+
+  hpbar.text:setStyleSheet([[
+   qproperty-alignment: 'AlignCenter';
+  ]])
+
+  hpbar.text:setFontSize(20)
+
+  local manabar = Geyser.Gauge:new({
+    name="mpbar-" .. idx,
+    x=5, y=50,
+    width=190, height=30,
+  }, thisGrid)
+
+
+  manabar.front:setStyleSheet([[
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4141f0, stop: 0.1 #2929ef, stop: 0.49 #0000cc, stop: 0.75 #0000a4, stop: 1 #0000cc);
+    border-top: 1px black solid;
+    border-left: 1px black solid;
+    border-bottom: 1px black solid;
+    border-radius: 3;
+    padding: 3px;
+  ]])
+  manabar.back:setStyleSheet([[
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #3333bd, stop: 0.1 #2020bd, stop: 0.49 #000099, stop: 0.75 #000070, stop: 1 #000099);
+    border-radius: 3;
+    padding: 3px;
+  ]])
+  manabar.text:setStyleSheet([[
+   qproperty-alignment: 'AlignCenter';
+  ]])
+
+  manabar.text:setFontSize(20)
+
+  local movebar = Geyser.Gauge:new({
+    name="mbbar-" .. idx,
+    x=5, y=80,
+    width=190, height=20,
+  }, thisGrid)
+
+
+  movebar.front:setStyleSheet([[
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #41f041, stop: 0.1 #29ef29, stop: 0.49 #00cc00, stop: 0.75 #00a400, stop: 1 #00cc00);
+    border-top: 1px black solid;
+    border-left: 1px black solid;
+    border-bottom: 1px black solid;
+    border-radius: 3;
+    padding: 3px;
+  ]])
+  movebar.back:setStyleSheet([[
+    background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #33bd33, stop: 0.1 #20bd20, stop: 0.49 #009900, stop: 0.75 #007000, stop: 1 #009900);
+    border-radius: 3;
+    padding: 3px;
+  ]])
+  movebar.text:setStyleSheet([[
+   qproperty-alignment: 'AlignCenter';
+  ]])
+
+  movebar.text:setFontSize(14)
+
+  table.insert(common.wm.gridEntries, {
+    container = thisGrid,
+    hpbar = hpbar,
+    manabar = manabar,
+    movebar = movebar
+  })
+
+end
+
+
+common.updateGrid = function ()
+ 
+ if (common.topContainer) then
+    -- make sure we have one grid item per group member at least
+    if (#common.wm.gridEntries &lt; group.memberCount) then
+      for i = #common.wm.gridEntries, group.memberCount -1 do
+        common.addGridEntry();
+      end
+    end
+  
+    -- hide any extra grid items
+    if (#common.wm.gridEntries &gt; group.memberCount) then
+      for i = group.memberCount + 1, #common.wm.gridEntries do
+        common.wm.gridEntries[i].container:hide()
+      end
+    end  
+      
+    for idx, name in pairs(table.keys(group.members)) do
+      -- display(idx,val)
+      local data = group[name]
+      local grid = common.wm.gridEntries[idx]
+      
+      grid.container:show()
+      
+      -- display(data)
+      
+      grid.hpbar:setValue(data.hp,data.hp_max, name .. ' : ' .. tostring(data.hp) .. 'hp')
+      grid.manabar:setValue(data.mp, data.mp_max, tostring(data.mp) .. '/' .. tostring(data.mp_max))
+      grid.movebar:setValue(math.min(data.moves, data.moves_max), data.moves_max)
+    end 
+  end
+end
+
+
+
+if (common.wm.groupWatcher) then
+  killAnonymousEventHandler(common.wm.groupWatcher)
+  common.wm.groupWatcher = nil
+end
+
+
+common.wm.groupWatcher = registerAnonymousEventHandler(common.events.PARSED_GROUP, common.updateGrid)
+
+
+
+
+common.initPlayer = function ()
+
+	echo('\n\nINITIAL STATUS CHECK\n\n')
+  
+  -- rest to defaults for init
+  
+	player.name = gmcp.Char.Score.name
+
+
+	if not (player.scripts and player.scripts[player.name]) then
+    echo('\nSetting  default player script for ' .. player.name .. '!\n')
+    player.scripts[player.name] = player.defaultConfig
+	end
+
+		echo('\nRunning player script for ' .. player.name .. '!\n')
+		player.scripts[player.name]()
+
+	if (not common.topContainer) then
+
+		-- init windows
+    common.topContainer = Geyser.Container:new({
+      name = "top_container",    -- give it a unique name here
+			x=0,
+			y=0,
+      width = "100%",
+			height="25%",
+    })
+
+    common.leftContainer = Geyser.Container:new({
+      name = "left_container",    -- give it a unique name here
+			x=0,
+			y="25%",
+      width = 200,
+			height="75%",
+    })
+
+		common.mapContainer = Geyser.Container:new({
+      name = "map_container",    -- give it a unique name here
+			x=0,
+			y=0,
+      width = "40%",
+			height="100%",
+    }, common.topContainer) --
+
+		common.chatContainer = Geyser.Container:new({
+      name = "chat_container",    -- give it a unique name here
+			x="40%",
+			y=0,
+      width = "60%",
+			height="100%",
+    }, common.topContainer)
+
+				-- init windows
+    common.mapper = Geyser.Mapper:new({
+      name = "geyser_map",    -- give it a unique name here
+			x=0,
+			y=0,
+      width = "100%",
+			height="100%",
+    }, common.mapContainer)
+
+    common.chatConsole = Geyser.MiniConsole:new({
+      name = "geyser_chat",    -- give it a unique name here
+			x=0,
+			y=0,
+      width = "100%",
+			height="100%",
+			autoWrap = true,
+      color = "black",
+      scrollBar = true,
+      fontSize = 14,
+    }, common.chatContainer)
+
+	end
+
+  echo('\n\nloading gear sets. if it fails you should do luaSaveGearSet("default") to save a default set\n\n')
+  loadSavedGearSets()
+
+
+	send('score &amp; eq &amp; group &amp; inv &amp; typo &amp; prep')
+
+end</script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>player.config.example.template</name>
+			<packageName></packageName>
+			<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external Scripts --
+-------------------------------------------------
+
+player = player or {}
+player.scripts = player.scripts or {}
+
+-- nb: must match exactly. i.e don't forget the capital letter
+player.scripts.YOUR_NAME_HERE = function ()
+
+	player.bag = 'bag.holding'
+	player.pack = 'backpack.holding'
+	player.reagentBag = 'bag.reagents'
+	player.gearSet = 'default'
+	player.vessel = 'leather.waterskin'
+	player.caster = false
+	player.hasFoodBasket = false
+  player.useBerserk = false
+
+end</script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>swap</name>
+			<packageName></packageName>
+			<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external Scripts --
+-------------------------------------------------
+
+player = player or {}
+
+player.swapItems = player.swapItems or {}
+player.gearSets = player.gearSets or {}
+
+common.conditions = {
+  worthless = 0,
+  damaged = 1,
+  ["very worn"] = 2,
+  worn = 3,
+  ["very scratched"] = 4,
+  scratched = 5,
+  reasonable = 6,
+  good = 7,
+  ["very good"] = 8,
+  excellent = 9,
+  perfect = 10
+}
+
+function getLowestGearCondition (cb)
+  common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
+    -- lua player.gear["right hand"].base.condition
+    local lowestCondition = 11
+    local lowestItem
+    
+    for slot, layers in pairs(player.gear) do
+      for layer, item in pairs(layers) do
+        if (common.conditions[item.condition] == nil) then
+          cecho('\n\n&lt;red&gt;[GEAR]: &lt;white&gt; unknown gear condition: ' .. item.condition .. '\n\n')
+        else
+          if (common.conditions[item.condition] &lt; lowestCondition) then
+            lowestCondition = common.conditions[item.condition]
+            lowestItem = item
+          end
+        end
+      end
+    end
+    -- display(lowestItem)
+    -- display(player.gear)
+    cb(lowestCondition)
+  end)
+  send('eq')
+end
+
+
+function equipSet(set, callback)
+  if (player.gearSets[set]) then
+
+  	player.gearSet = set
+  	send('gs', true)
+  	equipGearSet(set, function()
+  		send('ps', false)
+			if callback then callback() end
+    end)
+
+  else
+  	cecho('\n&lt;red&gt;GEAR: &lt;white&gt;No set found matching: "' .. set .. '"\n')
+  end
+end
+
+function equipPartial(set, callback)
+  if (player.gearSets[set]) then
+  	cecho('\n&lt;green&gt;GEAR: &lt;white&gt;Equip partial set: "' .. set .. '"\n')
+  	send('gs', true)
+  	equipGearSet(set, function()
+  		send('ps', true)
+			if callback then callback() end
+    end, true)
+
+  else
+  	cecho('\n&lt;red&gt;GEAR: &lt;white&gt;No set found matching: "' .. set .. '"\n')
+  end
+end
+
+function resetGear(callback)
+
+
+  if (player.gearSets[player.gearSet]) then
+
+  	cecho('\n&lt;green&gt;GEAR: &lt;white&gt;resetting gear to set: "' .. player.gearSet .. '"\n')
+  	send('gs', true)
+
+		equipGearSet(player.gearSet, function()
+  		send('ps', true)
+			if callback then callback() end
+    end)
+
+  else
+  	cecho('\n&lt;red&gt;GEAR: &lt;white&gt;No set found matching: "' .. player.gearSet .. '"\n')
+  end
+end
+
+
+
+function saveGearSet (name)
+
+	common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
+  	table.save(getMudletHomeDir() .. "/gearsets.backup.dat", player.gearSets)
+  	player.gearSets[name] = player.gear
+  	table.save(getMudletHomeDir() .. "/gearsets.dat", player.gearSets)
+	end)
+	send('eq', false)
+
+end
+
+function loadSavedGearSets ()
+	player.gearSets = {}
+
+	local gearFile = getMudletHomeDir() .. "/gearsets.dat"
+
+	local is_file = io.open(gearFile)
+
+	if (is_file ~= nil) then
+		table.load(gearFile, player.gearSets)
+	end
+
+end
+
+
+function loadGearSetBackup ()
+	player.gearSets = {}
+	table.load(getMudletHomeDir() .. "/gearsets.backup.dat", player.gearSets)
+end
+
+-- functions below here are probably internal...
+
+function equipGearSet (name, callback, partial)
+
+
+	cecho('\n&lt;green&gt;Outfit: &lt;white&gt;equip gear set: ' .. name)
+
+  if(player.equippingSet) then
+		cecho('\n&lt;red&gt;Outfit: &lt;white&gt;waiting for prev gear change to complete before equiping ' .. name)
+
+  	common.onNextEvent(common.events.CHANGED_EQUIPMENT, function()
+			equipGearSet(name, callback, partial)
+  	end)
+
+    send('eq')
+
+    timedTempTrigger(0.5, 1, '^You cannot do that while sleeping\.$', function ()
+    	send('stand &amp; eq')
+    end)
+
+		return
+	end
+
+
+	player.equippingSet = true
+
+
+	common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
+
+  	-- echo('\ncurrent gear established...\n')
+
+		local newSet = player.gearSets[name]
+
+		if (newSet == nil) then
+
+			cecho('&lt;red&gt;Outfit Error: &lt;white&gt;set does not exist')
+			if callback then callback() end
+
+		else
+
+			-- reset current swap list
+			player.swapItems = {}
+
+  		-- remove any items that have empty slots in new set
+			if (not partial) then
+    	  for slot, layers in pairs(player.gear) do
+          for layer, item in pairs(layers) do
+    				if (not (newSet[slot] and newSet[slot][layer])) then
+  						-- echo('\nneed to remove ' .. item.item)
+  						swapItems(item.item, '', slot, layer)
+  					end
+    			end
+        end
+			end
+
+			-- swap any items different in the new set
+			for slot, layers in pairs(newSet) do
+				if (type(layers) == 'table') then -- in case junk like parsed gets in the data again
+          for layer, item in pairs(layers) do
+  					-- add any items in a layer that doesn't exist in current set
+    				if (not (player.gear[slot] and player.gear[slot][layer])) then
+  						-- echo('\nneed to add new slot ' .. item.item)
+  						swapItems('', item.item, slot, layer)
+  					elseif (player.gear[slot][layer].item ~= item.item)then
+  						swapItems(player.gear[slot][layer].item, item.item, slot, layer)
+  					end
+    			end
+				else
+					-- not sure how parsing is still in there (too lazy to investigate atm)
+					if (slot ~= 'parsing') then
+
+						cecho('\n&lt;red&gt;GEAR ERROR: &lt;white&gt;invalid data!!! slot: ' .. slot)
+					end
+				end
+      end
+
+
+						-- must remove neck.over to change neck.base
+			if (player.gear.neck and player.gear.neck.over and player.swapItems.neck and
+				(player.swapItems.neck.base and not player.swapItems.neck.over)) then
+				echo('\n\nADDING neck.over!!!\n\n')
+				swapItems(player.gear.neck.over.item, player.gear.neck.over.item, 'neck', 'over')
+			end
+
+
+			-- must remove body.base to change body.under
+			if (player.gear.body and player.gear.body.base and player.swapItems.body and
+				(player.swapItems.body.under and not player.swapItems.body.base)) then
+				-- echo('\n\nADDING body.base!!!\n\n')
+				swapItems(player.gear.body.base.item, player.gear.body.base.item, 'body', 'base')
+			end
+
+			-- if changing any waist item then keyring needs to be removed/replaced
+			if (player.gear.waist) then
+
+				-- only need to remove keyring
+				if (player.swapItems.waist and player.gear.waist.over and player.gear.waist.over.item:match('keyring') and not player.swapItems.waist.over) then
+  				-- echo('\n\nADDING KEYRINGS!!!\n\n')
+  				swapItems(player.gear.waist.over.item, player.gear.waist.over.item, 'waist', 'over')
+				end
+
+				if (player.swapItems.waist and player.gear.waist.top and player.gear.waist.top.item:match('keyring') and not player.swapItems.waist.top) then
+  				-- echo('\n\nADDING KEYRINGS!!!\n\n')
+  				swapItems(player.gear.waist.top.item, player.gear.waist.top.item, 'waist', 'top')
+				end
+
+			end
+
+			-- make sure we aren't just switching left/right things
+
+			local removeRedundantSwap = function (slot, layer)
+					if (player.swapItems["left " .. slot] and player.swapItems["left " .. slot][layer] and
+						player.swapItems["right " .. slot] and player.swapItems["right " .. slot][layer] and
+						(player.swapItems["left " .. slot][layer].from == player.swapItems["right " .. slot][layer].to) and
+  					(player.swapItems["left " .. slot][layer].to == player.swapItems["right " .. slot][layer].from)) then
+  					-- remove redundant swap
+  					cecho('\n&lt;green&gt;GEAR SWAP: &lt;white&gt;removed redundant swap (left/right ' .. slot .. '.' .. layer .. ')')
+  					player.swapItems["left " .. slot][layer] = nil
+  					player.swapItems["right " .. slot][layer] = nil
+  			end
+			end
+
+
+			removeRedundantSwap('hand finger', 'over')
+			removeRedundantSwap('hand finger', 'base')
+			removeRedundantSwap('hand finger', 'top')
+			removeRedundantSwap('wrist', 'base')
+			removeRedundantSwap('wrist', 'over')
+
+
+			local cb = function ()
+				callback()
+			end
+
+			-- lets do it...
+			performSwap(cb)
+
+		end -- end check if this was a valid set
+
+  end)
+
+	send('eq', false)
+
+end
+
+
+function swapItems (to, from, slot, layer)
+
+	-- cecho('&lt;green&gt;swap: &lt;white&gt;swap to ' .. to .. ' from ' .. from .. '\n')
+
+	if (slot == nil) then
+		cecho('&lt;red&gt;ERROR: &lt;white&gt;no slot provided on item swap ' .. to .. ' to ' .. from .. '\n')
+	end
+
+	local swap = {from=common.itemShorten(to), to=common.itemShorten(from)}
+
+	player.swapItems[slot] = player.swapItems[slot] or {}
+
+	if (player.swapItems[slot][layer]) then
+
+		if (player.swapItems[slot][layer].to == swap.from) then
+			swap.from = player.swapItems[slot][layer].from
+		else
+			cecho('Error: invalid item switch of items in slot ' .. slot)
+			display(player.swapItems[slot][layer])
+			display(swap)
+		end
+
+	end
+
+	player.swapItems[slot][layer] = swap
+
+end
+
+
+function swapCommands (removeList, wearList)
+
+	if(#wearList &gt; 0) then
+		send('get ' .. table.concat(wearList, ',') .. ' from ' .. player.bag)
+	end
+
+	if(#removeList &gt; 0) then
+		send('remove ' .. table.concat(removeList, ','))
+	end
+
+	if(#wearList &gt; 0) then
+		send('wear ' .. table.concat(wearList, ','))
+	end
+
+	if(#removeList &gt; 0) then
+		send('put ' .. table.concat(removeList, ',') .. ' in ' .. player.bag)
+	end
+
+
+end
+
+
+local slots = {
+  "right hand",
+  "left hand",
+  "left hand finger",
+  "right hand finger",
+  "right wrist",
+  "left wrist",
+  "head",
+  "body",
+  "nearby",
+  "arms",
+  "hands",
+  "feet",
+  "legs",
+  "waist",
+  "neck"
+}
+
+
+function performSwap (callback)
+
+	local cb = callback
+
+	local removeList = {}
+	local wearList = {}
+
+	local removeLength = 0
+	local wearLength = 0
+
+	local idx
+
+	local layers = { 'bottom', 'under', 'base', 'over', 'top' }
+
+  for k, slot in pairs(slots) do
+
+    if (player.swapItems[slot]) then
+
+      items = player.swapItems[slot]
+
+  		for k, layer in pairs(layers) do
+  		-- for layer, swap in pairs(items) do
+  			local swap = items[layer]
+
+  			if (items[layer]) then
+
+    			if string.len(swap.from) &gt; 0 then
+    				removeList = common.tfeItemListAdd(removeList, swap.from)
+    				-- this is an approximation since if it's already in the list
+    				-- we are only actually adding 2 (i.e 2*item)
+    				removeLength = removeLength + string.len(swap.from)
+    			end
+
+    			if string.len(swap.to) &gt; 0 then
+
+  				  wearList = common.tfeItemListAdd(wearList, swap.to)
+    				-- this is an approximation since if it's already in the list
+    				-- we are only actually adding 2 (i.e 2*item)
+    				wearLength = wearLength + string.len(swap.to)
+    			end
+
+  			end -- check if layer is being swapped
+
+  		end -- end layer loop
+
+
+  		if (wearLength &gt; 150 or removeLength &gt; 150) then
+  			-- gotta remove items in the reverse order (i.e top layer first)
+  			swapCommands(common.reverseList(removeList), wearList)
+  			removeList = {}
+  			wearList = {}
+  			removeLength = 0
+  			wearLength = 0
+  		end
+
+  	end -- end slot if
+  end -- slot loop
+
+	-- display(wearList)
+	-- display(removeList)
+
+	if (wearLength &gt; 0 or removeLength &gt; 0) then
+		-- gotta remove items in the reverse order (i.e top layer first)
+		swapCommands(common.reverseList(removeList), wearList)
+	end
+
+	send('queue group &amp; queue eq', false)
+
+	common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
+		player.equippingSet = nil
+		if cb then cb() end
+		raiseEvent(common.events.CHANGED_EQUIPMENT)
+	end)
+
+	player.swapItems = {}
 
 end</script>
 			<eventHandlerList />
@@ -4253,133 +4527,100 @@ combat = combat or {
 
 
 combat.startTimer = function ()
-	
+
 	if(combat.clear_timer) then
-		cecho('&lt;yellow&gt;&lt;-- canceled prev timer (starting new one)\n')
+		cecho('&lt;yellow&gt;&lt;-- restarting room cler timer\n')
 		combat.clearTimer()
 	end
-	
-	combat.clear_timer = tempTimer(5, function ()		
-		raiseEvent(common.events.ROOM_CLEAR)
+
+	combat.clear_timer = tempTimer(5, function ()
+		-- raiseEvent(common.events.ROOM_CLEAR) -- this will be sent when a scan comes back with 0 targets
 		combat.clear_timer = nil
-		cecho('&lt;green&gt;&lt;-- CLEAR !!! \n')
-		if (player.position == 'standing') then
+		cecho('&lt;green&gt;&lt;-- CLEAR timer !!! \n')
+		if (murder.enabled and not murder.speedwalking and player.position == 'standing') then
 			send('queue level &amp; queue scan')
-		end	
+		end
 	end, 'combat clear timer')
 end
 
-combat.clearTimer = function() 
+combat.clearTimer = function()
 	if (combat.clear_timer) then
 		killTimer(combat.clear_timer)
 	end
 	combat.clear_timer = nil
 end
 
-combat.reset = function() 
-	combat.active = false
-	combat.mobs = 0
-	
-	if(combat.clear_timer) then
-		
-		if (not mapper.speedwalking) then
-			cecho('&lt;yellow&gt;&lt;-- canceled prev clear check (moved too fast)\n')
-		end
-		
-		combat.clearTimer()
-	end
-	
-	if (not murder.speedwalking) then
-		combat.startTimer()
-	end
-	
+combat.reset = function()
+	-- if (murder.enabled and not murder.speedwalking) then
+	combat.startTimer()
+	-- end
 end
 
 combat.extendRoomCheck = function ()
-	
+
 	if (combat.clear_timer) then
 		cecho('&lt;green&gt;&lt;-- EXTEND ROOM CLEAR CHECK\n')
 		combat.clearTimer()
-  	combat.startTimer()	
-	end	
+  	combat.startTimer()
+	end
 
 end
 
-
-combat.add = function (mob)
+combat.start = function()
 	
-	combat.mobs = combat.mobs + 1
-	echo(' &lt;--- mob++ ' .. tostring(combat.mobs))
-	if (not combat.active) then
+  if (not combat.active) then
+    combat.startTime = getEpoch()
 		combat.active = true
-		echo(' -=[ COMBAT ]=-')
+		cecho(' &lt;white&gt;&lt;-- -=[ COMBAT ]=-')
 		raiseEvent(common.events.COMBAT_STARTED)
+    combat.clearTimer()
+    -- extend the idle scanner if we are farming (should prob be done via an event)
+	  murder.idleScanner()
 	end
-	
-	if (combat.clear_timer) then
-		combat.clearTimer()
-		cecho('\n&lt;orange&gt;ROOM CLEAR SIGNAL CANCELED\n')
-	end
-	
-	-- extend the idle scanner if we are farming (should prob be done via an event)
-	murder.idleScanner()
-	
+
 end
 
--- some mobs wil attach us without doing the standard emotes
--- this should help a little
-combat.counterattack = function(mob)
-	if (not combat.active) then
-		combat.add(mob)
-	end
-end
-
--- this will add a mob that has been slept, even tho it may not be attacking us
-combat.sleeping = function(mob)
-	if (not combat.active) then
-		combat.add(mob)
-		echo(' &lt;--- mob++ (slept) ' .. tostring(combat.mobs))
-	end
-end
-
--- moved the remove to getting xp for now, as sometimes we are blind
-combat.remove = function() -- mob
-	if combat.mobs &gt; 0  then
-  	combat.mobs = combat.mobs - 1
-
-		-- if we kilt something in it's sleep
-  	if (sleeping_mob) then
-  		if (combat.mobs &gt; 0) then
-				combat.mobs = combat.mobs - 1
-			end
-  		sleeping_mob = false
-  	end
-
-
-		echo(' &lt;--- mob-- ' .. tostring(combat.mobs))
-  	if (combat.mobs == 0) then
-  		combat.active = false
-  		echo(' -=[ PEACE ]=-')
-			send('queue level &amp; queue scan')
-  		raiseEvent(common.events.COMBAT_ENDED)
-  		combat.startTimer()			
-  	end
-	else
-		echo(' &lt;--- mob died before detection ') --  .. mob
-		combat.startTimer()	
-	end
+combat.finish = function ()
 	
-	-- extend the idle scanner if we are farming (should prob be done via an event)
-	murder.idleScanner()
-	
+  if (combat.active) then
+    combat.active = false
+  	cecho(' &lt;white&gt; -=[ PEACE ]=-')
+  	send('queue level &amp; queue scan')
+  	raiseEvent(common.events.COMBAT_ENDED, getEpoch() - combat.startTime)
+  	combat.startTimer()
+    -- extend the idle scanner if we are farming (should prob be done via an event)
+	  murder.idleScanner()  
+  end
+
 end
+
+
+combat.checkScan = function ()
+
+  -- display('checking scan', murder.exits)
+  
+  if (murder.exits.here == nil or murder.exits.here.targetCount == 0) then
+    cecho('&lt;green&gt;&lt;-- CLEAR (scan)!!! \n')
+    raiseEvent(common.events.ROOM_CLEAR)
+  end
+
+end
+
+
 
 if (combat.eventWatcher) then
   killAnonymousEventHandler(combat.eventWatcher)
   combat.eventWatcher = nil
 end
 
-combat.eventWatcher = registerAnonymousEventHandler(tfe.events.ROOM_CHANGED, combat.reset)</script>
+combat.eventWatcher = registerAnonymousEventHandler(tfe.events.ROOM_CHANGED, combat.reset)
+
+if (combat.scanWatcher) then
+  killAnonymousEventHandler(combat.scanWatcher)
+  combat.scanWatcher = nil
+end
+
+combat.scanWatcher = registerAnonymousEventHandler(murder.events.SCAN_PROCESSED, combat.checkScan)</script>
 			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">
@@ -4414,7 +4655,7 @@ common.timedTempTrigger = function (timeout, maxTriggerCount, pattern, callback,
 			fcb()
 		end
 	end, 'timed temp trigger')
-	
+
 	return {triggerId = triggerId, timerId = tempTimerId}
 
 end
@@ -4483,7 +4724,29 @@ oneRoomExitTrig = common.oneRoomExitTrig</script>
 		<Script isActive="yes" isFolder="no">
 			<name>team</name>
 			<packageName></packageName>
-			<script>
+			<script>common.includeInRollCalls = {
+  Mojune = true,
+  Mohoonay = true,
+  Myrth = true,
+  Grehild = true,
+  Darion = true,
+  Darius = true,
+  Bimgore = true,
+	Marial = true,
+	Grackle = true,
+  Raksha = true,
+}
+
+common.groupDo = function (command)
+  send('gt time to ' .. command)
+  for member in pairs(group.members) do
+    if (not common.includeInRollCalls[member]) then
+      send('tell ' .. member .. ' do ' .. command)
+    end
+  end
+end
+
+
 common.comeToMe = function (callback)
 
   if (group.memberCount == 1) then
@@ -4531,20 +4794,20 @@ common.comeToMe = function (callback)
 end
 
 common.collectFollowers = function (callback)
-	
+
 	if (not murder.paused) then
 		murder.pause()
 	end
-	
-	
+
+
 	local roll = common.newRollCall(true)
 
 	send('stand &amp; remove blanket')
-	
+
 	local outStandingResponses = group.memberCount - 1
-	
+
 	local onAllResponded = function ()
-	
+
   	for key, value in pairs(roll) do
   		if (value ~= true) then
   			cecho('\n\n&lt;red&gt;MURDER: &lt;white&gt;' .. key .. ' is lost at ' .. tostring(value) .. '\n')
@@ -4555,43 +4818,43 @@ common.collectFollowers = function (callback)
 				end)
 				return
   		end
-  	end	
-		
+  	end
+
 		-- if we got to here then everyone is here already
 		cecho('\n\n&lt;green&gt;MURDER: &lt;white&gt;everyone is collected now!\n')
 		if (murder.paused) then
   		murder.resume()
   	end
 		callback()
-	
+
 	end
-	
-	
+
+
 	tempRegexTrigger([[^.+ tells the group[^:]*: "(\w+) is at (\d+)"]], function ()
-		
+
 		local vnum = tonumber(matches[3])
-		
+
 		if (tfe.roomInfo.vnum == vnum) then
 			roll[matches[2]] = true
 		else
 			roll[matches[2]] = vnum
 		end
-				
+
 		outStandingResponses = outStandingResponses - 1
 
 		if (outStandingResponses == 0) then
 			onAllResponded()
 		end
-		
+
 	end, outStandingResponses)
-	
+
 	send('gt where are you?')
-	
+
 end
 
 
 common.fixConditions = function (callback)
-	
+
 	if (not murder.paused) then
 		murder.pause()
 	end
@@ -4603,13 +4866,13 @@ common.fixConditions = function (callback)
 		if (vic == 'You') then vic = player.name end
 		roll[matches[2]] = true
 	end)
-	
+
 	send('gstatus condition report')
-	
+
 	tempTimer(5, function ()
-		
+
 		killTrigger(healthyCheckId)
-		
+
 		if common.rollCheck(roll) then
 			send('gstatus all healthy')
 			if (murder.paused) then
@@ -4622,7 +4885,7 @@ common.fixConditions = function (callback)
 				common.fixConditions(callback)
 			end, 'waiting for cures before checking conditions')
 		end
-		
+
 	end)
 
 end
@@ -4631,25 +4894,15 @@ end
 common.newRollCall = function (excludeSelf)
 
 	local roll = {}
-  
-  local includeInRollCalls = {
-    Mojune = true,
-    Myrth = true,
-    Grehild = true,
-    Darion = true,
-    Darius = true,
-    Bimgore = true,
-		Marial = true,
-		Grackle = true,
-    Raksha = true,
-  }
+
+
 
 	for name, value in pairs(group.members) do
-    if (includeInRollCalls[name]) then
+    if (common.includeInRollCalls[name]) then
 		  roll[name] = false
     end
 	end
-  
+
 	if (excludeSelf) then
 		roll[player.name] = true
 	end
@@ -4708,11 +4961,11 @@ common.groupOnReady = function (cb)
 end
 
 common.groupPrepIfUnder = function (mana, heals, cb)
-			
+
 	local pfcb = cb
-	
+
 	common.groupOnReady(function ()
-		send('gt Going!!!')					
+		send('gt Going!!!')
 		if (pfcb) then
 			pfcb()
 		end
@@ -4723,10 +4976,32 @@ common.groupPrepIfUnder = function (mana, heals, cb)
 
 end
 
+common.groupPrepFree = function (cb)
+
+	local pfcb = cb
+
+  if (group.memberCount == 1) then
+    cecho('\n&lt;yellow&gt;COMMON: &lt;white&gt;skipping group prep full due to only one party member\n\n')
+    player.prepFull(pfcb)
+    return
+  end
+
+	common.groupOnReady(function ()
+		send('gt going')
+		if (pfcb) then
+			pfcb()
+		end
+	end)
+
+	send('gt pfree')
+
+end
+
+
 common.groupPrepFull = function (cb)
 
 	local pfcb = cb
-  
+
   if (group.memberCount == 1) then
     cecho('\n&lt;yellow&gt;COMMON: &lt;white&gt;skipping group prep full due to only one party member\n\n')
     player.prepFull(pfcb)
@@ -4771,10 +5046,10 @@ function registerAnonymousEventHandler(evt, fn, selfDestruct)
 	}
 
   local callback
-	
+
 	if (type(thisData.lcb) == 'string') then
   		callback =thisData.lcb
-			cecho('\n&lt;red&gt;EVENT: &lt;white&gt;event handler defined as string - ' .. thisData.lcb .. ' : ' .. '\n')	
+			cecho('\n&lt;red&gt;EVENT: &lt;white&gt;event handler defined as string - ' .. thisData.lcb .. ' : ' .. '\n')
 	else
 		callback = function (...)
     		local cb = thisData.lcb
@@ -4783,12 +5058,12 @@ function registerAnonymousEventHandler(evt, fn, selfDestruct)
     		return cb(unpack(arg))
     	end
 	end
-	
+
 	thisData.handlerId = oRegisterAnonymousEventHandler(evt, callback, selfDestruct)
 	eventHandlers[thisData.handlerId] = evt
-	
+
 	return thisData.handlerId
-	
+
 end
 
 function killAnonymousEventHandler(id)
@@ -4799,12 +5074,12 @@ function killAnonymousEventHandler(id)
 	else
 		-- cecho('\n&lt;red&gt;TIMER: &lt;white&gt;attempted to kill missing event handler - ' .. id .. '\n')
 	end
-	
+
 	return oKillAnonymousEventHandler(id)
 
 end
 
-		
+
 -- allow us to track raised events
 function raiseEvent(...)
 	-- cecho('\n&lt;green&gt;EVENT: &lt;white&gt;raised - ' .. arg[1] .. '\n')
@@ -4893,7 +5168,7 @@ tempTimer = function(seconds, code, description)
     if (type(oCode) == 'string') then
       cecho('\n\nERROR in timer code, not a function: ' .. oCode .. '\n\n')
     end
-    
+
 		oCode(...)
 	end
 
@@ -4936,11 +5211,11 @@ end
 common.consoleMessage = function(console, message, statusColor)
 
   local color = 'green'
-  
-  if (statusColor) then 
-    color = statusColor 
+
+  if (statusColor) then
+    color = statusColor
   end
-  
+
   console:cecho('&lt;' .. color .. '&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. message .. "\n")
 end
 
@@ -4954,7 +5229,7 @@ common.formatElapsedTime = function (time)
 	if (not time) then
 		return '0 seconds'
 	end
-	
+
 	local hrs = 0
 	local mins = 0
 	local secs = 0
@@ -5030,27 +5305,27 @@ common.itemSanitize = function(string)
 	if (not string or string == '') then
 		return ''
 	end
-  
-  
-  
+
+
+
 	string = rex.gsub(string, [[(enchanted |empty, |flaming, frost-covered |flaming |labeled |empty |\s\+\d)]], '')
-  
+
   if (string ~= 'frost-covered ring') then
     string = rex.gsub(string, [[frost-covered ]], '')
   end
-  
+
   return string
-  
+
 end
 
 common.itemShorten = function(item)
 
   return rex.gsub(
-		rex.gsub(common.dotCase(common.itemSanitize(item)),"'(.*)'",'%1'), 
-		'([^.][^.][^.][^.]?)[^.]+', 
+		rex.gsub(common.dotCase(common.itemSanitize(item)),"'(.*)'",'%1'),
+		'([^.][^.][^.][^.]?)[^.]+',
 		'%1'
 	)
-	
+
 end
 
 common.commaCase = function (str)
@@ -5091,7 +5366,7 @@ common.toMurderString = function (victim)
     yeti = true,
     ['mammoth yeti'] = true,
   }
-  
+
   if (not ignoreTerminalI[victim]) then
 	 victim = rex.gsub(victim, [[i\b]], '')
   end
@@ -5101,7 +5376,7 @@ common.toMurderString = function (victim)
 	 -- turn mercenaries back into mercanary
 	victim = rex.gsub(victim, [[ies$]], 'y')
 
-	-- dump any s's or es's on the end of a plural  
+	-- dump any s's or es's on the end of a plural
 	-- west : two greater cyclopses, vs a greater cyclops
 	-- drudges should go to drudge tho...
 	if (rex.find(victim, [[ses\b]])) then
@@ -5116,7 +5391,7 @@ common.toMurderString = function (victim)
 	victim = rex.gsub(victim, [[,]], '')
 
 	-- kill any parts less than 3 charaters
-	
+
 	victim = rex.gsub(victim, [[(^|\.|\s)\S\S?(\s|\.|$)]], '%1%2')
 
 	-- kill any extra whitepsace or multiple .'s
@@ -5158,16 +5433,16 @@ common.checkShields = function (cbGood, cbBad)
 
 
   -- Affect                                            Source
-  -- 
+  --
   -- ------                                            ------
   -- You sense a divine protection.                    leech: a male vyan
   -- You feel righteous.                               leech: a male vyan
-	
+
 	local affectWatcher = nil
-	
+
 	local tempAffects = false
 	local affectCount = 0
-	
+
 	local okayTempAffects = {
 		['You feel sick!'] = true,
 		['Your battlemind is divinely focused.'] = true,
@@ -5179,22 +5454,22 @@ common.checkShields = function (cbGood, cbBad)
 
 
 		for affect, source in pairs(affects) do
-		
 
 
-  	
+
+
   		if (source == 'temporary') then
-  			-- earthen protection is always tempporary				
+  			-- earthen protection is always tempporary
   			if not okayTempAffects[affect] then
   				cecho('&lt;white&gt;--== &lt;red&gt;expiring : ' .. affect .. ' &lt;white&gt; =-\n')
   				tempAffects = true
   			end
-  			
+
   		end
   		affectCount = affectCount + 1
-			
+
 		end
-		
+
 		if (tempAffects) then
 			cecho('\n&lt;red&gt;WARNING: &lt;white&gt;Affects Checked!, some shields will expire!\n')
 			if (cbBad) then
@@ -5206,9 +5481,9 @@ common.checkShields = function (cbGood, cbBad)
 				cbGood(player.affects)
 			end
 		end
-		
+
 	end)
-		
+
 
 end
 </script>
@@ -5306,15 +5581,15 @@ murder = murder or {}
 
 murder.tankState = murder.tankState or 'here'
 
-mapper.gotoRoom = function(rnum, callback) 
+mapper.gotoRoom = function(rnum, callback)
   tfe.gotoRoom(rnum, {callback = callback})
 end
 
 
-murder.idleScanner = function () 	
+murder.idleScanner = function ()
 
 	murder.clearIdleScanTimer()
-	
+
 	if (murder.enabled and not murder.speedwalking) then
   	cecho('\n&lt;green&gt;MURDER: &lt;white&gt;started idle scan timer!\n')
   	murder.idleTimer = tempTimer(10, function ()
@@ -5323,7 +5598,7 @@ murder.idleScanner = function ()
   		murder.idleScanner()
   	end, 'murder idle timer')
 	end
-	
+
 end
 
 murder.clearIdleScanTimer = function()
@@ -5348,17 +5623,17 @@ end
 combat = combat or {}
 
 combat.hit = function(evt, attackData)
-  
+
   -- deleteLine()
   cecho('&lt;green&gt;ATK:&lt;white&gt; ' .. attackData.subject .. ' : ' .. attackData.damage)
-  
+
   -- display(attackData)
 end</script>
 			<eventHandlerList>
 				<string>COMMON:: combat_attack</string>
 			</eventHandlerList>
 		</Script>
-		<Script isActive="no" isFolder="no">
+		<Script isActive="yes" isFolder="no">
 			<name>tfe.char_fighting</name>
 			<packageName></packageName>
 			<script>-------------------------------------------------
@@ -5372,16 +5647,28 @@ tfe = tfe or {}
 tfe.char_fighting = function ()
 
   local fighting = gmcp.Char.Fighting or {}
-  
+
   local count = 0
-  
+
   for mob, state in pairs(gmcp.Char.Fighting) do
     count = count + 1
   end
-
-  display(fighting)
-  cecho('&lt;orange&gt; &lt;--- fighting ' .. tostring(count) .. ' mobs\n')
   
+  combat.mobs = count
+  
+  if (count == 0 and combat.active) then
+    combat.finshDelayTimer = tempTimer(1, function()
+      combat.finish()
+      combat.finshDelayTimer = nil
+    end)
+  elseif (count &gt; 0 and not combat.active) then
+    if (combat.finshDelayTimer ~= nil) then
+      killTimer(combat.finshDelayTimer)
+      combat.finshDelayTimer = nil
+    end 
+    combat.start()
+  end
+
 end</script>
 			<eventHandlerList>
 				<string>gmcp.Char.Fighting</string>
@@ -5418,27 +5705,27 @@ end
 improves.castSpell = function ()
 
 	if (#improves.castQueue == 0) then
-		
+
 		cecho('\n\n -= ' .. improves.fillerSpell .. ' =-\n\n')
 		send(improves.fillerSpell)
 		improves.castFillerLastTick = true
-		
+
 	else
-	
+
 		if (improves.castFillerLastTick) then
-			
+
 			improves.castFillerLastTick = false
 			cecho('\n\n -= holding filler for real spell next tick =-\n\n')
-			
+
 		else
-		
+
 			local spell = table.remove(improves.castQueue, 1)
 			improves.castFillerLastTick = true
 			cecho('\n\n -= ' .. spell .. ' =-\n\n')
 			send(spell)
-		
+
 		end
-		
+
 	end
 
 end
@@ -5484,14 +5771,14 @@ improves.getImproveSpell = function ()
   end
 
   player.impAttempt = player.impAttempt or 0
-  
+
   player.impAttempt = (player.impAttempt % #improves.spellList) + 1
-  
+
   local spell = improves.spellList[player.impAttempt]
-  
+
   if (player.skills == nil) then
     send('abil all')
-  else 
+  else
     -- remove this maxxed out or unlearned spell and return the next one in the list
     if (player.skills[spell] == nil or player.skills[spell] &gt;= 10 or player.skills[spell] == 0) then
       cecho('\n&lt;yellow&gt;removing ' .. spell .. ' from impprove list\n')
@@ -5501,7 +5788,7 @@ improves.getImproveSpell = function ()
   end
 
   return 'cast ' .. spell
-  
+
 end</script>
 			<eventHandlerList />
 		</Script>
@@ -5511,6 +5798,137 @@ end</script>
 			<script>raiseEvent('njs50PlevLoaded')</script>
 			<eventHandlerList />
 		</Script>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>gmcp-group</name>
+			<packageName></packageName>
+			<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external scripts --
+-------------------------------------------------
+</script>
+			<eventHandlerList />
+			<Script isActive="yes" isFolder="no">
+				<name>gcmp healer</name>
+				<packageName></packageName>
+				<script>common = common or {}
+
+
+local convertRecord = function (record)
+  return {
+    mp_max = record.maxen,
+    mp = record.en,
+    moves_max = record.maxmv,
+    hp = record.hp,
+    hp_max = record.maxhp,
+    moves = record.mv
+  }
+end
+
+
+
+common.updateFromGMCP = function()
+
+  -- skip if gmcp is not fully init
+  if (not gmcp.Char.Score) then
+    return
+  end
+
+  if (common.updateGMCPTimer ~= nil) then
+    -- cecho('&lt;yellow&gt; &lt;-- (update already pending)')
+    return
+  end
+    
+  
+    
+  common.updateGMCPTimer = tempTimer(0.1, function()
+      
+    local playerStats = convertRecord(gmcp.Char.Vitals)
+    
+    group.lowest_moves = gmcp.Group.minmv
+    
+    group.memberCount = 1
+    group.members = {[gmcp.Char.Score.name] = true}
+  
+    group[gmcp.Char.Score.name] = playerStats
+    
+    for stat, val in pairs(playerStats) do
+      player[stat] = val
+    end
+    
+    
+    for name, stats in pairs(gmcp.Group.members) do
+      group.memberCount = group.memberCount + 1
+      group.members[name] = true
+      group[name] = convertRecord(stats)
+    end
+  
+    raiseEvent(common.events.PARSED_GROUP);
+    common.updateGMCPTimer = nil;
+    -- cecho('\n&lt;green&gt;GROUP: &lt;white&gt;data updated!!\n')
+  end)
+  -- cecho('&lt;orange&gt; &lt;-- update queued...\n')
+  
+end
+
+
+-- 
+-- healer.reducePlayerHp = function(subject, amount)
+  -- 
+  -- group[subject].hp = group[subject].hp - amount
+  -- 
+  -- -- if the player is us...
+  -- if (player.name == subject) then
+    -- player.hp = player.hp - amount
+  -- end
+  -- 
+  -- cecho('&lt;red&gt;HP: &lt;white&gt;' .. subject .. ': ' .. tostring(group[subject].hp))
+  -- 
+  -- healer.check_player_health(subject)
+  -- 
+-- end</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>common.groupUpdateGMCP</name>
+				<packageName></packageName>
+				<script>
+common.groupUpdateGMCP = function ()
+
+  -- cecho('&lt;green&gt; &lt;-- group updated ')
+  common.updateFromGMCP()
+
+end</script>
+				<eventHandlerList>
+					<string>gmcp.Group</string>
+				</eventHandlerList>
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>common.playerUpdateGMCP</name>
+				<packageName></packageName>
+				<script> -- display(gmcp.Group)
+ 
+common.playerUpdateGMCP = function ()
+  -- cecho('&lt;green&gt; &lt;-- player updated ')
+  common.updateFromGMCP()
+end</script>
+				<eventHandlerList>
+					<string>gmcp.Char.Vitals</string>
+				</eventHandlerList>
+			</Script>
+			<Script isActive="no" isFolder="no">
+				<name>common.playerHitEvent</name>
+				<packageName></packageName>
+				<script>common.playerHitEvent = function (evt, data)
+
+  -- healer.reducePlayerHp(data.subject, data.amount)
+
+end</script>
+				<eventHandlerList>
+					<string>COMMON:: combat_player_hit</string>
+				</eventHandlerList>
+			</Script>
+		</ScriptGroup>
 	</ScriptPackage>
 	<KeyPackage />
 	<HelpPackage>

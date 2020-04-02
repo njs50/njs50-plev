@@ -2050,11 +2050,9 @@ else
   for idx, state in pairs(gmcp.Char.Status.conditions) do
   	if (state ~= 'sober') then
   		send('gstatus ' .. state .. ' - ' .. player.name )
-      
       if (state == 'hungry') then
         send('ef &amp; ef')
       end
-      
   	end
   end
 end
@@ -2538,7 +2536,7 @@ if (caster == 'You') then
   caster = player.name
 end
 
-if not rex.find(spell, [[^(cure|heal|restoration|group|sleep|mists|purify|neutralize|fear|paralyze|group|slow|web|probe|silence)]]) then
+if not rex.find(spell, [[^(cure|heal|restoration|group|mists|purify|neutralize|fear|paralyze|group|slow|web|probe|silence)]]) then
 
   combat.dealer = caster
   combat.type = 'spell'
@@ -2757,7 +2755,7 @@ end
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>hit - non attack</name>
-					<script>
+					<script>-- Mohoonay's attack misses an ogre miner.
 
 local subject = matches[2]
 local move = matches[3]
@@ -2798,8 +2796,12 @@ end</script>
 						<string>^(You|[A-Z][a-z]+) leaps? to (attack) (.*)[!.]$</string>
 						<string>^(You|[A-Z][a-z]+) (miss)e?s? (.*)[!.]$</string>
 						<string>^(You|[A-Z][a-z]+) (counterattack)s? (.*)[!.]$</string>
+						<string>^(You|Your|[A-Z][a-z]+?)'?s? (great cleave|cleave|power strike) hits (.*)[!.]$</string>
+						<string>^(Your|[A-Z][a-z]+)'s attack (miss)e?s? (.*)[!.]$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
@@ -2959,6 +2961,57 @@ end
 						<string>\S+\s+\[(\d+)\]\s+(\w+?)['.! ]</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>sleep tracking</name>
+					<script>-- Mohoonay casts sleep.
+-- An ogre miner looks drowsy but quickly shrugs it off.
+
+-- An ogre miner drops to the ground asleep.
+
+-- A gnomish captain slips deeper into slumber.
+
+-- Mohoonay casts sleep.
+-- An ogre miner looks incredibly tired!
+-- An ogre miner drops to the ground asleep.
+
+if (combat.type and combat.type == 'spell' and combat.spell == 'sleep' and group.members[combat.dealer]) then
+
+  local attackData = {
+    subject = combat.dealer,
+    damageType = combat.type,
+    move = 'sleep - ' .. matches[3],
+    mob = matches[2],
+    damage = 0
+  }
+
+  combat.type = ''
+    
+  raiseEvent(common.events.COMBAT_ATTACK, attackData)
+
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^(.*) looks drowsy but quickly (shrugs) it off\.$</string>
+						<string>^(.*) drops .* (asleep)\.$</string>
+						<string>^(.*) slips (deeper) into slumber\.$</string>
+						<string>^()(Nothing) happens\.$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
@@ -3556,6 +3609,44 @@ end</script>
 			</Alias>
 		</AliasGroup>
 		<AliasGroup isActive="yes" isFolder="yes">
+			<name>damage meter</name>
+			<script></script>
+			<command></command>
+			<packageName></packageName>
+			<regex></regex>
+			<Alias isActive="yes" isFolder="no">
+				<name>dm</name>
+				<script>local cmd = matches[2]
+local param = matches[3]
+
+
+local commands = {
+	
+	start = damageMeter.start,
+	
+	stop = damageMeter.stop,
+
+    
+	show = function (target)
+   damageMeter.report(target)
+	end,
+  
+
+}
+
+local fn = commands[cmd]
+
+if (fn) then
+	fn(param)
+else
+  cecho('\n\n&lt;red&gt;DM: &lt;white&gt;error - unknown command ' .. cmd .. '\n')
+end</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^dm (\S+) ?(.*)$</regex>
+			</Alias>
+		</AliasGroup>
+		<AliasGroup isActive="yes" isFolder="yes">
 			<name>gear swap</name>
 			<script></script>
 			<command></command>
@@ -3780,6 +3871,9 @@ player.defaultConfig = function ()
   player.hasFoodBasket = false
 	player.caster = false
 	player.gearSet = 'default'
+  player.autoAttack = function(target)
+    send('+kill ' .. target)  
+  end
 
 end
 
@@ -4078,6 +4172,10 @@ player.scripts.YOUR_NAME_HERE = function ()
 	player.caster = false
 	player.hasFoodBasket = false
   player.useBerserk = false
+  
+  player.autoAttack = function(target)
+    send('+kill ' .. target) -- .. ' &amp; berserk &amp; queue stand'  
+  end
 
 end</script>
 			<eventHandlerList />
@@ -5792,12 +5890,6 @@ improves.getImproveSpell = function ()
 end</script>
 			<eventHandlerList />
 		</Script>
-		<Script isActive="yes" isFolder="no">
-			<name>last script (to trigger dependencies!)</name>
-			<packageName></packageName>
-			<script>raiseEvent('njs50PlevLoaded')</script>
-			<eventHandlerList />
-		</Script>
 		<ScriptGroup isActive="yes" isFolder="yes">
 			<name>gmcp-group</name>
 			<packageName></packageName>
@@ -5929,6 +6021,371 @@ end</script>
 				</eventHandlerList>
 			</Script>
 		</ScriptGroup>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>Damage Meter</name>
+			<packageName></packageName>
+			<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external scripts --
+-------------------------------------------------
+</script>
+			<eventHandlerList />
+			<Script isActive="yes" isFolder="no">
+				<name>damage meter</name>
+				<packageName></packageName>
+				<script>damageMeter = damageMeter or {}
+
+damageMeter.start = function ()
+
+  if (damageMeter.combatEndWatcher) then
+    killAnonymousEventHandler(damageMeter.combatEndWatcher)
+    damageMeter.combatEndWatcher = nil
+  end
+  
+  damageMeter.combatEndWatcher = registerAnonymousEventHandler(common.events.COMBAT_ENDED, damageMeter.combatTimer)
+
+
+  damageMeter.reset()
+  damageMeter.startTime = getEpoch()
+  damageMeter.recording = true
+  damageMeter.combatTime = 0
+end
+
+damageMeter.stop = function ()
+  damageMeter.stopTime = getEpoch()
+  damageMeter.recording = false
+end
+
+local updateDamageRecord = function(record, amount) -- , type
+  record.count = record.count or 0
+  record.count = record.count + 1
+  record.amount = record.amount or 0
+  record.amount = record.amount + amount
+  -- record.spells = record.spells or {}
+  
+  -- if (type) then
+    -- record.type = type
+  -- end
+  -- i don't think we need to keep this...
+  -- record.amounts = record.amounts or {}
+  -- table.insert(record.amounts, amount)
+end
+
+damageMeter.record = function (dealer, amount, target, type, spell)
+
+  -- echo(' &lt;- ' .. type .. ' ' .. dealer .. ' : ' .. tostring(amount))
+  -- deleteLine()
+  
+  -- if (type == 'no-damage') then
+    -- cecho('\n\n&lt;green&gt;[DAMAGE METER] &lt;white&gt;non damage hit ' .. spell .. '\n\n')
+  -- end
+  
+  if (damageMeter.recording) then
+  
+    damageMeter.byMember[dealer] = damageMeter.byMember[dealer] or {}
+  
+    local record = damageMeter.byMember[dealer]
+  
+    -- record.spell = record.spell or {}
+    record.type = record.type or {}
+
+    record.type[type] = record.type[type] or {}
+    record.type[type].spells = record.type[type].spells or {}
+    record.type[type].spells[spell] = record.type[type].spells[spell] or {}
+    
+    -- record.spell[spell] = record.spell[spell] or {}
+  
+    updateDamageRecord(record.type[type], amount)
+    updateDamageRecord(record.type[type].spells[spell], amount)
+    
+    -- updateDamageRecord(record.spell[spell], amount, type)
+  
+  end
+
+end
+
+damageMeter.reset = function ()
+  damageMeter.recording = false
+  damageMeter.stopTime = nil
+  damageMeter.byMember = {}
+  -- damageMember.byTarget = {}
+end
+
+damageMeter.report = function(target)
+
+  if (target and group.members[target]) then
+    damageMeter.reportPlayer(target)
+    return
+  end
+  
+  
+  -- 
+  -- testMaker = demonnic.TableMaker:new()
+  -- -- Though by itself, it won't really do much. So let's add a few columns to it
+  -- testMaker:addColumn({name = "col1", width = 15, textColor = "&lt;orange&gt;"})
+  -- testMaker:addColumn({name = "col2", width = 20, textColor = "&lt;green&gt;"})
+  -- testMaker:addColumn({name = "col3", width = 30, textColor = "&lt;purple&gt;"})
+  -- -- These are fairly minimal format options, but are enough for our demonstration purposes. 
+  -- -- So now we've described the formatting for our table, let's add some information to display and print it out.
+  -- testMaker:addRow({"row 1 col 1", "row 1 col 2", "row 1 col 3"})
+  -- testMaker:addRow({"row 2 col 1", "row 2 col 2", "row 2 col 3"})
+  -- testMaker:addRow({"row 3 col 1", "row 3 col 2", "row 3 col 3"})
+  -- cecho(testMaker:assemble())
+  
+  local time = damageMeter.combatTime or 1
+  local elapsedTime = (damageMeter.stopTime or getEpoch()) - damageMeter.startTime
+  
+  cecho('\n\n&lt;green&gt;Damage\n')
+  cecho('&lt;white&gt;Combat Time: ' .. common.formatElapsedTime(time) .. '\n')
+  cecho('&lt;white&gt;Elapsed Time: ' .. common.formatElapsedTime(elapsedTime) .. '\n\n')
+  
+  for member, cats in pairs(damageMeter.byMember) do
+    
+    local total = 0
+    
+    for dt, stats in pairs(cats.type) do
+      total = total + stats.amount
+    end
+    
+    local dps = math.floor(100 * total / time) / 100
+    
+    cecho(
+      demonnic:cfText(
+        member, 
+        {
+          alignment = "left", 
+          width = 15, 
+          spacer = ".", 
+          inside = true, 
+          textColor = "&lt;green&gt;"
+        }
+      ) ..
+      demonnic:fText(
+        tostring(dps), 
+        {
+          alignment = "right", 
+          width = 10, 
+          spacer = ".", 
+          textColor = "&lt;white&gt;"
+        }
+      ) ..
+      ' dps\n'
+    ) 
+  end
+  
+  if (target and target == 'all') then
+    for player, data in pairs(damageMeter.byMember) do
+      damageMeter.reportPlayer(player)
+    end
+  end
+  
+end
+
+damageMeter.reportPlayer = function(player)
+  -- 
+
+
+  local time = damageMeter.combatTime or 1
+  local elapsedTime = (damageMeter.stopTime or getEpoch()) - damageMeter.startTime
+  
+  local total = 0
+    
+  for dt, stats in pairs(damageMeter.byMember[player].type) do
+    total = total + stats.amount
+  end
+  
+  
+  cecho('\n\n&lt;green&gt;Damage by ' .. player .. '\n')
+  cecho('&lt;white&gt;Combat Time: ' .. common.formatElapsedTime(time) .. '\n')
+  cecho('&lt;white&gt;Elapsed Time: ' .. common.formatElapsedTime(elapsedTime) .. '\n')
+  cecho('&lt;white&gt;Damage output: ' .. tostring(math.floor(100 * total / time) / 100) .. ' dps\n\n')
+  
+  
+  if (damageMeter.byMember[player].type.spell) then
+    damageMeter.reportByType('spell', damageMeter.byMember[player].type.spell, player)
+  end
+  
+  if (damageMeter.byMember[player].type.melee) then
+    damageMeter.reportByType('melee damage', damageMeter.byMember[player].type.melee, player)
+  end
+  
+  if (damageMeter.byMember[player].type.proc) then
+    damageMeter.reportByType('procs', damageMeter.byMember[player].type.proc, player)
+  end
+  
+  if (damageMeter.byMember[player].type['no-damage']) then
+    damageMeter.reportByType('non damage', damageMeter.byMember[player].type['no-damage'], player)
+  end
+
+end
+
+damageMeter.reportByType = function(type, rollup, player)
+
+  local data = rollup.spells
+
+  -- 
+  testMaker = demonnic.TableMaker:new({
+    edgeCharacter = '|'
+  })
+  
+  local meleeHits = 1
+  
+  if (damageMeter.byMember[player].type.melee) then
+    meleeHits = damageMeter.byMember[player].type.melee.count or 1
+  end
+  
+ 
+  local time = damageMeter.combatTime or 1
+
+  local dataKeys = table.keys(data)
+  
+  if (type == 'non damage') then
+    testMaker:addColumn({name = type, width = 25, textColor = "&lt;green&gt;"})
+    testMaker:addColumn({name = "count", width = 10, textColor = "&lt;white&gt;"})
+    testMaker:addColumn({name = "% melee", width = 20, textColor = "&lt;purple&gt;"})
+    table.sort(dataKeys, function(a,b) return data[a].count &gt; data[b].count end)
+  else
+    testMaker:addColumn({name = type, width = 25, textColor = "&lt;green&gt;"})
+    testMaker:addColumn({name = "average", width = 10, textColor = "&lt;white&gt;"})
+    testMaker:addColumn({name = "count", width = 10, textColor = "&lt;white&gt;"})
+    testMaker:addColumn({name = "dps", width = 10, textColor = "&lt;purple&gt;"})
+    table.sort(dataKeys, function(a,b) return data[a].amount &gt; data[b].amount end)
+  end
+  
+  for idx, spell in ipairs(dataKeys) do
+  
+    local stats = data[spell]
+    
+    local avg = math.floor(10 * stats.amount / stats.count) / 10
+    local dps = math.floor(100 * stats.amount / time) / 100
+    
+    local pctMelee = math.floor(10000 * stats.count / meleeHits)  / 100
+    
+    if (type == 'non damage') then
+      testMaker:addRow({spell, tostring(stats.count), tostring(pctMelee) .. '%'})
+    else
+      testMaker:addRow({spell, tostring(avg), tostring(stats.count), tostring(dps)})
+    end
+    
+  end
+      
+  if (type ~= 'non damage') then
+    testMaker:addRow({
+      'total', 
+      tostring(math.floor(10 * rollup.amount / rollup.count) / 10), 
+      tostring(rollup.count), tostring(math.floor(100 * rollup.amount / time) / 100)
+    })
+  end
+  
+  cecho(testMaker:assemble() .. '\n\n')
+
+end
+
+damageMeter.combatTimer = function(evt, duration) 
+  damageMeter.combatTime = damageMeter.combatTime + duration
+end
+</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>damageMeter.hit</name>
+				<packageName></packageName>
+				<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external scripts --
+-------------------------------------------------
+
+damageMeter = damageMeter or {}
+
+damageMeter.hit = function(evt, attackData)
+  if (damageMeter.recording) then
+    damageMeter.record(attackData.subject, attackData.damage, attackData.mob, attackData.damageType, attackData.move)
+  end
+end</script>
+				<eventHandlerList>
+					<string>COMMON:: combat_attack</string>
+				</eventHandlerList>
+			</Script>
+		</ScriptGroup>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>auto assist</name>
+			<packageName></packageName>
+			<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external scripts --
+-------------------------------------------------
+</script>
+			<eventHandlerList />
+			<Script isActive="yes" isFolder="no">
+				<name>auto_assist</name>
+				<packageName></packageName>
+				<script>combat = combat or {}
+player = player or {}
+
+combat.assistOffCooldown = true
+
+</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>combat.auto_assist_on_attack</name>
+				<packageName></packageName>
+				<script>
+
+combat.auto_assist_on_attack = function (evt, attackData)
+
+  if ( group.leader and 
+     player.name ~= group.leader and 
+     attackData.subject == group.leader and 
+     combat.assistOffCooldown == true and 
+     combat.active ~= true
+  ) then
+    
+    combat.assistOffCooldown = false    
+    -- enable assist again after 1 second (prevent excessive spam before gmcp combat starts)
+    tempTimer(2, function () 
+      combat.assistOffCooldown = true
+    end)
+
+    local target = common.dotCase(common.toMurderString(attackData.mob))
+    
+    player.autoAttack(target)
+    
+  end
+  
+end
+</script>
+				<eventHandlerList>
+					<string>COMMON:: combat_attack</string>
+				</eventHandlerList>
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>combat.auto_assist_on_room_change</name>
+				<packageName></packageName>
+				<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external scripts --
+-------------------------------------------------
+combat.auto_assist_on_room_change = function ()
+
+  combat.assistOffCooldown = true
+  
+end</script>
+				<eventHandlerList>
+					<string>tfe mapper: room found</string>
+				</eventHandlerList>
+			</Script>
+		</ScriptGroup>
+		<Script isActive="yes" isFolder="no">
+			<name>last script (to trigger dependencies!)</name>
+			<packageName></packageName>
+			<script>raiseEvent('njs50PlevLoaded')</script>
+			<eventHandlerList />
+		</Script>
 	</ScriptPackage>
 	<KeyPackage />
 	<HelpPackage>

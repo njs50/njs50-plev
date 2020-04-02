@@ -2756,10 +2756,33 @@ end
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>hit - non attack</name>
 					<script>-- Mohoonay's attack misses an ogre miner.
+-- Shazzul hits an imposing fire giant witch-doctor with a power strike!
+
+-- ^(You|Your|[A-Z][a-z]+?) hits (.*) with a (great cleave|cleave|power strike|critical hit)[!.]$
+-- Shazzul parries a large shaggy wolf's attack, leaving her vulnerable to a counterattack!
+
+-- You attempt to charge a minotaur guardian, but miss and fall down.
 
 local subject = matches[2]
 local move = matches[3]
 local mob = matches[4]
+
+local attacks = {
+  ['great cleave'] = true,
+  ['cleave'] = true,
+  ['power strike'] = true,
+  ['critical hit'] = true,
+  ['counterattack'] = true,
+  ['fall down'] = true,
+}
+
+-- swap mob and move if required
+if (attacks[mob]) then
+  local temp = mob
+  mob = move
+  move = temp
+end
+
 
 if (subject == 'You' or subject == 'Your') then
   subject = player.name
@@ -2795,11 +2818,21 @@ end</script>
 					<regexCodeList>
 						<string>^(You|[A-Z][a-z]+) leaps? to (attack) (.*)[!.]$</string>
 						<string>^(You|[A-Z][a-z]+) (miss)e?s? (.*)[!.]$</string>
-						<string>^(You|[A-Z][a-z]+) (counterattack)s? (.*)[!.]$</string>
+						<string>^(You|[A-Z][a-z]+) (counterattack|critically hit|)s? (.*)[!.]$</string>
 						<string>^(You|Your|[A-Z][a-z]+?)'?s? (great cleave|cleave|power strike) hits (.*)[!.]$</string>
 						<string>^(Your|[A-Z][a-z]+)'s attack (miss)e?s? (.*)[!.]$</string>
+						<string>^(You|Your|[A-Z][a-z]+?) hits (.*) with a (great cleave|cleave|power strike|critical hit)[!.]$</string>
+						<string>^(You|[A-Z][a-z]+) (gouges) (.*) in the eye[!.]$</string>
+						<string>^(You|[A-Z][a-z]+) calls upon the (shadows to deestroy) (.*)[!.]$</string>
+						<string>^(You|[A-Z][a-z]+) parries (.*)'?s? attack, leaving .* vulnerable to a (counterattack)[!.]$</string>
+						<string>^(You|[A-Z][a-z]+) attempts? to charge (.*), but miss and (fall down)[!.]$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
@@ -6263,7 +6296,14 @@ damageMeter.reportByType = function(type, rollup, player)
     local pctMelee = math.floor(10000 * stats.count / meleeHits)  / 100
     
     if (type == 'non damage') then
-      testMaker:addRow({spell, tostring(stats.count), tostring(pctMelee) .. '%'})
+      if (spell == 'fall down') then 
+        local chargeCt = damageMeter.byMember[player].type.melee.spells.charge.count or 0
+        chargeCt = chargeCt + stats.count
+        pctMelee = math.floor(10000 * stats.count / chargeCt) / 100
+        testMaker:addRow({'charge: ' .. spell, tostring(stats.count), tostring(pctMelee) .. '%'})
+      else 
+        testMaker:addRow({spell, tostring(stats.count), tostring(pctMelee) .. '%'})
+      end
     else
       testMaker:addRow({spell, tostring(avg), tostring(stats.count), tostring(dps)})
     end

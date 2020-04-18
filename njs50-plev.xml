@@ -2096,7 +2096,7 @@ end
 				<regexCodePropertyList />
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>tell</name>
-					<script>common.chatConsole:cecho('&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n")
+					<script>common.chatConsole:cecho('Tell', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n")
 
 </script>
 					<triggerType>0</triggerType>
@@ -2110,20 +2110,16 @@ end
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^([A-Za-z]+) tells you:(.+)$</string>
-						<string>^(You) tell (\w+|the clan):(.+)$</string>
-						<string>^[^:]* ctells:(.+)$</string>
+						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan): (.*)$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
-						<integer>1</integer>
-						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>tell - two line</name>
-					<script>common.chatConsole:cecho('&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. "\n")
-common.chatConsole:cecho('&lt;white&gt;' .. multimatches[2][1] .. "\n")
+					<script>common.chatConsole:cecho('Tell', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
+common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[2][2] .. "\n")
 </script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>2</conditonLineDelta>
@@ -2146,10 +2142,9 @@ common.chatConsole:cecho('&lt;white&gt;' .. multimatches[2][1] .. "\n")
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>tell - three line</name>
-					<script>common.chatConsole:cecho('&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. "\n")
-common.chatConsole:cecho('&lt;white&gt;' .. multimatches[2][1])
-common.chatConsole:cecho('&lt;white&gt;' .. multimatches[3][1] .. "\n")
-</script>
+					<script>common.chatConsole:cecho('Tell', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
+common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[2][2])
+common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[3][2] .. "\n")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>3</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2163,9 +2158,39 @@ common.chatConsole:cecho('&lt;white&gt;' .. multimatches[3][1] .. "\n")
 					<regexCodeList>
 						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan):$</string>
 						<string>^\s*(".*[^"])$</string>
-						<string>^\s*([^" ].*")$</string>
+						<string>^\s*(\s[^" ].*")$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>tell - four line</name>
+					<script>common.chatConsole:cecho('Tell', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
+common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[2][2])
+common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[3][2])
+common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[4][2] .. "\n")
+</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>4</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan):$</string>
+						<string>^\s*(".*[^"])$</string>
+						<string>^\s*(\s[^"]*\s*)$</string>
+						<string>^\s*(\s[^" ].*")$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
@@ -2176,7 +2201,7 @@ common.chatConsole:cecho('&lt;white&gt;' .. multimatches[3][1] .. "\n")
 					<script>-- ** You improve at escape. **
 -- ** You gain a practice point from escape. **
 
-common.chatConsole:cecho('&lt;yellow&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n")
+common.chatConsole:cecho('Other', '&lt;yellow&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n")
 
 if (matches[2] == 'improve at') then
 	send('save')
@@ -2827,7 +2852,7 @@ end</script>
 						<string>^(You|Your|[A-Z][a-z]+?) hits (.*) with a (great cleave|cleave|power strike|critical hit)[!.]$</string>
 						<string>^(You|[A-Z][a-z]+) (gouges) (.*) in the eye[!.]$</string>
 						<string>^(You|[A-Z][a-z]+) calls upon the (shadows to deestroy) (.*)[!.]$</string>
-						<string>^(You|[A-Z][a-z]+) parries (.*)'?s? attack, leaving .* vulnerable to a (counterattack)[!.]$</string>
+						<string>^(You|[A-Z][a-z]+) parries (.+?)'?s? attack, leaving .* vulnerable to a (counterattack)[!.]$</string>
 						<string>^(You|[A-Z][a-z]+) attempts? to charge (.*), but miss and (fall down)[!.]$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
@@ -3782,6 +3807,7 @@ common.events = {
 	WALK_DONE = 'COMMON::speedwalk_completed',
 	ROOM_CLEAR = 'COMMON::current_room_is_clear',
 	PARRY_STATE_CHANGE = 'COMMON::parry_state_change',
+  SCAN_PROCESSED = 'COMMON::scan_data_processed',
 }
 
 common.tableHasValue =  function (tab, val)
@@ -4147,10 +4173,11 @@ common.initPlayer = function ()
 
 		common.chatContainer = Geyser.Container:new({
       name = "chat_container",    -- give it a unique name here
-			x="40%",
-			y=0,
+			x = "40%",
+			y = 0,
       width = "60%",
-			height="100%",
+			height = "100%",
+      padding = 10,
     }, common.topContainer)
 
 				-- init windows
@@ -4162,17 +4189,29 @@ common.initPlayer = function ()
 			height="100%",
     }, common.mapContainer)
 
-    common.chatConsole = Geyser.MiniConsole:new({
-      name = "geyser_chat",    -- give it a unique name here
-			x=0,
-			y=0,
+    common.chatConsole = EMCO:new({
+      x = 0,
+      y = 0,
       width = "100%",
-			height="100%",
-			autoWrap = true,
-      color = "black",
-      scrollBar = true,
+      height = "100%",
+      allTab = true,
+      allTabName = "All",
       fontSize = 14,
+      gap = 10,
+      consoles = {
+        "All",
+        "Public", 
+        "Clan",
+        "Tell",
+        "Other",
+      },
+      -- mapTabName = "Map",
+      mapTab = false,
+      -- activeTabCSS = stylesheet,
+      -- inactiveTabCSS = istylesheet,
     }, common.chatContainer)
+      
+    
 
 	end
 
@@ -4182,7 +4221,9 @@ common.initPlayer = function ()
 
 	send('score &amp; eq &amp; group &amp; inv &amp; typo &amp; prep')
 
-end</script>
+end
+
+    </script>
 			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">
@@ -4243,6 +4284,30 @@ common.conditions = {
   excellent = 9,
   perfect = 10
 }
+
+
+
+common.slots = {
+  "right hand",
+  "left hand",
+  "left hand finger",
+  "right hand finger",
+  "right wrist",
+  "left wrist",
+  "head",
+  "body",
+  "nearby",
+  "arms",
+  "hands",
+  "feet",
+  "legs",
+  "waist",
+  "neck"
+}
+
+common.layers = { 'bottom', 'under', 'base', 'over', 'top' }
+
+
 
 function getLowestGearCondition (cb)
   common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
@@ -4426,39 +4491,7 @@ function equipGearSet (name, callback, partial)
       end
 
 
-						-- must remove neck.over to change neck.base
-			if (player.gear.neck and player.gear.neck.over and player.swapItems.neck and
-				(player.swapItems.neck.base and not player.swapItems.neck.over)) then
-				echo('\n\nADDING neck.over!!!\n\n')
-				swapItems(player.gear.neck.over.item, player.gear.neck.over.item, 'neck', 'over')
-			end
-
-
-			-- must remove body.base to change body.under
-			if (player.gear.body and player.gear.body.base and player.swapItems.body and
-				(player.swapItems.body.under and not player.swapItems.body.base)) then
-				-- echo('\n\nADDING body.base!!!\n\n')
-				swapItems(player.gear.body.base.item, player.gear.body.base.item, 'body', 'base')
-			end
-
-			-- if changing any waist item then keyring needs to be removed/replaced
-			if (player.gear.waist) then
-
-				-- only need to remove keyring
-				if (player.swapItems.waist and player.gear.waist.over and player.gear.waist.over.item:match('keyring') and not player.swapItems.waist.over) then
-  				-- echo('\n\nADDING KEYRINGS!!!\n\n')
-  				swapItems(player.gear.waist.over.item, player.gear.waist.over.item, 'waist', 'over')
-				end
-
-				if (player.swapItems.waist and player.gear.waist.top and player.gear.waist.top.item:match('keyring') and not player.swapItems.waist.top) then
-  				-- echo('\n\nADDING KEYRINGS!!!\n\n')
-  				swapItems(player.gear.waist.top.item, player.gear.waist.top.item, 'waist', 'top')
-				end
-
-			end
-
 			-- make sure we aren't just switching left/right things
-
 			local removeRedundantSwap = function (slot, layer)
 					if (player.swapItems["left " .. slot] and player.swapItems["left " .. slot][layer] and
 						player.swapItems["right " .. slot] and player.swapItems["right " .. slot][layer] and
@@ -4477,6 +4510,28 @@ function equipGearSet (name, callback, partial)
 			removeRedundantSwap('hand finger', 'top')
 			removeRedundantSwap('wrist', 'base')
 			removeRedundantSwap('wrist', 'over')
+
+
+      -- swap all layers on top of any layers changing due to fucked up things like Xanas bracelets
+      for slot, layers in pairs(player.swapItems) do
+        
+        local firstLayer = table.keys(layers)[1]
+        
+        for idx = table.index_of(common.layers,firstLayer) + 1, #common.layers do
+          
+          local checkLayer = common.layers[idx]
+          
+          if ((not not player.swapItems[slot] or not player.swapItems[slot][checkLayer]) and (player.gear[slot] and player.gear[slot][checkLayer])) then
+            swapItems(player.gear[slot][checkLayer].item, player.gear[slot][checkLayer].item, slot, checkLayer)
+          end
+          
+        end
+        
+      
+      end
+
+
+      -- display(player.swapItems)
 
 
 			local cb = function ()
@@ -4545,26 +4600,6 @@ function swapCommands (removeList, wearList)
 
 end
 
-
-local slots = {
-  "right hand",
-  "left hand",
-  "left hand finger",
-  "right hand finger",
-  "right wrist",
-  "left wrist",
-  "head",
-  "body",
-  "nearby",
-  "arms",
-  "hands",
-  "feet",
-  "legs",
-  "waist",
-  "neck"
-}
-
-
 function performSwap (callback)
 
 	local cb = callback
@@ -4577,15 +4612,14 @@ function performSwap (callback)
 
 	local idx
 
-	local layers = { 'bottom', 'under', 'base', 'over', 'top' }
 
-  for k, slot in pairs(slots) do
+  for k, slot in pairs(common.slots) do
 
     if (player.swapItems[slot]) then
 
       items = player.swapItems[slot]
 
-  		for k, layer in pairs(layers) do
+  		for k, layer in pairs(common.layers) do
   		-- for layer, swap in pairs(items) do
   			local swap = items[layer]
 
@@ -4659,23 +4693,30 @@ combat = combat or {
 	sleeping_mob = false
 }
 
+combat.roomClearDelay = 5
 
+-- starting a 4 sec timer to make sure nothing else
+-- wants to get fighty before declaring the room clear
 combat.startTimer = function ()
-
 	if(combat.clear_timer) then
-		cecho('&lt;yellow&gt;&lt;-- restarting room cler timer\n')
+		cecho('&lt;yellow&gt;&lt;-- restarting room clear timer\n')
 		combat.clearTimer()
-	end
-
-	combat.clear_timer = tempTimer(5, function ()
-		-- raiseEvent(common.events.ROOM_CLEAR) -- this will be sent when a scan comes back with 0 targets
-		combat.clear_timer = nil
-		cecho('&lt;green&gt;&lt;-- CLEAR timer !!! \n')
-		if (murder.enabled and not murder.speedwalking and player.position == 'standing') then
-			send('queue level &amp; queue scan')
-		end
-	end, 'combat clear timer')
+	end  
+	combat.clear_timer = tempTimer(combat.roomClearDelay, function()
+    combat.clear_timer = nil
+    combat.onRoomClear()
+  end, 'combat clear timer')
 end
+
+combat.onRoomClear = function ()
+	combat.clearTimer()
+	if (murder.enabled and not murder.speedwalking and player.position == 'standing') then
+		send('queue level &amp; queue scan')
+	end
+  cecho('&lt;green&gt;&lt;-- CLEAR (no combat for ' .. tostring(combat.roomClearDelay) .. ' seconds)!!! \n')
+  raiseEvent(common.events.ROOM_CLEAR)
+end
+
 
 combat.clearTimer = function()
 	if (combat.clear_timer) then
@@ -4685,9 +4726,7 @@ combat.clearTimer = function()
 end
 
 combat.reset = function()
-	-- if (murder.enabled and not murder.speedwalking) then
 	combat.startTimer()
-	-- end
 end
 
 combat.extendRoomCheck = function ()
@@ -4695,7 +4734,7 @@ combat.extendRoomCheck = function ()
 	if (combat.clear_timer) then
 		cecho('&lt;green&gt;&lt;-- EXTEND ROOM CLEAR CHECK\n')
 		combat.clearTimer()
-  	combat.startTimer()
+    combat.startTimer()
 	end
 
 end
@@ -4705,11 +4744,9 @@ combat.start = function()
   if (not combat.active) then
     combat.startTime = getEpoch()
 		combat.active = true
-		cecho(' &lt;white&gt;&lt;-- -=[ COMBAT ]=-')
+		cecho(' &lt;white&gt;&lt;-- -=[ COMBAT started ]=-')
 		raiseEvent(common.events.COMBAT_STARTED)
     combat.clearTimer()
-    -- extend the idle scanner if we are farming (should prob be done via an event)
-	  murder.idleScanner()
 	end
 
 end
@@ -4718,43 +4755,33 @@ combat.finish = function ()
 	
   if (combat.active) then
     combat.active = false
-  	cecho(' &lt;white&gt; -=[ PEACE ]=-')
-  	send('queue level &amp; queue scan')
-  	raiseEvent(common.events.COMBAT_ENDED, getEpoch() - combat.startTime)
-  	combat.startTimer()
-    -- extend the idle scanner if we are farming (should prob be done via an event)
-	  murder.idleScanner()  
+    	cecho(' &lt;white&gt; -=[ combat ended ]=-')
+    	send('queue level &amp; queue scan')
+    	raiseEvent(common.events.COMBAT_ENDED, getEpoch() - combat.startTime)
+    	combat.startTimer()
   end
 
 end
 
 
-combat.checkScan = function ()
-
-  -- display('checking scan', murder.exits)
-  
-  if (murder.exits.here == nil or murder.exits.here.targetCount == 0) then
-    cecho('&lt;green&gt;&lt;-- CLEAR (scan)!!! \n')
-    raiseEvent(common.events.ROOM_CLEAR)
-  end
-
-end
-
-
-
+-- reset timer if we change rooms
 if (combat.eventWatcher) then
   killAnonymousEventHandler(combat.eventWatcher)
   combat.eventWatcher = nil
 end
-
 combat.eventWatcher = registerAnonymousEventHandler(tfe.events.ROOM_CHANGED, combat.reset)
 
-if (combat.scanWatcher) then
-  killAnonymousEventHandler(combat.scanWatcher)
-  combat.scanWatcher = nil
-end
 
-combat.scanWatcher = registerAnonymousEventHandler(murder.events.SCAN_PROCESSED, combat.checkScan)</script>
+-- kill the pending combat timer if room is announced clear elsewhere i.e from scan results
+if (combat.clearEventWatcher) then
+  killAnonymousEventHandler(combat.clearEventWatcher)
+  combat.clearEventWatcher = nil
+end
+combat.clearEventWatcher = registerAnonymousEventHandler(common.events.ROOM_CLEAR, combat.clearTimer)
+
+
+
+</script>
 			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">
@@ -4869,6 +4896,7 @@ oneRoomExitTrig = common.oneRoomExitTrig</script>
 	Marial = true,
 	Grackle = true,
   Raksha = true,
+  Gnodrick = true,
 }
 
 common.groupDo = function (command)
@@ -5288,7 +5316,13 @@ end
 
 tempTimers = tempTimers or {}
 
-tempTimer = function(seconds, code, description)
+tempTimer = function(seconds, code, repeating, description)
+  
+  if (type(repeating) == 'string') then
+    description = repeating
+    repeating = false
+  end
+
 
 	local timerId
 
@@ -5424,13 +5458,16 @@ common.getNumber = function (text)
 
 end
 
+common.cleanGmcpTarget = function(string)
+  return common.dotCase(common.toMurderString(rex.gsub(rex.gsub(string, [[^\d+\.]], ''), [[\.]], ' ')))
+end
 
 common.dotCase = function(string)
 
 	if (not string or string == '') then
 		return ''
 	end
-	return rex.gsub(string, [[\b(the|or|an|a|of|with|and|A|An|The) ]], ''):gsub(' ', '.')
+	return rex.gsub(string, [[(?i)\b(the|or|an|a|of|with|and|A|An|The) ]], ''):gsub(' ', '.')
 end
 
 
@@ -5451,6 +5488,7 @@ common.itemSanitize = function(string)
   return string
 
 end
+
 
 common.itemShorten = function(item)
 
@@ -5487,7 +5525,7 @@ end
 common.toMurderString = function (victim)
 
 	-- remove any articles etc
-	victim = rex.gsub(victim, [[\b(a|an|the|good|evil|The|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen)\s]], '')
+	victim = rex.gsub(victim, [[(?i)\b(a|an|the|good|evil|The|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen)\s]], '')
 
 	-- turn elves back into elf, dwarves etc
 	victim = rex.gsub(victim, [[ves$]], 'f')
@@ -5717,30 +5755,6 @@ murder.tankState = murder.tankState or 'here'
 
 mapper.gotoRoom = function(rnum, callback)
   tfe.gotoRoom(rnum, {callback = callback})
-end
-
-
-murder.idleScanner = function ()
-
-	murder.clearIdleScanTimer()
-
-	if (murder.enabled and not murder.speedwalking) then
-  	cecho('\n&lt;green&gt;MURDER: &lt;white&gt;started idle scan timer!\n')
-  	murder.idleTimer = tempTimer(10, function ()
-  		cecho('\n&lt;orange&gt;MURDER: &lt;white&gt;scannign due to idle for 10s!\n')
-  		send('typo &amp; scan')
-  		murder.idleScanner()
-  	end, 'murder idle timer')
-	end
-
-end
-
-murder.clearIdleScanTimer = function()
-	if (murder.idleTimer) then
-		cecho('\n&lt;green&gt;MURDER: &lt;white&gt;cleared existing idle scan timer!\n')
-  	killTimer(murder.idleTimer)
-  	murder.idleTimer = nil
-	end
 end
 </script>
 			<eventHandlerList />
@@ -6422,6 +6436,2217 @@ end</script>
 					<string>tfe mapper: room found</string>
 				</eventHandlerList>
 			</Script>
+		</ScriptGroup>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>demonnic</name>
+			<packageName></packageName>
+			<script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external scripts --
+-------------------------------------------------
+</script>
+			<eventHandlerList />
+			<ScriptGroup isActive="yes" isFolder="yes">
+				<name>EMCO</name>
+				<packageName></packageName>
+				<script></script>
+				<eventHandlerList />
+				<Script isActive="yes" isFolder="no">
+					<name>EMCO</name>
+					<packageName></packageName>
+					<script>--- Embeddable Multi Console Object.
+-- This is essentially YATCO, but with some tweaks, updates, and it returns an object
+-- similar to Geyser so that you can a.) have multiple of them and b.) easily embed it
+-- into your existing UI as you would any other Geyser element.
+-- @module EMCO
+EMCO = Geyser.Container:new({
+  name = "TabbedConsoleClass",
+})
+
+function EMCO:readYATCO()
+  local config
+  if demonnic and demonnic.chat and demonnic.chat.config then
+    config = demonnic.chat.config
+  else
+    cecho("&lt;white&gt;(&lt;blue&gt;EMCO&lt;white&gt;)&lt;reset&gt; Could not find demonnic.chat.config, nothing to convert\n")
+    return
+  end
+  local constraints = "EMCO:new({\n"
+  constraints = string.format("%s  x = %d,\n", constraints, demonnic.chat.container.get_x())
+  constraints = string.format("%s  y = %d,\n", constraints, demonnic.chat.container.get_y())
+  constraints = string.format("%s  width = %d,\n", constraints, demonnic.chat.container.get_width())
+  constraints = string.format("%s  height = %d,\n", constraints, demonnic.chat.container.get_height())
+  if config.timestamp then
+    constraints = string.format("%s  timestamp = true,\n  timestampFormat = \"%s\",\n", constraints, config.timestamp)
+  else
+    constraints = string.format("%s  timestamp = false,\n", constraints)
+  end
+  if config.timestampColor then
+    constraints = string.format("%s  customTimestampColor = true,\n", constraints)
+  else
+    constraints = string.format("%s  customTimestampColor = false,\n", constraints)
+  end
+  if config.timestampFG then
+    constraints = string.format("%s  timestampFGColor = \"%s\",\n", constraints, config.timestampFG)
+  end
+  if config.timestampBG then
+    constraints = string.format("%s  timestampBGColor = \"%s\",\n", constraints, config.timestampBG)
+  end
+  if config.channels then
+    local channels = "consoles = {\n"
+    for _,channel in ipairs(config.channels) do
+      if _ == #config.channels then
+        channels = string.format("%s    \"%s\"", channels, channel)
+      else
+        channels = string.format("%s    \"%s\",\n", channels, channel)
+      end
+    end
+    channels = string.format("%s\n  },\n", channels)
+    constraints = string.format([[%s  %s]], constraints, channels)
+  end
+  if config.Alltab then
+    constraints = string.format("%s  allTab = true,\n", constraints)
+    constraints = string.format("%s  allTabName = \"%s\",\n", constraints, config.Alltab)
+  else
+    constraints = string.format("%s  allTab = false,\n", constraints)
+  end
+  if config.Maptab and config.Maptab ~= "" then
+    constraints = string.format("%s  mapTab = true,\n", constraints)
+    constraints = string.format("%s  mapTabName = \"%s\",\n", constraints, config.Maptab)
+  else
+    constraints = string.format("%s  mapTab = false,\n", constraints)
+  end
+  constraints = string.format("%s  blink = %s,\n", constraints, tostring(config.blink))
+  constraints = string.format("%s  blinkFromAll = %s,\n", constraints, tostring(config.blinkFromAll))
+  if config.fontSize then
+    constraints = string.format("%s  fontSize = %d,\n", constraints, config.fontSize)
+  end
+  constraints = string.format("%s  preserveBackground = %s,\n", constraints, tostring(config.preserveBackground))
+  constraints = string.format("%s  gag = %s,\n", constraints, tostring(config.gag))
+  constraints = string.format("%s  activeTabBGColor = \"&lt;%s,%s,%s&gt;\",\n", constraints, config.activeColors.r, config.activeColors.g, config.activeColors.b)
+  constraints = string.format("%s  inactiveTabBGColor = \"&lt;%s,%s,%s&gt;\",\n", constraints, config.inactiveColors.r, config.inactiveColors.g, config.inactiveColors.b)
+  constraints = string.format("%s  consoleColor = \"&lt;%s,%s,%s&gt;\",\n", constraints, config.windowColors.r, config.windowColors.g, config.windowColors.b)
+  constraints = string.format("%s  activeTabFGColor = \"%s\",\n", constraints, config.activeTabText)
+  constraints = string.format("%s  inactiveTabFGColor = \"%s\"", constraints, config.inactiveTabText)
+  constraints = string.format("%s\n})", constraints)
+  return constraints
+end
+
+--- Scans for the old YATCO configuration values and prints out a set of constraints to use.
+-- with EMCO to achieve the same effect. Is just the invocation
+function EMCO:miniConvertYATCO()
+  local constraints = self:readYATCO()
+  cecho("&lt;white&gt;(&lt;blue&gt;EMCO&lt;white&gt;)&lt;reset&gt; Found a YATCO config. Here are the constraints to use with EMCO(x,y,width, and height have been converted to their absolute values):\n\n")
+  echo(constraints .. "\n")
+end
+
+--- Echos to the main console a script object you can add which will fully convert YATCO to EMCO.
+-- This replaces the demonnic.chat variable with a newly created EMCO object, so that the main
+-- functions used to place information on the consoles (append(), cecho(), etc) should continue to
+-- work in the user's triggers and events.
+function EMCO:convertYATCO()
+  local invocation = self:readYATCO()
+  local header = [[
+  &lt;white&gt;(&lt;blue&gt;EMCO&lt;white&gt;)&lt;reset&gt; Found a YATCO config. Make a new script, then copy and paste the following output into it.
+  &lt;white&gt;(&lt;blue&gt;EMCO&lt;white&gt;)&lt;reset&gt; Afterward, uninstall YATCO (you can leave YATCOConfig until you're sure everything is right) and restart Mudlet
+  &lt;white&gt;(&lt;blue&gt;EMCO&lt;white&gt;)&lt;reset&gt; If everything looks right, you can uninstall YATCOConfig. 
+
+
+-- Copy everything below this line until the next line starting with --
+demonnic = demonnic or {}
+demonnic.chat = ]]
+  cecho(string.format("%s%s\n--- End script\n", header, invocation))
+end
+
+function EMCO:checkTabPosition(position)
+  if position == nil then
+    return 0
+  end
+  return tonumber(position) or type(position)
+end
+
+function EMCO:checkTabName(tabName)
+  if not tostring(tabName) then
+    return "tabName as string expected, got" .. type(tabName)
+  end
+  tabName = tostring(tabName)
+  if table.contains(self.consoles, tabName) then
+    return "tabName must be unique, and we already have a tab named " .. tabName
+  else
+    return "clear"
+  end
+end
+
+function EMCO.ae(funcName, message)
+  error(string.format("%s: Argument Error: %s", funcName, message))
+end
+
+function EMCO:ce(funcName, message)
+  error(string.format("%s:gg Constraint Error: %s", funcName, message))
+end
+
+--- Adds a tab to the EMCO object
+-- @tparam string tabName the name of the tab to add
+-- @tparam[opt] number position position in the tab switcher to put this tab
+function EMCO:addTab(tabName, position)
+  local funcName = "EMCO:addTab(tabName, position)"
+  position = self:checkTabPosition(position)
+  if type(position) == "string" then self.ae(funcName, "position as number expected, got " .. position) end
+  local tabCheck = self:checkTabName(tabName)
+  if tabCheck ~= "clear" then self.ae(funcName, tabCheck) end
+  if position == 0 then
+    table.insert(self.consoles, tabName)
+    self:createComponentsForTab(tabName)
+  else
+    table.insert(self.consoles, position, tabName)
+    self:reset()
+  end
+end
+
+function EMCO:switchTab(tabName)
+  local oldTab = self.currentTab
+  if oldTab ~= tabName and oldTab ~= "" then
+    self.windows[oldTab]:hide()
+    self.tabs[oldTab]:setStyleSheet(self.inactiveTabCSS)
+    self.tabs[oldTab]:setColor(self.inactiveTabBGColor)
+    self.tabs[oldTab]:echo(oldTab, self.inactiveTabFGColor, "c")
+    if self.blink then
+      if self.allTab and tabName == self.allTabName then
+        self.tabsToBlink = {}
+      elseif self.tabsToBlink[tabName] then
+        self.tabsToBlink[tabName] = nil
+      end
+    end
+  end
+  self.tabs[tabName]:setStyleSheet(self.activeTabCSS)
+  self.tabs[tabName]:setColor(self.activeTabBGColor)
+  self.tabs[tabName]:echo(tabName, self.activeTabFGColor, "c")
+  if oldTab and self.windows[oldTab] then
+    self.windows[oldTab]:hide()
+  end
+  self.windows[tabName]:show()
+  self.currentTab = tabName
+end
+
+function EMCO:createComponentsForTab(tabName)
+  local tab = Geyser.Label:new({
+    name = string.format("%sTab%s", self.name, tabName)
+  }, self.tabBox)
+  tab:echo(tabName, self.inactiveTabFGColor, 'c')
+  -- use the inactive CSS. It's "" if unset, which is ugly, but
+  tab:setStyleSheet(self.inactiveTabCSS)
+  -- set the BGColor if set. if the CSS is set it overrides the setColor, but if it's "" then the setColor actually covers that.
+  -- and we set a default for the inactiveBGColor
+  tab:setColor(self.inactiveTabBGColor)
+  tab:setClickCallback("EMCOHelper.switchTab", nil, string.format("%s+%s",self.name, tabName))
+  self.tabs[tabName] = tab
+  local window
+  local windowConstraints = {
+    x = 1,
+    y = 1,
+    height = "-2px",
+    width = "100%",
+    name = string.format("%sWindow%s", self.name, tabName)
+  }
+  local parent = self.consoleContainer
+  if self.mapTab and tabName == self.mapTabName then
+    window = Geyser.Mapper:new(windowConstraints, parent)
+  else
+    window = Geyser.MiniConsole:new(windowConstraints, parent)
+    window:setFontSize(self.fontSize)
+    window:setColor(self.consoleColor)
+    if self.autoWrap then
+      window:enableAutoWrap()
+    else
+      window:setWrap(self.wrapAt)
+    end
+    if self.scrollbars then
+      window:enableScrollBar()
+    else
+      window:disableScrollBar()
+    end
+  end
+  self.windows[tabName] = window
+  window:hide()
+end
+
+--- resets the object, redrawing everything
+function EMCO:reset()
+  self:createContainers()
+  for _,tabName in ipairs(self.consoles) do
+    self:createComponentsForTab(tabName)
+  end
+  local default
+  if self.currentTab == "" then
+    default = self.allTabName or self.consoles[1]
+  else
+    default = self.currentTab
+  end
+  self:switchTab(default)
+end
+
+function EMCO:createContainers()
+  self.tabBoxLabel = Geyser.Label:new({
+    x=0,
+    y=0,
+    width = "100%",
+    height = tostring(tonumber(self.tabHeight) + 2) .. "px",
+    name = self.name .. "TabBoxLabel"
+  }, self)
+  self.tabBox = Geyser.HBox:new({
+    x=0,
+    y=0,
+    width = "100%",
+    height = "100%",
+    name = self.name .. "TabBox"
+  }, self.tabBoxLabel)
+  self.tabBoxLabel:setStyleSheet(self.tabBoxCSS)
+  self.tabBoxLabel:setColor(self.tabBoxColor)
+
+  local heightPlusGap = tonumber(self.tabHeight) + tonumber(self.gap)
+  self.consoleContainer = Geyser.Label:new({
+    x = 0,
+    y = tostring(heightPlusGap) .. "px",
+    width = "100%",
+    height = "-0px",
+    name = self.name .. "ConsoleContainer"
+  }, self)
+  self.consoleContainer:setStyleSheet(self.consoleContainerCSS)
+  self.consoleContainer:setColor(self.consoleContainerColor)
+end
+
+function EMCO:stripTimeChars(str)
+  return string.gsub(string.trim(str), '[hHmMszZaApPdy:. ]', '')
+end
+
+--- Expands boolean definitions to be more flexible.
+-- &lt;br&gt;True values are "true", "yes", "0", 0, and true
+-- &lt;br&gt;False values are "false", "no", "1", 1, false, and nil
+-- @param bool item to test for truthiness
+function EMCO:fuzzyBoolean(bool)
+  if type(bool) == "boolean" or bool == nil then
+    return bool
+  elseif tostring(bool) then
+    local truth = {
+      "yes",
+      "true",
+      "0"
+    }
+    local untruth = {
+      "no",
+      "false",
+      "1"
+    }
+    local boolstr = tostring(bool)
+    if table.contains(truth, boolstr) then
+      return true
+    elseif table.contains(untruth, boolstr) then
+      return false
+    else
+      return nil
+    end
+  else
+    return nil
+  end
+end
+
+--- enables custom colors for the timestamp, if displayed
+function EMCO:enableCustomTimestampColor()
+  self.customTimestampColor = true
+end
+
+--- disables custom colors for the timestamp, if displayed
+function EMCO:disableCustomTimestampColor()
+  self.customTimestampColor = false
+end
+
+--- enables the display of timestamps
+function EMCO:enableTimestamp()
+  self.timestamp = true
+end
+
+--- disables the display of timestamps
+function EMCO:disableTimestamp()
+  self.timestamp = false
+end
+
+--- Sets the formatting for the timestamp, if enabled
+-- @tparam string format Format string which describes the display of the timestamp. See: https://wiki.mudlet.org/w/Manual:Lua_Functions#getTime
+function EMCO:setTimestampFormat(format)
+  local funcName = "EMCO:setTimestampFormat(format)"
+  local strippedFormat = self:stripTimeChars(format)
+  if strippedFormat ~= "" then
+    self.ae(funcName, "format contains invalid time format characters. Please see https://wiki.mudlet.org/w/Manual:Lua_Functions#getTime for formatting information")
+  else
+    self.timestampFormat = format
+  end
+end
+
+--- Sets the background color for the timestamp, if customTimestampColor is enabled.
+-- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
+function EMCO:setTimestampBGColor(color)
+  self.timestampBGColor = color
+end
+--- Sets the foreground color for the timestamp, if customTimestampColor is enabled.
+-- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
+function EMCO:setTimestampFGColor(color)
+  self.timestampFGColor = color
+end
+
+--- Sets the 'all' tab name.
+-- &lt;br&gt;This is the name of the tab itself
+-- @tparam string allTabName name of the tab to use as the all tab. Must be a tab which exists in the object.
+function EMCO:setAllTabName(allTabName)
+  local funcName = "EMCO:setAllTabName(allTabName)"
+  local allTabNameType = type(allTabName)
+  if allTabNameType ~= "string" then self.ae(funcName, "allTabName expected as string, got" .. allTabNameType) end
+  if not table.contains(self.consoles, allTabName) then self.ae(funcName, "allTabName must be the name of one of the console tabs. Valid options are: " .. table.concat(self.containers, ",")) end
+  self.allTabName = allTabName
+end
+
+--- Enables use of the 'all' tab
+function EMCO:enableAllTab()
+  self.allTab = true
+end
+
+--- Disables use of the 'all' tab
+function EMCO:disableAllTab()
+  self.allTab = false
+end
+
+--- Enables tying the Mudlet Mapper to one of the tabs.
+-- &lt;br&gt;mapTabName must be set, or this will error. Forces a redraw of the entire object
+function EMCO:enableMapTab()
+  local funcName = "EMCO:enableMapTab()"
+  if not self.mapTabName then
+    error(funcName .. ": cannot enable the map tab, mapTabName not set. try running :setMapTabName(mapTabName) first with the name of the tab you want to bind the map to")
+  end
+  self.mapTab = true
+  self:reset()
+end
+
+--- disables binding the Mudlet Mapper to one of the tabs.
+-- &lt;br&gt;CAUTION: this may have unexpected behaviour, as you can only open one Mapper console per profile
+-- so you can't really unbind it. Binding of the Mudlet Mapper is best decided at instantiation.
+function EMCO:disableMapTab()
+  self.mapTab = false
+end
+
+--- sets the name of the tab to bind the Mudlet Map.
+-- &lt;br&gt;Forces a redraw of the object
+-- &lt;br&gt;CAUTION: Mudlet only allows one Map object to be open at one time, so if you are going to attach the map to an object
+-- you should probably do it at instantiation.
+-- @tparam string mapTabName name of the tab to connect the Mudlet Map to.
+function EMCO:setMapTabName(mapTabName)
+  local funcName = "EMCO:setMapTabName(mapTabName)"
+  local mapTabNameType = type(mapTabName)
+  if mapTabNameType ~= "string" then
+    self.ae(funcName, "mapTabName as string expected, got" .. mapTabNameType)
+  end
+  if not table.contains(self.consoles, mapTabName) and mapTabName ~= "" then
+    self.ae(funcName, "mapTabName must be one of the existing console tabs. Current tabs are: " .. table.concat(self.consoles, ","))
+  end
+  self.mapTabName = mapTabName
+end
+
+--- Enables tab blinking even if you're on the 'all' tab
+function EMCO:enableBlinkFromAll()
+  self.enableBlinkFromAll = true
+end
+
+--- Disables tab blinking when you're on the 'all' tab
+function EMCO:disableBlinkFromAll()
+  self.enableBlinkFromAll = false
+end
+
+--- Enables gagging of the line passed in to :append(tabName)
+function EMCO:enableGag()
+  self.gag = true
+end
+
+--- Disables gagging of the line passed in to :append(tabName)
+function EMCO:disableGag()
+  self.gag = false
+end
+
+--- Enables tab blinking when new information comes in to an inactive tab
+function EMCO:enableBlink()
+  self.blink = true
+end
+
+--- Disables tab blinking when new information comes in to an inactive tab
+function EMCO:disableBlink()
+  self.blink = false
+end
+
+--- Enables preserving the chat's background over the background of an incoming :append()
+function EMCO:enablePreserveBackground()
+  self.preserveBackground = true
+end
+
+--- Enables preserving the chat's background over the background of an incoming :append()
+function EMCO:disablePreserveBackground()
+  self.preserveBackground = false
+end
+
+--- Sets how long in seconds to wait between blinks
+-- @tparam number blinkTime time in seconds to wait between blinks
+function EMCO:setBlinkTime(blinkTime)
+  local funcName = "EMCO:setBlinkTime(blinkTime)"
+  local blinkTimeNumber = tonumber(blinkTime)
+  if not blinkTimeNumber then
+    self.ae(funcName, "blinkTime as number expected, got ".. type(blinkeTime))
+  else
+    self.blinkTime = blinkTimeNumber
+    if self.blinkTimerID then
+      killTimer(self.blinkTimerID)
+    end
+    self.blinkTimerID = tempTimer(blinkTimeNumber, function() self:blink() end, true)
+  end
+end
+
+function EMCO:doBlink()
+  if self.hidden or self.auto_hidden or not self.blink then
+    return
+  end
+  for tab,_ in pairs(self.tabsToBlink) do
+    self.tabs[tab]:flash()
+  end
+end
+
+--- Sets the font size of the attached consoles
+-- @tparam number fontSize font size for attached consoles
+function EMCO:setFontSize(fontSize)
+  local funcName = "EMCO:setFontSize(fontSize)"
+  local fontSizeNumber = tonumber(fontSize)
+  local fontSizeType = type(fontSize)
+  if not fontSizeNumber then
+    self.ae(funcName, "fontSize as number expected, got " .. fontSizeType)
+  else
+    self.fontSize = fontSizeNumber
+    for _,tabName in ipairs(self.consoles) do
+      if self.mapTab and tabName == self.mapTabName then
+        -- skip this one
+      else
+        local window = self.windows[tabName]
+        window:setFontSize(fontSizeNumber)
+      end
+    end
+  end
+end
+
+function EMCO:adjustTabNames()
+  for _,console in ipairs(self.consoles) do
+    if console == self.currentTab then
+      self.tabs[console]:echo(console, self.activTabFGColor, 'c')
+    else
+      self.tabs[console]:echo(console, self.inactiveTabFGColor, 'c')
+    end
+  end
+end
+
+function EMCO:adjustTabBackgrounds()
+  for _, console in ipairs(self.consoles) do
+    local tab = self.tabs[console]
+    if console == self.currentTab then
+      tab:setStyleSheet(self.activeTabCSS)
+      tab:setColor(self.activeBGColor)
+    else
+      tab:setStyleSheet(self.inactiveTabCSS)
+      tab:setColor(self.inactiveBGColor)
+    end
+  end
+end
+
+--- Sets the FG color for the active tab
+-- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
+function EMCO:setActiveTabFGColor(color)
+  self.activeTabFGColor = color
+  self:adjustTabNames()
+end
+
+--- Sets the FG color for the inactive tab
+-- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
+function EMCO:setInactiveTabFGColor(color)
+  self.inactiveTabFGColor = color
+  self:adjustTabNames()
+end
+
+--- Sets the BG color for the active tab.
+-- &lt;br&gt;NOTE: If you set CSS for the active tab, it will override this setting.
+-- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
+function EMCO:setActiveTabBGColor(color)
+  self.activeTabBGColor = color
+  self:adjustTabBackgrounds()
+end
+
+--- Sets the BG color for the inactive tab.
+-- &lt;br&gt;NOTE: If you set CSS for the inactive tab, it will override this setting.
+-- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
+function EMCO:setInactiveTabBGColor(color)
+  self.inactiveTabBGColor = color
+  self:adjustTabBackgrounds()
+end
+
+--- Sets the BG color for the consoles attached to this object
+-- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
+function EMCO:setConsoleColor(color)
+  self.consoleColor = color
+  self:adjustConsoleColors()
+end
+
+function EMCO:adjustConsoleColors()
+  for _,console in ipairs(self.consoles) do
+    if self.mapTab and self.mapTabName == console then
+      -- skip Map
+    else
+      self.windows[console]:setColor(self.consoleColor)
+    end
+  end
+end
+
+--- Sets the CSS to use for the tab box which contains the tabs for the object
+-- @tparam string css The css styling to use for the tab box
+function EMCO:setTabBoxCSS(css)
+  local funcName = "EMCHO:setTabBoxCSS(css)"
+  local cssType = type(css)
+  if cssType ~= "string" then
+    self.ae(funcName, "css as string expected, got " .. cssType)
+  else
+    self.tabBoxCSS = css
+    self:adjustTabBoxBackground()
+  end
+end
+
+--- Sets the color to use for the tab box background
+-- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
+function EMCO:setTabBoxColor(color)
+  self.tabBoxColor = color
+  self:adjustTabBoxBackground()
+end
+
+function EMCO:adjustTabBoxBackground()
+    self.tabBoxLabel:setStyleSheet(self.tabBoxCSS)
+    self.tabBoxLabel:setColor(self.tabBoxColor)
+end
+
+--- Sets the color for the container which holds the consoles attached to this object.
+-- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
+function EMCO:setConsoleContainerColor(color)
+  self.consoleContainerColor = color
+  self:adjustConsoleContainerBackground()
+end
+
+--- Sets the CSS to use for the container which holds the consoles attached to this object
+-- @tparam string css CSS to use for the container
+function EMCO:setConsoleContainerCSS(css)
+  self.consoleContainerCSS = css
+  self:adjustConsoleContainerBackground()
+end
+
+function EMCO:adjustConsoleContainerBackground()
+  self.consoleContainer:setStyleSheet(self.consoleContainerCSS)
+  self.consoleContainer:setColor(self.consoleContainerColor)
+end
+
+--- Sets the amount of space to use between the tabs and the consoles
+-- @tparam number gap Number of pixels to keep between the tabs and consoles
+function EMCO:setGap(gap)
+  local gapNumber = tonumber(gap)
+  local funcName = "EMCO:setGap(gap)"
+  local gapType = type(gap)
+  if not gapNumber then
+    self.ae(funcName, "gap expected as number, got " .. gapType)
+  else
+    self.gap = gapNumber
+    self:reset()
+  end
+end
+
+--- Sets the height of the tabs in pixels
+-- @tparam number tabHeight the height of the tabs for the object, in pixels
+function EMCO:setTabHeight(tabHeight)
+  local tabHeightNumber = tonumber(tabHeight)
+  local funcName = "EMCO:setTabHeight(tabHeight)"
+  local tabHeightType = type(tabHeight)
+  if not tabHeightNumber then
+    self.ae(funcName, "tabHeight as number expected, got ".. tabHeightType)
+  else
+    self.tabHeight = tabHeightNumber
+    self:reset()
+  end
+end
+
+--- Enables autowrap for the object, and by extension all attached consoles.
+-- &lt;br&gt;To enable autoWrap for a specific miniconsole only, call myEMCO.windows[tabName]:enableAutoWrap()
+-- but be warned if you do this it may be overwritten by future calls to EMCO:enableAutoWrap() or :disableAutoWrap()
+function EMCO:enableAutoWrap()
+  self.autoWrap = true
+  for _,console in ipairs(self.consoles) do
+    if self.mapTab and console == self.mapTabName then
+      -- skip the map
+    else
+      self.windows[console]:enableAutoWrap()
+    end
+  end
+end
+
+--- Disables autowrap for the object, and by extension all attached consoles.
+-- &lt;br&gt;To disable autoWrap for a specific miniconsole only, call myEMCO.windows[tabName]:disableAutoWrap()
+-- but be warned if you do this it may be overwritten by future calls to EMCO:enableAutoWrap() or :disableAutoWrap()
+function EMCO:disableAutoWrap()
+  self.autoWrap = false
+  for _,console in ipairs(self.consoles) do
+    if self.mapTab and self.mapTabName == console then
+      -- skip Map
+    else
+      self.windows[console]:disableAutoWrap()
+    end
+  end
+end
+
+--- Sets the number of characters to wordwrap the attached consoles at.
+-- &lt;br&gt;it is generally recommended to make use of autoWrap unless you need
+-- a specific width for some reason
+function EMCO:setWrap(wrapAt)
+  local funcName = "EMCO:setWrap(wrapAt)"
+  local wrapAtNumber = tonumber(wrapAt)
+  local wrapAtType = type(wrapAt)
+  if not wrapAtNumber then
+    self.ae(funcName, "wrapAt as number expect, got " .. wrapAtType)
+  else
+    self.wrapAt = wrapAtNumber
+    for _,console in ipairs(self.consoles) do
+      if self.mapTab and self.mapTabName == console then
+        -- skip the Map
+      else
+        self.windows[console]:setWrap(wrapAtNumber)
+      end
+    end
+  end
+end
+
+--- Appends the current line from the MUD to a tab.
+-- &lt;br&gt;depending on this object's configuration, may gag the line
+-- &lt;br&gt;depending on this object's configuration, may gag the next prompt
+-- @tparam string tabName The name of the tab to append the line to
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:append(tabName, excludeAll)
+  local funcName = "EMCO:append(tabName, excludeAll)"
+  local tabNameType = type(tabName)
+  local validTab = table.contains(self.consoles, tabName)
+  if tabNameType ~= "string" then
+    self.ae(funcName, "tabName as string expected, got ".. tabNameType)
+  elseif not validTab then
+    self.ae(funcName, "tabName must be a tab which is contained in this object. Valid tabnames are: " .. table.concat(self.consoles, ","))
+  end
+  self:xEcho(tabName, nil, 'a', excludeAll)
+end
+
+function EMCO:checkEchoArgs(funcName, tabName, message, excludeAll)
+  local tabNameType = type(tabName)
+  local messageType = type(message)
+  local validTabName = table.contains(self.consoles, tabName)
+  local excludeAllType = type(excludeAll)
+  local ae = self.ae
+  if tabNameType ~= "string" then
+    ae(funcName, "tabName as string expected, got " .. tabNameType)
+  elseif messageType ~= "string" then
+    ae(funcName, "message as string expected, got " .. messageType)
+  elseif not validTabName then
+    ae(funcName, "tabName must be the name of a tab attached to this object. Valid names are: " .. table.concat(self.consoles, ","))
+  elseif excludeAllType ~= "nil" and excludeAllType ~= "boolean" then
+    ae(funcName, "optional argument excludeAll expected as boolean, got " .. excludeAllType)
+  end
+end
+
+function EMCO:xEcho(tabName, message, xtype, excludeAll)
+  if self.mapTab and self.mapTabName == tabName then
+    error("You cannot send text to the Map tab")
+  end
+  local console = self.windows[tabName]
+  local allTab = (self.allTab and not excludeAll and not table.contains(self.allTabExclusions, tabName) and tabName ~= self.allTabName) and self.windows[self.allTabName] or false
+  local ofr,ofg,ofb,obr,obg,obb
+  if xtype == "a" then
+    selectCurrentLine()
+    ofr,ofg,ofb = getFgColor()
+    obr,obg,obb = getBgColor()
+    if self.preserveBackground then
+      local r,g,b = Geyser.Color.parse(self.consoleColor)
+      setBgColor(r,g,b)
+    end
+    copy()
+  else
+    ofr,ofg,ofb = Geyser.Color.parse("white")
+    obr,obg,obb = Geyser.Color.parse(self.consoleColor)
+  end
+  if self.timestamp then
+    local colorString = ""
+    if self.customTimestampColor then
+      local tfr,tfg,tfb = Geyser.Color.parse(self.timestampFGColor)
+      local tbr,tbg,tbb = Geyser.Color.parse(self.timestampBGColor)
+      colorString = string.format("&lt;%s,%s,%s:%s,%s,%s&gt;", tfr,tfg,tfb,tbr,tbg,tbb)
+    else
+      colorString = string.format("&lt;%s,%s,%s:%s,%s,%s&gt;", ofr,ofg,ofb,obr,obg,obb)
+    end
+    local timestamp = getTime(true, self.timestampFormat)
+    local fullTimestamp = string.format("%s%s&lt;r&gt; ", colorString, timestamp)
+    console:decho(fullTimestamp)
+    if allTab and tabName ~= self.allTabName then
+      allTab:decho(fullTimestamp)
+    end
+  end
+  if self.blink and tabName ~= self.currentTab then
+    if not (self.allTabName == self.currentTab and not self.blinkFromAll) then
+      self.tabsToBlink[tabName] = true
+    end
+  end
+  if xtype == "a" then
+    console:appendBuffer()
+    if allTab then
+      allTab:appendBuffer()
+    end
+    if self.gag then
+      deleteLine()
+      if self.gagPrompt then
+        tempPromptTrigger(function() deleteLine() end, 1)
+      end
+    end
+  else
+    console[xtype](console, message)
+    if allTab then allTab[xtype](allTab, message) end
+  end
+  if self.blankLine then
+    console:echo("\n")
+    if allTab then allTab:echo("\n") end
+  end
+end
+
+--- cecho to a tab, maintaining functionality
+-- @tparam string tabName the name of the tab to cecho to
+-- @tparam string message the message to cecho to that tab's console
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:cecho(tabName, message, excludeAll)
+  local funcName = "EMCO:cecho(tabName, message, excludeAll)"
+  self:checkEchoArgs(funcName, tabName, message, excludeAll)
+  self:xEcho(tabName, message, 'cecho', excludeAll)
+end
+
+--- decho to a tab, maintaining functionality
+-- @tparam string tabName the name of the tab to decho to
+-- @tparam string message the message to decho to that tab's console
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:decho(tabName, message, excludeAll)
+  local funcName = "EMCO:decho(console, message, excludeAll)"
+  self:checkEchoArgs(funcName, tabName, message, excludeAll)
+  self:xEcho(tabName, message, 'decho', excludeAll)
+end
+
+--- hecho to a tab, maintaining functionality
+-- @tparam string tabName the name of the tab to hecho to
+-- @tparam string message the message to hecho to that tab's console
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:hecho(tabName, message, excludeAll)
+  local funcName = "EMCO:hecho(console, message, excludeAll)"
+  self:checkEchoArgs(funcName, tabName, message, excludeAll)
+  self:xEcho(tabName, message, 'hecho', excludeAll)
+end
+
+--- echo to a tab, maintaining functionality
+-- @tparam string tabName the name of the tab to echo to
+-- @tparam string message the message to echo to that tab's console
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:echo(tabName, message, excludeAll)
+  local funcName = "EMCO:echo(console, message, excludeAll)"
+  self:checkEchoArgs(funcName, tabName, message, excludeAll)
+  self:xEcho(tabName, message, 'echo', excludeAll)
+end
+
+-- internal function used for type checking echoLink/Popup arguments
+function EMCO:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, popup)
+  local expectedType = popup and "table" or "string"
+  local textType = type(text)
+  local commandsType = type(commands)
+  local hintsType = type(hints)
+  local tabNameType = type(tabName)
+  local validTabName = table.contains(self.consoles, tabName)
+  local excludeAllType = type(excludeAll)
+  local sf = string.format
+  local ae = self.ae
+  if textType ~= "string" then
+    ae(funcName, "text as string expected, got " .. textType)
+  elseif commandsType ~= expectedType then
+    ae(funcName, sf("commands as %s expected, got %s", expectedType, commandsType))
+  elseif hintsType ~= expectedType then
+    ae(funcName, sf("hints as %s expected, got %s", expectedType, hintsType))
+  elseif tabNameType ~= "string" then
+    ae(funcName, "tabName as string expected, got " .. tabNameType)
+  elseif not validTabName then
+    ae(funcName, sf("tabName must be a tab which exists, tab %s could not be found", tabName))
+  elseif self.mapTab and tabName == self.mapTabName then
+    ae(funcName, sf("You cannot echo to the map tab, and %s is configured as the mapTabName", tabName))
+  elseif excludeAllType ~= "nil" and excludeAllType ~= "boolean" then
+    ae(funcName, "Optional argument excludeAll expected as boolean, got " .. excludeAllType)
+  end
+end
+
+-- internal function used for handling echoLink/popup
+function EMCO:xLink(tabName, linkType, text, commands, hints, useCurrentFormat, excludeAll)
+  local console = self.windows[tabName]
+  local allTab = (self.allTab and not excludeAll and not table.contains(self.allTabExclusions, tabName) and tabName ~= self.allTabName) and self.windows[self.allTabName] or false
+  local arguments = {text, commands, hints, useCurrentFormat}
+  if self.timestamp then
+    local colorString = ""
+    if self.customTimestampColor then
+      local tfr,tfg,tfb = Geyser.Color.parse(self.timestampFGColor)
+      local tbr,tbg,tbb = Geyser.Color.parse(self.timestampBGColor)
+      colorString = string.format("&lt;%s,%s,%s:%s,%s,%s&gt;", tfr,tfg,tfb,tbr,tbg,tbb)
+    else
+      local ofr,ofg,ofb = Geyser.Color.parse("white")
+      local obr,obg,obb = Geyser.Color.parse(self.consoleColor)
+      colorString = string.format("&lt;%s,%s,%s:%s,%s,%s&gt;", ofr,ofg,ofb,obr,obg,obb)
+    end
+    local timestamp = getTime(true, self.timestampFormat)
+    local fullTimestamp = string.format("%s%s&lt;r&gt; ", colorString, timestamp)
+    console:decho(fullTimestamp)
+    if allTab then
+      allTab:decho(fullTimestamp)
+    end
+  end
+  console[linkType](console, unpack(arguments))
+  if allTab then allTab[linkType](allTab, unpack(arguments)) end
+end
+
+--- cechoLink to a tab
+-- @tparam string tabName the name of the tab to cechoLink to
+-- @tparam string text the text underlying the link
+-- @tparam string command the lua code to run in string format
+-- @tparam string hint the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:cechoLink(tabName, text, command, hint, excludeAll)
+  local funcName = "EMCO:cechoLink(tabName, text, command, hint)"
+  self:checkLinkArgs(funcName, tabName, text, command, hint, excludeAll)
+  self:xLink(tabName, "cechoLink", text, command, hint, true, excludeAll)
+end
+
+--- dechoLink to a tab
+-- @tparam string tabName the name of the tab to dechoLink to
+-- @tparam string text the text underlying the link
+-- @tparam string command the lua code to run in string format
+-- @tparam string hint the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:dechoLink(tabName, text, command, hint, excludeAll)
+  local funcName = "EMCO:dechoLink(tabName, text, command, hint)"
+  self:checkLinkArgs(funcName, tabName, text, command, hint, excludeAll)
+  self:xLink(tabName, "dechoLink", text, command, hint, true, excludeAll)
+end
+
+--- hechoLink to a tab
+-- @tparam string tabName the name of the tab to hechoLink to
+-- @tparam string text the text underlying the link
+-- @tparam string command the lua code to run in string format
+-- @tparam string hint the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:hechoLink(tabName, text, command, hint, excludeAll)
+  local funcName = "EMCO:hechoLink(tabName, text, command, hint)"
+  self:checkLinkArgs(funcName, tabName, text, command, hint, excludeAll)
+  self:xLink(tabName, "hechoLink", text, command, hint, true, excludeAll)
+end
+
+--- echoLink to a tab
+-- @tparam string tabName the name of the tab to echoLink to
+-- @tparam string text the text underlying the link
+-- @tparam string command the lua code to run in string format
+-- @tparam string hint the tooltip hint to use for the link
+-- @tparam boolean useCurrentFormat use the format for the window or blue on black (hyperlink colors)
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:echoLink(tabName, text, command, hint, useCurrentFormat, excludeAll)
+  local funcName = "EMCO:echoLink(tabName, text, command, hint, useCurrentFormat)"
+  self:checkLinkArgs(funcName, tabName, text, command, hint, excludeAll)
+  self:xLink(tabName, "echoLink", text, command, hint, useCurrentFormat, excludeAll)
+end
+
+--- cechoPopup to a tab
+-- @tparam string tabName the name of the tab to cechoPopup to
+-- @tparam string text the text underlying the link
+-- @tparam table commands the lua code to run in string format
+-- @tparam table hints the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:cechoPopup(tabName, text, commands, hints, excludeAll)
+  local funcName = "EMCO:cechoPopup(tabName, text, commands, hints)"
+  self:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, true)
+  self:xLink(tabName, "cechoPopup", text, commands, hints, true, excludeAll)
+end
+
+--- dechoPopup to a tab
+-- @tparam string tabName the name of the tab to dechoPopup to
+-- @tparam string text the text underlying the link
+-- @tparam table commands the lua code to run in string format
+-- @tparam table hints the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:dechoPopup(tabName, text, commands, hints, excludeAll)
+  local funcName = "EMCO:dechoPopup(tabName, text, commands, hints)"
+  self:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, true)
+  self:xLink(tabName, "dechoPopup", text, commands, hints, true, excludeAll)
+end
+
+--- hechoPopup to a tab
+-- @tparam string tabName the name of the tab to hechoPopup to
+-- @tparam string text the text underlying the link
+-- @tparam table commands the lua code to run in string format
+-- @tparam table hints the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:hechoPopup(tabName, text, commands, hints, excludeAll)
+  local funcName = "EMCO:hechoPopup(tabName, text, commands, hints)"
+  self:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, true)
+  self:xLink(tabName, "hechoPopup", text, commands, hints, true, excludeAll)
+end
+
+--- echoPopup to a tab
+-- @tparam string tabName the name of the tab to echoPopup to
+-- @tparam string text the text underlying the link
+-- @tparam table commands the lua code to run in string format
+-- @tparam table hints the tooltip hint to use for the link
+-- @tparam boolean useCurrentFormat use the format for the window or blue on black (hyperlink colors)
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:echoPopup(tabName, text, commands, hints, useCurrentFormat, excludeAll)
+  local funcName = "EMCO:echoPopup(tabName, text, commands, hints, useCurrentFormat)"
+  self:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, true)
+  self:xLink(tabName, "echoPopup", text, commands, hints, useCurrentFormat, excludeAll)
+end
+
+--- adds a tab to the exclusion list for echoing to the allTab
+-- @tparam string tabName the name of the tab to add to the exclusion list
+function EMCO:addAllTabExclusion(tabName)
+  local funcName = "EMCO:addAllTabExclusion(tabName)"
+  local ae = self.ae
+  local tabNameType = type(tabName)
+  local validTabName = table.contains(self.consoles, tabName)
+  if tabNameType ~= "string" then
+    ae(funcName, "tabName as string expected, got " .. tabNameType)
+  elseif not validTabName then
+    ae(funcName, string.format("tabName %s does not exist in this EMCO. valid tabs: " .. table.concat(self.consoles, ",")))
+  end
+  if not table.contains(self.allTabExclusions, tabName) then table.insert(self.allTabExclusions, tabName) end
+end
+
+--- removess a tab from the exclusion list for echoing to the allTab
+-- @tparam string tabName the name of the tab to remove from the exclusion list
+function EMCO:removeAllTabExclusion(tabName)
+  local funcName = "EMCO:removeAllTabExclusion(tabName)"
+  local ae = self.ae
+  local tabNameType = type(tabName)
+  local validTabName = table.contains(self.consoles, tabName)
+  if tabNameType ~= "string" then
+    ae(funcName, "tabName as string expected, got " .. tabNameType)
+  elseif not validTabName then
+    ae(funcName, string.format("tabName %s does not exist in this EMCO. valid tabs: " .. table.concat(self.consoles, ",")))
+  end
+  local index = table.index_of(self.allTabExclusions, tabName)
+  if index then table.remove(self.allTabExclusions, index) end
+end
+
+--- Enable placing a blank line between all messages.
+function EMCO:enableBlankLine()
+  self.blankLine = true
+end
+
+--- Enable placing a blank line between all messages.
+function EMCO:disableBlankLine()
+  self.blankLine = false
+end
+
+--- Enable scrollbars for the miniconsoles
+function EMCO:enableScrollbars()
+  self.scrollbars = true
+  self:adjustScrollbars()
+end
+
+--- Disable scrollbars for the miniconsoles
+function EMCO:disableScrollbars()
+  self.scrollbars = false
+  self:adjustScrollbars()
+end
+
+function EMCO:adjustScrollbars()
+  for _,console in ipairs(self.consoles) do
+    if self.mapTab and self.mapTabName == console then
+      -- skip the Map tab
+    else
+      if self.scrollbars then
+        self.windows[console]:enableScrollBar()
+      else
+        self.windows[console]:disableScrollBar()
+      end
+    end
+  end
+end
+
+EMCOHelper = EMCOHelper or {}
+EMCOHelper.items = EMCOHelper.items or {}
+function EMCOHelper:switchTab(designator)
+  local args = string.split(designator, "+")
+  local emcoName = args[1]
+  local tabName = args[2]
+  for _,emco in ipairs(EMCOHelper.items) do
+    if emco.name == emcoName then
+      emco:switchTab(tabName)
+      return
+    end
+  end
+end
+
+EMCO.parent = Geyser.Container
+
+--- Creates a new Embeddable Multi Console Object.
+-- &lt;br&gt;see https://github.com/demonnic/EMCO/wiki for information on valid constraints and defaults
+-- @tparam table cons table of constraints which configures the EMCO.
+-- @tparam GeyserObject container The container to use as the parent for the EMCO
+-- @return the newly created EMCO
+function EMCO:new(cons, container)
+  local funcName = "EMCO:new(cons, container)"
+  cons = cons or {}
+  cons.type = cons.type or "tabbedConsole"
+  cons.consoles = cons.consoles or { "All" }
+  if cons.mapTab then
+    if not type(cons.mapTabName) == "string" then
+      self:ce(funcName, [["mapTab" is true, thus constraint "mapTabName" and string expected, got ]] .. type(cons.mapTabName))
+    elseif not table.contains(cons.consoles, cons.mapTabName) then
+      self:ce(funcName, [["mapTabName" must be one of the consoles contained within constraint "consoles". Valid option for tha mapTab are: ]] .. table.concat(cons.consoles, ","))
+    end
+  end
+  cons.allTabExclusions = cons.allTabExclusions or {}
+  if not type(cons.allTabExclusions) == "table" then self:se(funcName, "allTabExclusions must be a table if it is provided") end
+  local me = self.parent:new(cons, container)
+  setmetatable(me, self)
+  self.__index = self
+  -- set some defaults. Almost all the defaults we had for YATCO, plus a few new ones
+  if me:fuzzyBoolean(cons.timestamp) then
+    me:enableTimestamp()
+  else
+    me:disableTimestamp()
+  end
+  if me:fuzzyBoolean(cons.customTimestampColor) then
+    me:enableCustomTimestampColor()
+  else
+    me:disableCustomTimestampColor()
+  end
+  if me:fuzzyBoolean(cons.mapTab) then
+    me.mapTab = true
+  else
+    me.mapTab = false
+  end
+  if me:fuzzyBoolean(cons.blinkFromAll) then
+    me:enableBlinkFromAll()
+  else
+    me:disableBlinkFromAll()
+  end
+  if me:fuzzyBoolean(cons.preserveBackground) then
+    me:enablePreserveBackground()
+  else
+    me:disablePreserveBackground()
+  end
+  if me:fuzzyBoolean(cons.gag)then
+    me:enableGag()
+  else
+    me:disableGag()
+  end
+  me:setTimestampFormat(cons.timestampFormat or "HH:mm:ss")
+  me:setTimestampBGColor(cons.timestampBGColor or "blue")
+  me:setTimestampFGColor(cons.timestampFGColor or "red")
+  if me:fuzzyBoolean(cons.allTab) then
+    me:enableAllTab(cons.allTab)
+  else
+    me:disableAllTab()
+  end
+  if me:fuzzyBoolean(cons.blink) then
+    me:enableBlink()
+  else
+    me:disableBlink()
+  end
+  if me:fuzzyBoolean(cons.blankLine) then
+    me:enableBlankLine()
+  else
+    me:disableBlankLine()
+  end
+  if me:fuzzyBoolean(cons.scrollbars) then
+    me.scrollbars = true
+  else
+    me.scrollbars = false
+  end
+  me.blinkTime = cons.blinkTime or 3
+  me.fontSize = cons.fontSize or 9
+  me.activeTabCSS = cons.activeTabCSS or ""
+  me.inactiveTabCSS = cons.inactiveTabCSS or ""
+  me.activeTabFGColor = cons.activeTabFGColor or "purple"
+  me.inactiveTabFGColor = cons.inactiveTabFGColor or "white"
+  me.activeTabBGColor = cons.activeTabBGColor or "&lt;0,180,0&gt;"
+  me.inactiveTabBGColor = cons.inactiveTabBGColor or "&lt;60,60,60&gt;"
+  me.consoleColor = cons.consoleColor or "black"
+  me.tabBoxCSS = cons.tabBoxCSS or ""
+  me.tabBoxColor = cons.tabBoxColor or "black"
+  me.consoleContainerCSS = cons.consoleContainerCSS or ""
+  me.consoleContainerColor = cons.consoleContainerColor or "black"
+  me.gap = cons.gap or 1
+  me.consoles = cons.consoles
+  me.tabHeight = cons.tabHeight or 25
+  if cons.autoWrap == nil then
+    me.autoWrap = true
+  else
+    me.autoWrap = cons.autoWrap
+  end
+  me.wrapAt = cons.wrapAt or 300
+  me.currentTab = ""
+  me.tabs = {}
+  me.tabsToBlink = {}
+  me.windows = {}
+  self.blinkTimerID = tempTimer(me.blinkTime, function() me:doBlink() end, true)
+  me:reset()
+  if me.allTab then me:setAllTabName(me.allTabName or me.consoles[1]) end
+  table.insert(EMCOHelper.items, me)
+  return me
+end
+</script>
+					<eventHandlerList />
+				</Script>
+			</ScriptGroup>
+			<ScriptGroup isActive="yes" isFolder="yes">
+				<name>TextFormatter</name>
+				<packageName></packageName>
+				<script></script>
+				<eventHandlerList />
+				<Script isActive="yes" isFolder="no">
+					<name>standaloneFormatter</name>
+					<packageName></packageName>
+					<script>--- fText processing
+-- @module demonnic
+demonnic = demonnic or {}
+
+function demonnic:wordWrap(str, limit, indent, indent1)
+  -- pulled from http://lua-users.org/wiki/StringRecipes
+  indent = indent or ""
+  indent1 = indent1 or indent
+  limit = limit or 72
+  local here = 1-#indent1
+  local function check(sp, st, word, fi)
+    if fi - here &gt; limit then
+      here = st - #indent
+      return "\n"..indent..word
+    end
+  end
+  return indent1..str:gsub("(%s+)()(%S+)()", check)
+end
+
+function demonnic:fText(str, opts)
+  local options = demonnic:fixFormatOptions(str, opts)
+  if options.wrap and (options.strLen &gt; options.effWidth) then
+    local wrapped = demonnic:wordWrap(str, options.effWidth)
+    local lines = wrapped:split("\n")
+    local formatted = {}
+		options.fixed = false
+    for _,line in ipairs(lines) do
+      table.insert(formatted, demonnic:fLine(line, options))
+    end
+    return table.concat(formatted, "\n")
+  else
+    return demonnic:fLine(str, options)
+  end
+end
+
+function demonnic:fixFormatOptions(str, opts)
+  if opts.fixed then return table.deepcopy(opts) end
+  --Set up all the things we might call the different echo types
+  local dec = {"d", "decimal", "dec"}
+  local hex = {"h", "hexidecimal", "hex"}
+  local col = {"c", "color", "colour", "col", "name"}
+  if opts == nil then opts = {} end -- don't overwrite options if they passed them
+  --but if they passed something other than a table as the options than oopsie!
+  if type(opts) ~= "table" then
+    error("Improper argument: options expected to be passed as table")
+  end
+  --now we make a copy of the table, so we don't edit the original during all this
+  local options = table.deepcopy(opts)
+  if options.wrap == nil then options.wrap = true end --wrap by default.
+  options.formatType = options.formatType or "" --by default, no color formatting.
+  options.width = options.width or 80 --default 80 width
+  options.cap = options.cap or "" --no cap by default
+  options.spacer = options.spacer or " " --default spacer is the space character
+  options.alignment = options.alignment or "center" --default alignment is centered
+  if options.nogap == nil then options.nogap = false end
+  if options.inside == nil then options.inside = false end --by default, we don't put the spacer inside
+  if not options.mirror == false then options.mirror = options.mirror or true end--by default, we do want to use mirroring for the caps
+  --setup default options for colors based on the color formatting type
+  if table.contains(dec, options.formatType) then
+    options.capColor = options.capColor or "&lt;255,255,255&gt;"
+    options.spacerColor = options.spacerColor or "&lt;255,255,255&gt;"
+    options.textColor = options.textColor or "&lt;255,255,255&gt;"
+    options.colorReset = "&lt;r&gt;"
+    options.colorPattern = "&lt;%d+,%d+,%d+:?%d*,?%d*,?%d*&gt;"
+  elseif table.contains(hex, options.formatType) then
+    options.capColor = options.capColor or "#FFFFFF"
+    options.spacerColor = options.spacerColor or "#FFFFFF"
+    options.textColor = options.textColor or "#FFFFFF"
+    options.colorReset = "#r"
+    options.colorPattern = 'c|%d%d%d%d%d%d'
+  elseif table.contains(col, options.formatType) then
+    options.capColor = options.capColor or "&lt;white&gt;"
+    options.spacerColor = options.spacerColor or "&lt;white&gt;"
+    options.textColor = options.textColor or "&lt;white&gt;"
+    options.colorReset = "&lt;reset&gt;"
+    options.colorPattern = "&lt;%w*_?%w*:?%w*_?%w*&gt;"
+  else
+    options.capColor = ""
+    options.spacerColor = ""
+    options.textColor = ""
+    options.colorReset = ""
+    options.colorPattern = ""
+  end
+  options.originalString = str
+  options.strippedString = string.gsub(tostring(str), options.colorPattern, "")
+  options.strLen = string.len(options.strippedString)
+  options.leftCap = options.cap
+  options.rightCap = options.cap
+  options.capLen = string.len(options.cap)
+  local gapSpaces = 0
+  if not options.nogap then
+    if options.alignment == "center" then
+      gapSpaces = 2
+    else
+      gapSpaces = 1
+    end
+  end
+  options.nontextlength = options.width - options.strLen - gapSpaces
+  options.leftPadLen = math.floor(options.nontextlength / 2)
+  options.rightPadLen = options.nontextlength - options.leftPadLen
+  options.effWidth = options.width - ((options.capLen * gapSpaces) + gapSpaces)
+  if options.capLen &gt; options.leftPadLen then
+    options.cap = options.cap:sub(1, leftPadLen)
+    options.capLen = string.len(options.cap)
+  end
+  options.fixed = true
+  return options
+end
+
+function demonnic:fLine(str,opts)
+  local options = demonnic:fixFormatOptions(str,opts)
+  local leftCap = options.leftCap
+  local rightCap = options.rightCap
+  local leftPadLen = options.leftPadLen
+  local rightPadLen = options.rightPadLen
+  local capLen = options.capLen
+
+  if options.alignment == "center" then --we're going to center something
+    if options.mirror then --if we're reversing the left cap and the right cap (IE {{[[ turns into ]]}} )
+      rightCap = string.gsub(rightCap, "&lt;", "&gt;")
+      rightCap = string.gsub(rightCap, "%[", "%]")
+      rightCap = string.gsub(rightCap, "{", "}")
+      rightCap = string.gsub(rightCap, "%(", "%)")
+      rightCap = string.reverse(rightCap)
+    end --otherwise, they'll be the same, so don't do anything
+    if not options.nogap then str = string.format(" %s ", str) end
+
+  elseif options.alignment == "right" then --we'll right-align the text
+    leftPadLen = leftPadLen + rightPadLen
+    rightPadLen = 0
+    rightCap = ""
+    if not options.nogap then str = string.format(" %s", str) end
+
+  else --Ok, so if it's not center or right, we assume it's left. We don't do justified. Sorry.
+    rightPadLen = rightPadLen + leftPadLen
+    leftPadLen = 0
+    leftCap = ""
+    if not options.nogap then str = string.format("%s ", str) end
+  end--that's it, took care of both left, right, and center formattings, now to output the durn thing.
+  local fullLeftCap = string.format("%s%s%s", options.capColor, leftCap, options.colorReset)
+  local fullLeftSpacer = string.format("%s%s%s", options.spacerColor, string.rep(options.spacer, (leftPadLen - capLen)), options.colorReset)
+  local fullText = string.format("%s%s%s", options.textColor, str, options.colorReset)
+  local fullRightSpacer = string.format("%s%s%s", options.spacerColor, string.rep(options.spacer, (rightPadLen - capLen)), options.colorReset)
+  local fullRightCap = string.format("%s%s%s", options.capColor, rightCap, options.colorReset)
+
+  if options.inside then
+  -- "endcap===== some text =====endcap"
+  -- "endcap===== some text =====pacdne"
+  -- "endcap================= some text"
+  -- "some text =================endcap"
+    local finalString = string.format("%s%s%s%s%s", fullLeftCap, fullLeftSpacer, fullText, fullRightSpacer, fullRightCap)
+    return finalString
+  else
+  --"=====endcap some text endcap====="
+  --"=====endcap some text pacdne====="
+  --"=================endcap some text"
+  --"some text endcap================="
+
+    local finalString = string.format("%s%s%s%s%s", fullLeftSpacer, fullLeftCap, fullText, fullRightCap, fullRightSpacer)
+    return finalString
+  end
+end
+
+function demonnic:align(str, opts)
+  local options = {}
+  if opts == nil then
+    opts = {}
+  end
+  if type(opts) == "table" then
+    options = table.deepcopy(opts)
+    options.formatType = ""
+		options.wrap = false
+  else
+    error("Improper argument: options expected to be passed as table")
+  end
+  options = demonnic:fixFormatOptions(str, options)
+  return demonnic:fLine(str, options)
+end
+
+function demonnic:dalign(str, opts)
+  local options = {}
+  if opts == nil then
+    opts = {}
+  end
+  if type(opts) == "table" then
+    options = table.deepcopy(opts)
+    options.formatType = "d"
+    options.wrap = false
+  else
+    error("Improper argument: options expected to be passed as table")
+  end
+  options = demonnic:fixFormatOptions(str, options)
+  return demonnic:fLine(str, options)
+end
+
+function demonnic:calign(str, opts)
+  local options = {}
+  if opts == nil then
+    opts = {}
+  end
+  if type(opts) == "table" then
+    options = table.deepcopy(opts)
+    options.formatType = "c"
+    options.wrap = false
+  else
+    error("Improper argument: options expected to be passed as table")
+  end
+  options = demonnic:fixFormatOptions(str, options)
+  return demonnic:fLine(str, options)
+end
+
+function demonnic:halign(str, opts)
+  local options = {}
+  if opts == nil then
+    opts = {}
+  end
+  if type(opts) == "table" then
+    options = table.deepcopy(opts)
+    options.formatType = "h"
+    options.wrap = false
+  else
+    error("Improper argument: options expected to be passed as table")
+  end
+  options = demonnic:fixFormatOptions(str, options)
+  return demonnic:fLine(str, options)
+end
+
+function demonnic:cfText(str, opts)
+  local options = {}
+  if opts == nil then opts = {} end
+  if type(opts) == "table" then
+    options = table.deepcopy(opts)
+    options.formatType = "c"
+  else
+    error("Improper argument: options expected to be passed as table")
+  end
+  options = demonnic:fixFormatOptions(str, options)
+  return demonnic:fText(str, options)
+end
+
+function demonnic:dfText(str, opts)
+  local options = {}
+  if opts == nil then opts = {} end
+  if type(opts) == "table" then
+    options = table.deepcopy(opts)
+    options.formatType = "d"
+  else
+    error("Improper argument: options expected to be passed as table")
+  end
+  options = demonnic:fixFormatOptions(str, options)
+  return demonnic:fText(str, options)
+end
+
+function demonnic:hfText(str, opts)
+  local options = {}
+  if opts == nil then opts = {} end
+  if type(opts) == "table" then
+    options = table.deepcopy(opts)
+    options.formatType = "h"
+  else
+    error("Improper argument: options expected to be passed as table")
+  end
+  options = demonnic:fixFormatOptions(str, options)
+  return demonnic:fText(str, options)
+end
+
+function demonnic:test_ftext()
+  local testString = "This is a test of the emergency broadcast system. This is only a test. If this had been a real emergency, we would have given you more sensible information after this. But this was only a test."
+
+  local nTable = {width = 40, cap = "(CAP)", inside = true, alignment = 'center'}
+  local cTable = table.deepcopy(nTable)
+    cTable.formatType="c"
+    cTable.capColor = "&lt;red:black&gt;"
+    cTable.spacerColor = "&lt;purple:green&gt;"
+    cTable.textColor = "&lt;purple:green&gt;"
+
+  local dTable = table.deepcopy(nTable)
+    dTable.formatType="d"
+    dTable.capColor = "&lt;0,0,182&gt;"
+    dTable.spacerColor = "&lt;0,182,0&gt;"
+    dTable.textColor = "&lt;182,0,0&gt;"
+
+  local hTable = table.deepcopy(nTable)
+    hTable.formatType="h"
+    hTable.capColor = "#FF0000"
+    hTable.spacerColor = "#00FF00"
+    hTable.textColor = "#0000FF"
+  echo(string.rep("\n", 5))
+  echo("With word wrap:\n")
+  echo(demonnic:fText(testString, nTable) .. "\n")
+  cecho(demonnic:fText(testString, cTable) .. "\n")
+  decho(demonnic:fText(testString, dTable) .. "\n")
+  hecho(demonnic:fText(testString, hTable) .. "\n")
+
+  echo("\n\nWithout word wrap:\n")
+  echo(demonnic:align(testString, nTable) .. "\n")
+  decho(demonnic:dalign(testString, dTable) .. "\n")
+  cecho(demonnic:calign(testString, cTable) .. "\n")
+  hecho(demonnic:halign(testString, hTable) .. "\n")
+end
+</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>reusableFormatter</name>
+					<packageName></packageName>
+					<script>--- Stand alone text formatter object. Remembers the options you set and can be adjusted as needed
+-- @module demonnic.textFormatter
+demonnic.TextFormatter = {}
+demonnic.TextFormatter.validFormatTypes = { 'd', 'dec', 'decimal', 'h', 'hex', 'hexidecimal', 'c', 'color', 'colour', 'col', 'name'}
+
+--- Set's the formatting type whether it's for cecho, decho, or hecho
+--@tparam string typeToSet What type of formatter is this? Valid options are { 'd', 'dec', 'decimal', 'h', 'hex', 'hexidecimal', 'c', 'color', 'colour', 'col', 'name'}
+function demonnic.TextFormatter:setType(typeToSet)
+  local isNotValid = not table.contains(self.validFormatTypes, typeToSet)
+  if isNotValid then
+    error("demonnic.TextFormatter:setType: Invalid argument, valid types are:" .. table.concat(self.validFormatTypes, ", "))
+  end
+  self.options.formatType = typeToSet
+end
+
+function demonnic.TextFormatter:toBoolean(thing)
+  if type(thing) ~= "boolean" then
+    if thing == "true" then
+      thing = true
+    elseif thing == "false" then
+      thing = false
+    else
+      return nil
+    end
+  end
+  return thing
+end
+
+function demonnic.TextFormatter:checkString(str)
+  if type(str) ~= "string" then
+    if tostring(str) then
+      str = tostring(str)
+    else
+      return nil
+    end
+  end
+  return str
+end
+
+--- Sets whether or not we should do word wrapping.
+--@tparam boolean shouldWrap should we do wordwrapping?
+function demonnic.TextFormatter:setWrap(shouldWrap)
+  local argumentType = type(shouldWrap)
+  shouldWrap = self:toBoolean(shouldWrap)
+  if shouldWrap == nil then
+    error("demonnic.TextFormatter:setWrap(shouldWrap) Argument error, boolean expected, got " .. argumentType .. ", if you want to set the number of characters wide to format for, use setWidth()")
+  end
+  self.options.wrap = shouldWrap
+end
+
+--- Sets the width we should format for
+--@tparam number width the width we should format for
+function demonnic.TextFormatter:setWidth(width)
+  if type(width) ~= "number" then
+    if tonumber(width) then
+      width = tonumber(width)
+    else
+      error("demonnic.TextFormatter:setWidth(width): Argument error, number expected, got " .. type(width))
+    end
+  end
+  self.options.width = width
+end
+
+--- Sets the cap for the formatter
+--@tparam string cap the string to use for capping the formatted string.
+function demonnic.TextFormatter:setCap(cap)
+  local argumentType = type(cap)
+  local cap = self:checkString(cap)
+  if cap == nil then error("demonnic.TextFormatter:setCap(cap): Argument error, string expect, got " .. argumentType) end
+  self.options.cap = cap
+end
+
+--- Sets the color for the format cap
+--@tparam string capColor Color which can be formatted via Geyser.Color.parse()
+function demonnic.TextFormatter:setCapColor(capColor)
+  local argumentType = type(capColor)
+  local capColor = self:checkString(capColor)
+  if capColor == nil then error("demonnic.TextFormatter:setCapColor(capColor): Argument error, string expected, got " .. argumentType) end
+  self.options.capColor = capColor
+end
+
+--- Sets the color for spacing character
+--@tparam string spacerColor Color which can be formatted via Geyser.Color.parse()
+function demonnic.TextFormatter:setSpacerColor(spacerColor)
+  local argumentType = type(spacerColor)
+  local spacerColor = self:checkString(spacerColor)
+  if spacerColor == nil then error("demonnic.TextFormatter:setSpacerColor(spacerColor): Argument error, string expected, got " .. argumentType) end
+  self.options.spacerColor = spacerColor
+end
+
+--- Sets the color for formatted text
+--@tparam string textColor Color which can be formatted via Geyser.Color.parse()
+function demonnic.TextFormatter:setTextColor(textColor)
+  local argumentType = type(textColor)
+  local textColor = self:checkString(textColor)
+  if textColor == nil then error("demonnic.TextFormatter:setTextColor(textColor): Argument error, string expected, got " .. argumentType) end
+  self.options.textColor = textColor
+end
+
+--- Sets the spacing character to use. Should be a single character
+--@tparam string spacer the character to use for spacing
+function demonnic.TextFormatter:setSpacer(spacer)
+  local argumentType = type(spacer)
+  local spacer = self:checkString(spacer)
+  if spacer == nil then error("demonnic.TextFormatter:setSpacer(spacer): Argument error, string expect, got " .. argumentType) end
+  self.options.spacer = spacer
+end
+
+--- Set the alignment to format for
+--@tparam string alignment How to align the formatted string. Valid options are 'left', 'right', or 'center'
+function demonnic.TextFormatter:setAlignment(alignment)
+  local validAlignments = {
+    "left",
+    "right",
+    "center"
+  }
+  if not table.contains(validAlignments, alignment) then
+    error("demonnic.TextFormatter:setAlignment(alignment): Argument error: Only valid arguments for setAlignment are 'left', 'right', or 'center'. You sent" .. alignment)
+  end
+  self.options.alignment = alignment
+end
+
+--- Set whether the the spacer should go inside the the cap or outside of it
+--@tparam boolean spacerInside 
+function demonnic.TextFormatter:setInside(spacerInside)
+  local argumentType = type(spacerInside)
+  spacerInside = self:toBoolean(spacerInside)
+  if spacerInside == nil then
+    error("demonnic.TextFormatter:setInside(spacerInside) Argument error, boolean expected, got " .. argumentType)
+  end
+  self.options.inside = spacerInside
+end
+
+--- Set whether we should mirror/reverse the caps. IE &lt;&lt; becomes &gt;&gt; if set to true
+--@tparam boolean shouldMirror
+function demonnic.TextFormatter:setMirror(shouldMirror)
+  local argumentType = type(shouldMirror)
+  shouldMirror = self:toBoolean(shouldMirror)
+  if shouldMirror == nil then
+    error("demonnic.TextFormatter:setMirror(shouldMirror): Argument error, boolean expected, got " .. argumentType)
+  end
+  self.options.mirror = shouldMirror
+end
+
+--- Format a string based on the stored options
+--@tparam string str The string to format
+function demonnic.TextFormatter:format(str)
+  return demonnic:fText(str, self.options)
+end
+
+--- Creates and returns a new TextFormatter. For valid options, please see https://github.com/demonnic/fText/wiki/fText
+--@tparam table options the options for the text formatter to use when running format()
+function demonnic.TextFormatter:new(options)
+  if options == nil then options = {} end
+  if options and type(options) ~= "table" then
+    error("demonnic.TextFormatter:new(options): Argument error, table expected, got " .. type(options))
+  end
+  local me = {}
+  me.options = {
+    formatType = "c",
+    wrap = true,
+    width = 80,
+    cap = "",
+    spacer = " ",
+    alignment = "center",
+    inside = true,
+    mirror = false,
+  }
+  for option, value in pairs(options) do
+    me.options[option] = value
+  end
+  setmetatable(me, self)
+  self.__index = self
+  return me
+end
+</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>tableFormatter</name>
+					<packageName></packageName>
+					<script>--- Easy formatting for text tables
+-- @module demonnic.TableMaker
+
+demonnic.TableMaker = {
+  headCharacter = "*",
+  footCharacter = "*",
+  edgeCharacter = "*",
+  rowSeparator = "-",
+  separator = "|",
+  colorReset = "&lt;reset&gt;",
+  formatType = "c",
+  printHeaders = true,
+  autoEcho = false,
+}
+
+function demonnic.TableMaker:checkPosition(position, func)
+  if position == nil then position = 0 end
+  if type(position) ~= "number" then
+    if tonumber(position) then
+      position = tonumber(position)
+    else
+      error(func .. ": Argument error: position expected as number, got " .. type(position))
+    end
+  end
+  return position
+end
+
+function demonnic.TableMaker:insert(tbl, pos, item)
+  if pos ~= 0 then
+    table.insert(tbl, pos, item)
+  else
+    table.insert(tbl, item)
+  end
+end
+
+--- Adds a column definition for the table. 
+--@tparam table options Table of options suitable for a TextFormatter object. See https://github.com/demonnic/fText/wiki/fText
+--@tparam number position The position of the column you're adding, counting from the left. If not provided will add it as the last column
+function demonnic.TableMaker:addColumn(options, position)
+  if options == nil then options = {} end
+  if not type(options) == "table" then error("demonnic.TableMaker:addColumn(options, position): Argument error: options expected as table, got " .. type(options)) end
+  local options = table.deepcopy(options)
+  position = self:checkPosition(position, "demonnic.TableMaker:addColumn(options, position)")
+  options.width = options.width or 20
+  options.name = options.name or ""
+  local formatter = demonnic.TextFormatter:new(options)
+  self:insert(self.columns, position, formatter)
+end
+
+--- Deletes a column at the given position
+--@tparam number position the column you wish to delete
+function demonnic.TableMaker:deleteColumn(position)
+  if position == nil then error("demonnic.TableMaker:deleteColumn(position): Argument Error: position as number expected, got nil") end
+  position = self:checkPosition(position)
+  local maxColumn = #self.columns
+  if position &gt; maxColumn then error("demonnic.TableMaker:deleteColumn(position): Argument Error: position provided was larger than number of columns in the table. Number of columns: " .. #self.columns) end
+  table.remove(self.columns, position)
+end
+
+--- Replaces a column at a specific position with the newly provided formatting
+--@tparam table options table of options suitable for a TextFormatter object. See https://github.com/demonnic/fText/wiki/fText
+--@tparam number position which column you are replacing, counting from the left.
+function demonnic.TableMaker:replaceColumn(options, position)
+  if position == nil then
+    error("demonnic.TableMaker:replaceColumn(options, position): Argument error: position as number expected, got nil")
+  end
+  position = self:checkPosition(position)
+  if type(options) ~= "table" then error("demonnic.TableMaker:replaceColumn(options, position): Argument error: options as table expected, got " .. type(options)) end
+  if #self.columns &lt; position then error("demonnic.TableMaker:replaceColumn(options, position): you cannot specify a position higher than the number of columns currently in the TableMaker. You sent:" .. position .. " and there are: " .. #self.columns .. "columns in the TableMaker") end
+  options.width = options.width or 20
+  options.name = options.name or ""
+  local formatter = demonnic.TextFormatter:new(options)
+  self.columns[position] = formatter
+end
+
+--- Adds a row of output to the table
+--@tparam table columnEntries This indexed table contains an entry for each column in the table. Entries in the table must be strings, a table of options for insertPopup or insertLink, or a function which returns one of these things
+--@tparam number position position for the row you want to add, counting from the top down. If not provided defaults to the last line in the table.
+function demonnic.TableMaker:addRow(columnEntries, position)
+  local columnEntriesType = type(columnEntries)
+  if columnEntriesType ~= "table" then
+    error("demonnic.TableMaker:addRow(columnEntries, position): Argument error, columnEntries expected as table, got " .. columnEntriesType)
+  end
+  for _,entry in ipairs(columnEntries) do
+    local entryCheck = self:checkEntry(entry)
+    if entryCheck == 0 then
+      if type(entry) == "function" then
+        error("demonnic.TableMaker:addRow(columnEntries, position): Argument Error, you provided a function for a columnEntry but it does not return a string. We need a string. It was entry number " .. _ .. "in columnEntries")
+      else
+        error("demonnic.TableMaker:addRow(columnEntries, position): Argument error, columnEntries items expected as string, got:" .. type(entry)) 
+      end
+    end
+  end
+  position = self:checkPosition(position, "demonnic.TableMaker:addRow(columnEntries, position)")
+  self:insert(self.rows, position, columnEntries)
+end
+
+--- Deletes the row at the given position
+--@tparam number position the row to delete
+function demonnic.TableMaker:deleteRow(position)
+  if position == nil then error("demonnic.TableMaker:deleteRow(position): Argument Error: position as number expected, got nil") end
+  position = self:checkPosition(position, "demonnic.TableMaker:deleteRow(position)")
+  local maxRow = #self.rows
+  if position &gt; maxRow then error("demonnic.TableMaker:deleteRow(position): Argument Error: position given was &gt; the number of rows we have # of rows is:" .. maxRow) end
+  table.remove(self.rows, position)
+end
+
+--- Replaces a row of output in the table
+--@tparam table columnEntries This indexed table contains an entry for each column in the table. Entries in the table must be strings, a table of options for insertPopup or insertLink, or a function which returns one of these things
+--@tparam number position position for the row you want to add, counting from the top down.
+function demonnic.TableMaker:replaceRow(columnEntries, position)
+  if position == nil then
+    error("demonnic.TableMaker:replaceRow(columnEntries, position): ArgumentError: position expected as number, received nil")
+  end
+  position = self:checkPosition(position, "demonnic.TableMaker:replaceRow(columnEntries, position)")
+  if #self.rows &lt; position then
+    error("demonnic.TableMaker:replaceRow(columnEntries, position): position cannot be greater than the number of rows already in the tablemaker. You provided: " .. position .. " and there are " .. #self.rows .. "rows in the TableMaker")
+  end
+  for _,entry in ipairs(columnEntries) do
+    local entryCheck = self:checkEntry(entry)
+    if entryCheck == 0 then
+      if type(entry) == "function" then
+        error("demonnic.TableMaker:replaceRow(columnEntries, position): Argument Error: you provided a function for a columnEntry but it does not return a string. We need a string. It was entry number " .. _ .. "in columnEntries")
+      else
+        error("demonnic.TableMaker:replaceRow(columnEntries, position): Argument error: columnEntries items expected as string, got:" .. type(entry))
+      end
+    end
+  end
+  self.rows[position] = columnEntries
+end
+
+function demonnic.TableMaker:checkEntry(entry)
+  local allowedTypes = {
+    "string"
+  }
+  if self.allowPopups then
+    table.insert(allowedTypes, "table")
+  end
+  local entryType = type(entry)
+  if entryType == "function" then
+    entryType = type(entry())
+  end
+  if table.contains(allowedTypes, entryType) then
+    return entry
+  else
+    return 0
+  end
+end
+
+function demonnic.TableMaker:checkNumber(num)
+  if num == nil then num = 0 end
+  if not tonumber(num) then num = 0 end
+  return tonumber(num)
+end
+
+--- Sets a specific cell's display information
+--@tparam number row the row number of the cell, counted from the top down
+--@tparam number column the column number of the cell, counted from the left
+--@param entry What to set the entry to. Must be a string, or a table of options for insertLink/insertPopup if allowPopups is set. Or a function which returns one of these things
+function demonnic.TableMaker:setCell(row, column, entry)
+  local maxRow = #self.rows
+  local maxColumn = #self.columns
+  local ae = "demonnic.TableMaker:setCell(row, column, entry): Argument Error:"
+  row = self:checkNumber(row)
+  if row == 0 then error(ae .. " row must be a number, you provided " .. type(row)) end
+  column = self:checkNumber(column)
+  if column == 0 then error(ae .. " column must be a number, you provided " .. type(column)) end
+  if row &gt; maxRow then error(ae .. " row is higher than the number of rows in the table. Highest row:" .. maxRow) end
+  if column &gt; maxColumn then error(ae .. " column is higher than the number of columns in the table. Highest column:" .. maxColumn) end
+  local entryType = type(entry)
+  entry = self:checkEntry(entry)
+  if entry == 0 then
+    if type(entry) == "function" then 
+      error(ae .. " entry was provided as a function, but does not return a string. We need a string in the end")
+    else 
+      error("demonnic.TableMaker:setCell(row, column, entry): Argument Error: entry must be a string, or a function which returns a string. You provided a " .. entryType)
+    end
+  end
+  self.rows[row][column] = entry
+end
+
+function demonnic.TableMaker:totalWidth()
+  local width = 0
+  local numberOfColumns = #self.columns
+  local separatorWidth = string.len(self.separator)
+  local edgeWidth = string.len(self.edgeCharacter) * 2
+  for _,column in ipairs(self.columns) do
+    width = width + column.options.width
+  end
+  separatorWidth = separatorWidth * (numberOfColumns - 1)
+  width = width + edgeWidth + separatorWidth
+  return width
+end
+
+function demonnic.TableMaker:getType()
+  local dec = {"d", "decimal", "dec"}
+  local hex = {"h", "hexidecimal", "hex"}
+  local col = {"c", "color", "colour", "col", "name"}
+  if table.contains(dec, self.formatType) then
+    return 'd'
+  elseif table.contains(hex, self.formatType) then
+    return 'h'
+  elseif table.contains(col, self.formatType) then
+    return 'c'
+  else
+    return ''
+  end
+end
+
+function demonnic.TableMaker:echo(message, echoType, ...)
+  local fType = self:getType()
+  local consoleType = type(self.autoEchoConsole)
+  local console = ""
+  if echoType == nil then echoType = "" end
+  if consoleType == "string" then
+    console = self.autoEchoConsole
+  else
+    console = self.autoEchoConsole.name
+  end
+  local functionName = string.format("%secho%s", fType, echoType)
+  local func = _G[functionName]
+  if fType == "" then formatted = false end
+  if echoType == "" then
+    func(console, message)
+  else
+    func(console, message, ...)
+  end
+end
+
+function demonnic.TableMaker:scanRow(rowToScan)
+  local row = table.deepcopy(rowToScan)
+  local rowEntries = #row
+  local numberOfColumns = #self.columns
+  local columns = {}
+  local linesInRow = 0
+  local rowText = ""
+  local ec = self.frameColor .. self.edgeCharacter .. self.colorReset
+  local sep = self.separatorColor .. self.separator .. self.colorReset
+
+  if rowEntries &lt; numberOfColumns then
+    entriesNeeded = numberOfColumns - rowEntries
+    for i = 1,entriesNeeded do
+      table.insert(row, "")
+    end
+  end
+  for index,formatter in ipairs(self.columns) do
+    local str = row[index]
+    local column = ""
+    if type(str) == "function" then str = str() end
+    column = formatter:format(str)
+    table.insert(columns, column:split("\n"))
+  end
+  for _,rowLines in ipairs(columns) do
+    if linesInRow &lt; #rowLines then linesInRow = #rowLines end
+  end
+  for index,rowLines in ipairs(columns) do
+    if #rowLines &lt; linesInRow then
+      local neededLines = linesInRow - #rowLines
+      for i=1,neededLines do
+        table.insert(rowLines, self.columns[index]:format(""))
+      end
+    end
+  end
+  for i= 1,linesInRow do
+    local thisLine = ec
+    for index,column in ipairs(columns) do
+      if index == 1 then
+        thisLine = string.format("%s%s", thisLine, column[i])
+      else
+        thisLine = string.format("%s%s%s", thisLine, sep, column[i])
+      end
+    end
+    thisLine = string.format("%s%s", thisLine, ec)
+    if rowText == "" then
+      rowText = thisLine
+    else
+      rowText = string.format("%s\n%s", rowText, thisLine)
+    end
+  end
+  return rowText
+end
+
+function demonnic.TableMaker:echoRow(rowToScan)
+  local row = table.deepcopy(rowToScan)
+  local rowEntries = #row
+  local numberOfColumns = #self.columns
+  local columns = {}
+  local linesInRow = 0
+  local ec = self.frameColor .. self.edgeCharacter .. self.colorReset
+  local sep = self.separatorColor .. self.separator .. self.colorReset
+  if rowEntries &lt; numberOfColumns then
+    entriesNeeded = numberOfColumns - rowEntries
+    for i = 1,entriesNeeded do
+      table.insert(row, "")
+    end
+  end
+  for index,formatter in ipairs(self.columns) do
+    local str = row[index]
+    local column = ""
+    if type(str) == "function" then str = str() end
+    if type(str) == "table" then 
+      str = str[1]
+    end
+    column = formatter:format(str)
+    table.insert(columns, column:split("\n"))
+  end
+  for _,rowLines in ipairs(columns) do
+    if linesInRow &lt; #rowLines then linesInRow = #rowLines end
+  end
+  for index,rowLines in ipairs(columns) do
+    if #rowLines &lt; linesInRow then
+      local neededLines = linesInRow - #rowLines
+      for i=1,neededLines do
+        table.insert(rowLines, self.columns[index]:format(""))
+      end
+    end
+  end
+  for i= 1,linesInRow do
+    self:echo(ec)
+    for index,column in ipairs(columns) do
+      local message = column[i]
+      if index ~= 1 then 
+        self:echo(sep)
+      end
+      if type(row[index]) == "string" then
+        self:echo(message)
+      elseif type(row[index]) == "table" then
+        local rowEntry = row[index]
+        local echoType = ""
+        if type(rowEntry[2]) == "string" then
+          echoType = "Link"
+        elseif type(rowEntry[2]) == "table" then
+          echoType = "Popup"
+        end
+        self:echo(message, echoType, rowEntry[2], rowEntry[3], rowEntry[4] or true)
+      end
+    end
+    self:echo(ec)
+    if i ~= linesInRow then
+      self:echo("\n")
+    end
+  end
+end
+
+function demonnic.TableMaker:makeHeader()
+  local totalWidth = self:totalWidth()
+  local ec = self.frameColor .. self.edgeCharacter .. self.colorReset
+  local sep = self.separatorColor .. self.separator .. self.colorReset
+  local header = self.frameColor .. string.rep(self.headCharacter, totalWidth) .. self.colorReset
+  local columnHeaders = ""
+  if self.printHeaders then
+    local columnEntries = {}
+    for _,v in ipairs(self.columns) do
+      table.insert(columnEntries, v:format(v.options.name))
+    end
+    local divWithNewlines = string.format("\n%s", self:createRowDivider())
+    columnHeaders = string.format("\n%s%s%s%s", ec, table.concat(columnEntries, sep), ec, divWithNewlines)
+  end
+  header = string.format("%s%s", header, columnHeaders)
+  return header
+end
+
+function demonnic.TableMaker:createRowDivider()
+  local columnPieces = {}
+  for _,v in ipairs(self.columns) do
+    local piece = string.format("%s%s%s", self.separatorColor, string.rep(self.rowSeparator, v.options.width), self.colorReset)
+    table.insert(columnPieces, piece)
+  end
+  local ec = self.frameColor .. self.edgeCharacter .. self.colorReset
+  local sep = self.separatorColor .. self.separator .. self.colorReset
+  return string.format("%s%s%s", ec, table.concat(columnPieces, sep), ec)
+end
+
+--- enables making cells which incorporate insertLink/insertPopup
+function demonnic.TableMaker:enablePopups()
+  self.autoEcho = true
+  self.allowPopups = true
+end
+
+--- enables autoEcho so that when assemble is called it echos automatically
+function demonnic.TableMaker:enableAutoEcho()
+  self.autoEcho = true
+end
+
+--- disables autoecho. Cannot be used if allowPopups is set
+function demonnic.TableMaker:disableAutoEcho()
+  if self.allowPopups then
+    error("demonnic.TableMaker:disableAutoEcho(): you cannot disable autoEcho once you have enabled popups.")
+  else
+    self.autoEcho = false
+  end
+end
+
+--- Enables automatically clearing the miniconsole we echo to
+function demonnic.TableMaker:enableAutoClear()
+  self.autoClear = true
+end
+
+--- Disables automatically clearing the miniconsole we echo to
+function demonnic.TableMaker:disableAutoClear()
+  self.autoClear = false
+end
+
+--- Set the miniconsole to echo to
+--@param console The miniconsole to autoecho to. Set to "main" or do not pass the parameter to autoecho to the main console. Can be a string name of the console, or a Geyser MiniConsole
+function demonnic.TableMaker:setAutoEchoConsole(console)
+  local funcName = "demonnic.TableMaker:setAutoEchoConsole(console)"
+  if console == nil then 
+    console = "main" 
+  end
+  local consoleType = type(console)
+  if consoleType ~= "string" and consoleType ~= "table" then
+    error(funcName .. " ArgumentError: console as string or Geyser.MiniConsole expected, got " .. consoleType)
+  elseif consoleType == "table" and console.type ~= "miniConsole" then
+    error(funcName .. " ArgumentError: console received was a table and may be a Geyser object, but console.type is not miniConsole, it is " .. console.type)
+  end
+  self.autoEchoConsole = console
+end
+
+--- Assemble the table. If autoEcho is enabled/set to true, will automatically echo. Otherwise, returns the formatted string to echo the table
+function demonnic.TableMaker:assemble()
+  if self.allowPopups and self.autoEcho then
+    self:popupAssemble()
+  else
+    return self:textAssemble()
+  end
+end
+
+function demonnic.TableMaker:popupAssemble()
+  if self.autoClear then
+    local console = self.autoEchoConsole
+    if console and console ~= "main" then
+      if type(console) == "table" then
+        console = console.name
+      end
+      clearWindow(console)
+    end
+  end
+  local divWithNewLines = string.format("\n%s\n", self:createRowDivider())
+  local header = self:makeHeader() .. "\n"
+  local footer = string.format("\n%s%s%s\n", self.frameColor, string.rep(self.footCharacter, self:totalWidth()), self.colorReset)
+  self:echo(header)
+  for _,row in ipairs(self.rows) do
+    if _ ~= 1 then
+      self:echo(divWithNewLines)
+    end
+    self:echoRow(row)
+  end
+  self:echo(footer)
+end
+
+function demonnic.TableMaker:textAssemble()
+  local sheet = ""
+  local rows = {}
+  for _,row in ipairs(self.rows) do
+    table.insert(rows, self:scanRow(row))
+  end
+  local divWithNewlines = string.format("\n%s\n", self:createRowDivider())
+  local footer = string.format("%s%s%s", self.frameColor, string.rep(self.footCharacter, self:totalWidth()), self.colorReset)
+  sheet = string.format("%s\n%s\n%s\n", self:makeHeader(), table.concat(rows, divWithNewlines), footer)
+  if self.autoEcho then
+    local console = self.autoEchoConsole or "main"
+    if type(console) == "table" then console = console.name end
+    if self.autoClear and console ~= "main" then
+      clearWindow(console)
+    end
+    self:echo(sheet)
+  end
+  return sheet
+end
+
+--- Creates and returns a new TableMaker. See https://github.com/demonnic/fText/wiki/TableMaker for valid entries to the options table.
+--@tparam table options table of options for the TableMaker object
+function demonnic.TableMaker:new(options)
+  local funcName = "emonnic.TableMaker:new(options)"
+  local me = {}
+  setmetatable(me, self)
+  self.__index = self
+  if options == nil then options = {} end
+  if type(options) ~= "table" then
+    error("demonnic.TableMaker:new(options): ArgumentError: options expected as table, got " .. type(options))
+  end
+  local options = table.deepcopy(options)
+  if options.allowPopups == true then
+    options.autoEcho = true
+  else
+    options.allowPopups = false
+  end
+  local columns = false
+  if options.columns then
+    if type(options.columns) ~= "table" then error("demonnic.TableMaker:new(options): option error: You provided an options.columns entry of type " .. type(options.columns) .. " and columns must a table with entries suitable for demonnic.TableFormatter:addColumn().") end
+    columns = table.deepcopy(options.columns)
+    options.columns = nil
+  end
+  local rows = false
+  if options.rows then
+    if type(options.rows) ~= "table" then error("demonnic.tableMaker:new(options): option error: You provided an options.rows entry of type " .. type(options.rows) .. " and rows must be a table with entrys suitable for demonnic.TableFormatter:addRow()") end
+    rows = table.deepcopy(options.rows)
+    options.rows = nil
+  end
+  for option, value in pairs(options) do
+    me[option] = value
+  end
+  local dec = {"d", "decimal", "dec"}
+  local hex = {"h", "hexidecimal", "hex"}
+  local col = {"c", "color", "colour", "col", "name"}
+  if table.contains(dec, me.formatType) then
+    me.frameColor = me.frameColor or "&lt;255,255,255&gt;"
+    me.separatorColor = me.separatorColor or me.frameColor
+    me.colorReset = "&lt;r&gt;"
+  elseif table.contains(hex, me.formatType) then
+    me.frameColor = me.frameColor or "#ffffff"
+    me.separatorColor = me.separatorColor or me.frameColor
+    me.colorReset = "#r"
+  elseif table.contains(col, me.formatType) then
+    me.frameColor = me.frameColor or "&lt;white&gt;"
+    me.separatorColor = me.separatorColor or me.frameColor
+    me.colorReset = "&lt;reset&gt;"
+  else
+    me.frameColor = ""
+    me.separatorColor = ""
+    me.colorReset = ""
+  end
+  me.columns = {}
+  me.rows = {}
+  if columns then
+    for _,column in ipairs(columns) do
+      me:addColumn(column)
+    end
+  end
+  if rows then
+    for _,row in ipairs(rows) do
+      me:addRow(row)
+    end
+  end
+  return me
+end
+</script>
+					<eventHandlerList />
+				</Script>
+			</ScriptGroup>
 		</ScriptGroup>
 		<Script isActive="yes" isFolder="no">
 			<name>last script (to trigger dependencies!)</name>

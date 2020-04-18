@@ -619,8 +619,8 @@ end
 resumeTimer = tempTimer(90, function ()
   killResumeTimer()
 	cecho('\n&lt;yellow&gt;MURDER: &lt;white&gt;tank returned and no action within 60s')
-	send('gt seems like a suspect pause....')
-	send('gt resume')
+	send('gstat seems like a suspect pause....')
+	send('gstat resume')
 end, 'waitng for tank to do something after resuming (60s)')
 
 
@@ -647,7 +647,7 @@ combatStarted = common.onNextEvent(common.events.COMBAT_STARTED, killResumeTimer
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^\S+ tells the group[^:]*: "(back|still here|saw it die)</string>
+						<string>^\S+ reports group status[^:]*: "(back|still here|saw it die)</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -787,7 +787,7 @@ end
 --
 if (murder.sleepMode == 'next') then
 
-	send('gt pause')
+	send('gstat pause')
 
 	-- go straight to dance mode if our threshold is 100%
 	-- looking at you charging warriors / assasinating thieves
@@ -827,12 +827,12 @@ elseif (murder.sleepMode == 'chopping') then
         end, 'delay in case of tank queued sleep?')
 
       else
-			  send('k ' .. vic)
+			  player.autoAttack(vic)
       end
 
   	else
 			-- cecho('\n&lt;green&gt;MURDER: &lt;white&gt;didn\'t cast, mp: ' .. tostring(player.mp) .. ', cl: ' .. tostring(murder.castingLocked) .. '\n')
-  		send('k ' .. vic)
+  		player.autoAttack(vic)
   	end
 	end)
 
@@ -848,11 +848,11 @@ elseif (murder.sleepMode == 'dancing') then
 			-- delay to allow queue to catch up
 			tempTimer(1, function ()
   			send('dismount &amp; stand &amp; sit')
-    		send('queue gt leave')
+    		send('queue gstat leave')
 			end, 'waiting for parry to kick in (queue delay)')
 
   		murder.tankState = 'out-pending'
-    	tempRegexTrigger([[^\S+ tells the group[^:]*: "(out|failed to leave)"]], function ()
+    	tempRegexTrigger([[^\S+ reports group status[^:]*: "(out|failed to leave)"]], function ()
 
         murder.tankState = 'out-confirmed'
 
@@ -870,27 +870,31 @@ elseif (murder.sleepMode == 'dancing') then
           player.danceReturnMode = player.danceReturnMode or 'after'
 
           if (player.danceReturnMode == 'before') then
-            send('queue gt return ' .. vic)
+            send('queue gstat return ' .. vic)
           end
 
           send('queue opt parry &amp; queue stand &amp; queue mount')
 
           if (player.danceReturnMode == 'with') then
-            send('queue gt return ' .. vic)
+            send('queue gstat return ' .. vic)
           end
 
-          send('queue k ' .. vic .. ' &amp; queue opt parry')
+          player.autoAttack(vic)
+          
+          send('queue opt parry')
 
 
           if (player.danceReturnMode == 'after') then
-            send('queue gt return ' .. vic)
+            send('queue gstat return ' .. vic)
           end
 
 
     		else
   				cecho('\n&lt;orange&gt;PARRY: &lt;white&gt;setting  - temp off (dance hit then reenable)')
-          send('opt parry &amp; stand &amp; mount &amp; k ' .. vic .. ' &amp; queue opt parry' )
-          send('queue gt wtf??? - stabbing it anyway')
+          send('opt parry &amp; stand &amp; mount')
+          player.autoAttack(vic)
+          send('queue opt parry')
+          send('queue gstat wtf??? - stabbing it anyway')
 					player.parryQueue = player.parryQueue + 2
   				murder.tankState = 'here'
     		end
@@ -933,14 +937,14 @@ cecho(' &lt;-- &lt;white&gt;' .. murder.sleepMode .. '\n')</script>
   player.onDeadTrig = nil
 end
 
-player.onDeadTrig = tempRegexTrigger([[^\S+ tells the group[^:]*: "(back|still here|saw it die)"]], function ()
+player.onDeadTrig = tempRegexTrigger([[^\S+ reports group status[^:]*: "(back|still here|saw it die)"]], function ()
 
 	if (murder.sleepMode ~= 'paused') then
 
   	murder.sleepMode = 'next'
 
   	common.setParryState(false, 'something died', function ()
-  		send('gt resume')
+  		send('gstat resume')
   	end)
 
 	end
@@ -1025,7 +1029,8 @@ if (murder.sleepMode == 'dance-pending') then
 
 else
 
-  send('k ' .. target)
+      
+  player.autoAttack(target)
 
 end
 
@@ -1061,21 +1066,21 @@ cecho('\n&lt;yellow&gt;PARRY: &lt;white&gt;MORTAL WOUND')
 
 if (murder.tankState == 'here') then
 	-- can't do anything at this stage as mage is in combat and can't leave
-	send('gt you should not be ere (might o hit that one too hard)')
+	send('gstat you should not be ere (might o hit that one too hard)')
   common.setParryState(false, 'sleepmode: mortal wound (tank in room)', function ()
-    send('k ' .. vic)
+    player.autoAttack(vic)
   end)
 else
 
-  send('+gt abort abort, mortal wound detected!')
+  send('+gstat abort abort, mortal wound detected!')
 
 	-- send('opt parry &amp; stand &amp; k ' .. vic .. ' &amp; queue opt parry')
   common.onNextEvent(common.events.PARSED_PROMPT, function ()
     -- any queued parries will have been dequeued.
     player.parryQueue = 0
     common.setParryState(false, 'sleepmode: mortal wound', function ()
-      send('k ' .. vic)
-      send('queue gt return ' .. vic)
+      player.autoAttack(vic)
+      send('queue gstat return ' .. vic)
     end)
   end)
 end</script>
@@ -1116,7 +1121,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^(An? .+?|The .+?|\w+) tells the group[^:]*: "meet at (\d+)"</string>
+						<string>^(An? .+?|The .+?|\w+) reports group status[^:]*: "meet at (\d+)"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1142,10 +1147,10 @@ end</script>
 						<integer>0</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>Assist on Exits</name>
 					<script>if (player.nextTarget) then
-	send('k ' .. player.nextTarget)
+	player.autoAttack(player.nextTarget)
 	player.nextTarget =  nil
 end</script>
 					<triggerType>0</triggerType>
@@ -1199,9 +1204,9 @@ local player = group[player.name]
 local getFull = false
 
 
-local pFullTrig = tempRegexTrigger([[^\w+ tells the group[^:]*: "getting full"]], function ()
+local pFullTrig = tempRegexTrigger([[^\w+ reports group status[^:]*: "getting full"]], function ()
 	getFull = true
-	send('gt righto')
+	send('gstat righto')
 end, 1)
 
 
@@ -1218,14 +1223,14 @@ tempTimer(3, function ()
 
   		tempTimer(3, function ()
   			player.gettingFull = false
-  			expandAlias('gt ready (' .. player.name .. ')')
+  			expandAlias('gstat ready (' .. player.name .. ')')
   		end)
 
     end)
 
 	else
 
-		send('gt ready (Myrth)')
+		send('gstat ready (' .. player.name .. ')')
 
 	end
 
@@ -1268,7 +1273,7 @@ if (not player.gettingFull) then
 
   		tempTimer(3, function ()
 				player.gettingFull = false
-  			expandAlias('gt ready (' .. player.name .. ')')
+  			expandAlias('gstat ready (' .. player.name .. ')')
   		end)
 
     end)
@@ -1290,7 +1295,7 @@ end
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^.* tells? (?:your|the) group[^:]*: "(pfull|get full)"</string>
+						<string>^.* reports group status[^:]*: "(pfull|get full)"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1324,8 +1329,8 @@ send('eat corpse')
 					<script>local vessel = player.vessel or 'leather.waterskin'
 
 send('drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; drink ' .. vessel .. ' &amp; queue give empty.' .. vessel .. ' ' .. group.leader)
-send('queue gt fill my ' .. vessel)
-send('gt snack me')
+send('queue gstat fill my ' .. vessel)
+send('gstat snack me')
 send('eat food &amp; eat food &amp; eat food &amp; eat food')
 send('drop all.food &amp; get 4*food')</script>
 					<triggerType>0</triggerType>
@@ -1339,7 +1344,7 @@ send('drop all.food &amp; get 4*food')</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^.* tells the group[^:]*:\s+"snack break"$</string>
+						<string>^.* reports group status[^:]*:\s+"snack break"$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1784,7 +1789,7 @@ tempTimer(2, function ()
 
   tfe.gotoRoom(rnum, function ()
   	tempTimer(1, function ()
-  		send('gt ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
+  		send('gstat ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
   	end)
   end)
 
@@ -1800,7 +1805,7 @@ end)</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^(An? .+?|The .+?|\w+) tells the group[^:]*: "meet at (\d+)"</string>
+						<string>^(An? .+?|The .+?|\w+) reports group status[^:]*: "meet at (\d+)"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1808,7 +1813,7 @@ end)</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>set next assist mob</name>
-					<script>local vic = matches[4]
+					<script>local vic = matches[3]
 player.nextTarget = vic
 </script>
 					<triggerType>0</triggerType>
@@ -1822,7 +1827,7 @@ player.nextTarget = vic
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^(.*) tells? (your|the) group[^:]*: "next is (.*)"</string>
+						<string>^(.*) reports? group status[^:]*: "next is (.*)"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1840,7 +1845,7 @@ if (pname == player.name) then
 
     tfe.gotoRoom(rnum, function ()
     	tempTimer(1, function ()
-    		send('gt ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
+    		send('gstat ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
     	end)
     end)
 
@@ -1857,7 +1862,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^(An? .+?|The .+?|\w+) tells the group[^:]*: "(\w+) go to (\d+)"</string>
+						<string>^(An? .+?|The .+?|\w+) reports group status[^:]*: "(\w+) go to (\d+)"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1868,7 +1873,7 @@ end</script>
 					<script>local pname = matches[3]
 
 if (pname == "" or pname == player.name) then
-   send('gt ' .. player.name .. ' is at ' .. tostring(tfe.roomInfo.vnum))
+   send('gstat ' .. player.name .. ' is at ' .. tostring(tfe.roomInfo.vnum))
 end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -1881,7 +1886,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^(An? .+?|The .+?|\w+) tells the group[^:]*: "(\w*) ?where are you\?"</string>
+						<string>^(An? .+?|The .+?|\w+) reports group status[^:]*: "(\w*) ?where are you\?"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1969,12 +1974,12 @@ send('group')</script>
 	murder.sleepMode = 'paused'
 
 	common.setParryState(true, 'murder mode paused', function ()
-		send('gt holding off on the murdering')
+		send('gstat holding off on the murdering')
 	end, true)
 
 else
 	common.setParryState(false, 'murder mode resumed', function ()
-		send('gt resuming the murdering')
+		send('gstat resuming the murdering')
 	end, false)
 
 	murder.sleepMode = 'next'
@@ -1990,7 +1995,7 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^\S+ tells the group[^:]*: "murder time (paused|resumed)</string>
+						<string>^\S+ reports group status[^:]*: "murder time (paused|resumed)</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -3505,11 +3510,13 @@ local commands = {
 
   stop = function ()
     disableTrigger('sleep-murder')
+    enableScript('auto assist')
     send('gt powerleveling is disabled')
   end,
 
   start = function ()
     enableTrigger('sleep-murder')
+    disableScript('auto assist')
     send('gt powerleveling is enabled')
   end,
 
@@ -3934,10 +3941,26 @@ player.defaultConfig = function ()
 	player.caster = false
 	player.gearSet = 'default'
   player.autoAttack = function(target)
-    send('+kill ' .. target)  
+    send('backstab ' .. target)  
+    send('charge ' .. target)  
+    send('kill ' .. target)  
   end
 
 end
+
+common.fullEnough = function()
+  
+  if ((group[player.name].hp / group[player.name].hp_max) &gt; 0.9) and
+     ((group[player.name].mp / group[player.name].mp_max) &gt; 0.9) and
+     ((group[player.name].moves / group[player.name].moves_max) &gt; 0.8) then
+     
+    return true
+  end
+  
+  return false
+
+end
+
 
 common.wm = common.wm or {}
 common.wm.gridEntries = common.wm.gridEntries or {};
@@ -4142,6 +4165,7 @@ common.initPlayer = function ()
 	end
 
 		echo('\nRunning player script for ' .. player.name .. '!\n')
+    player.defaultConfig()
 		player.scripts[player.name]()
 
 	if (not common.topContainer) then
@@ -4769,7 +4793,7 @@ if (combat.eventWatcher) then
   killAnonymousEventHandler(combat.eventWatcher)
   combat.eventWatcher = nil
 end
-combat.eventWatcher = registerAnonymousEventHandler(tfe.events.ROOM_CHANGED, combat.reset)
+combat.eventWatcher = registerAnonymousEventHandler('tfe mapper: room found', combat.reset)
 
 
 -- kill the pending combat timer if room is announced clear elsewhere i.e from scan results
@@ -4929,26 +4953,26 @@ common.comeToMe = function (callback)
 
 		mapper.paused = true
 
-  	atTrig = tempRegexTrigger([[^.+ tells the group[^:]*: "(\w+) is now at (\d+)"]], function ()
+  	atTrig = tempRegexTrigger([[^.+ reports group status[^:]*: "(\w+) is now at (\d+)"]], function ()
   		if (tostring(tfe.roomInfo.vnum) == matches[3]) then
 
 				roll[matches[2]] = true
 
 				if (common.rollCheck(roll)) then
 					mapper.paused = preFetchState
-					send('gt all here - moving...')
+					send('gstat all here - moving...')
   				killTrigger(atTrig)
   				mcb()
 				end
 
 			else
 				send('mutter')
-				send('gt ' .. matches[2] .. ' go to ' .. tostring(tfe.roomInfo.vnum))
+				send('gstat ' .. matches[2] .. ' go to ' .. tostring(tfe.roomInfo.vnum))
 			end
 
   	end)
 
-		send('gt meet at ' .. tostring(tfe.roomInfo.vnum))
+		send('gstat meet at ' .. tostring(tfe.roomInfo.vnum))
 
 
 	end, 'comeToMe')
@@ -4992,7 +5016,7 @@ common.collectFollowers = function (callback)
 	end
 
 
-	tempRegexTrigger([[^.+ tells the group[^:]*: "(\w+) is at (\d+)"]], function ()
+	tempRegexTrigger([[^.+ reports group status[^:]*: "(\w+) is at (\d+)"]], function ()
 
 		local vnum = tonumber(matches[3])
 
@@ -5010,7 +5034,7 @@ common.collectFollowers = function (callback)
 
 	end, outStandingResponses)
 
-	send('gt where are you?')
+	send('gstat where are you?')
 
 end
 
@@ -5089,11 +5113,11 @@ end
 common.sendPlayer = function (player, rnum, callback)
 
 	local ncb = callback
-	tempRegexTrigger([[^.+ tells the group[^:]*: "]] .. player .. [[ is now at ]] .. tostring(rnum) .. [["]], function ()
+	tempRegexTrigger([[^.+ reports group status[^:]*: "]] .. player .. [[ is now at ]] .. tostring(rnum) .. [["]], function ()
 		ncb()
 	end, 1)
 
-	send('gt ' .. player .. ' go to ' .. tostring(rnum))
+	send('gstat ' .. player .. ' go to ' .. tostring(rnum))
 
 end
 
@@ -5114,9 +5138,11 @@ common.groupOnReady = function (cb)
   		end
 		end
 	end
+  
+  display(roll)
 
-	rct = tempRegexTrigger([[^.* (tells the|tell your) group[^:]*: "ready \((.*)\)"]], function ()
-		roll[matches[3]] = true
+	rct = tempRegexTrigger([[^.* reports? group status[^:]*: "ready \((.*)\)"]], function ()
+		roll[matches[2]] = true
 		readyCheck()
 	end)
 
@@ -5127,7 +5153,7 @@ common.groupPrepIfUnder = function (mana, heals, cb)
 	local pfcb = cb
 
 	common.groupOnReady(function ()
-		send('gt Going!!!')
+		send('gstat Going!!!')
 		if (pfcb) then
 			pfcb()
 		end
@@ -5149,7 +5175,7 @@ common.groupPrepFree = function (cb)
   end
 
 	common.groupOnReady(function ()
-		send('gt going')
+		send('gstat going')
 		if (pfcb) then
 			pfcb()
 		end
@@ -5171,13 +5197,13 @@ common.groupPrepFull = function (cb)
   end
 
 	common.groupOnReady(function ()
-		send('gt going')
+		send('gstat going')
 		if (pfcb) then
 			pfcb()
 		end
 	end)
 
-	send('gt get full')
+	send('gstat get full')
 
 end
 </script>
@@ -6366,7 +6392,7 @@ end</script>
 				</eventHandlerList>
 			</Script>
 		</ScriptGroup>
-		<ScriptGroup isActive="yes" isFolder="yes">
+		<ScriptGroup isActive="no" isFolder="yes">
 			<name>auto assist</name>
 			<packageName></packageName>
 			<script>-------------------------------------------------

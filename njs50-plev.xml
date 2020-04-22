@@ -13,6 +13,8 @@
 -- need to have the group parsed aleady to have things to fill in
 if ( not group.leader or not player.name ) then
 
+    send('group all')
+
 		echo('\nWaiting for leader before parsing prompt...\n')
 		if (not player.initPending) then
 			player.initPending = true
@@ -588,54 +590,53 @@ end</script>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>tank returned</name>
 					<script>murder.tankState = 'here'
-
-local combatStarted
-local combatEnded
-local roomChanged
-local resumeTimer
-
--- kill countdown if combat ends in this time
-local killResumeTimer = function ()
-
-  if resumeTimer ~= nil then
-		killTimer(resumeTimer)
-		cecho('\n&lt;green&gt;MURDER: &lt;white&gt;killed waiting for tank action timer: ')
-		resumeTimer = nil
-     -- kill any remaining event watchers
-    combatStarted()
-    combatEnded()
-    roomChanged()
-	end
-
-end
-
-
-
-if (murder.resumeTimer) then
-  killResumeTimer()
-end
-
--- setup timer to resume in x secs if no action...
-resumeTimer = tempTimer(90, function ()
-  killResumeTimer()
-	cecho('\n&lt;yellow&gt;MURDER: &lt;white&gt;tank returned and no action within 60s')
-	send('gstat seems like a suspect pause....')
-	send('gstat resume')
-end, 'waitng for tank to do something after resuming (60s)')
-
-
-
-
--- the problematic one seems to be when we switch rooms right as
--- the tank returns because there is no mob to kill
-roomChanged = common.onNextEvent(tfe.events.ROOM_CHANGED, function ()
-  cecho('\n&lt;green&gt;MURDER:&lt;white&gt; cleared resume timer\n')
-  killResumeTimer()
-	-- common.onNextEvent(tfe.events.ROOM_CHANGED, killResumeTimer)
-end)
-
-combatEnded = common.onNextEvent(common.events.COMBAT_ENDED, killResumeTimer)
-combatStarted = common.onNextEvent(common.events.COMBAT_STARTED, killResumeTimer)	</script>
+-- 
+-- local combatStarted
+-- local combatEnded
+-- local roomChanged
+-- local resumeTimer
+-- 
+-- -- kill countdown if combat ends in this time
+-- local killResumeTimer = function ()
+-- 
+  -- if resumeTimer ~= nil then
+		-- killTimer(resumeTimer)
+		-- cecho('\n&lt;green&gt;MURDER: &lt;white&gt;killed waiting for tank action timer: ')
+		-- resumeTimer = nil
+     -- -- kill any remaining event watchers
+    -- combatStarted()
+    -- combatEnded()
+    -- roomChanged()
+	-- end
+-- 
+-- end
+-- 
+-- 
+-- 
+-- if (murder.resumeTimer) then
+  -- killResumeTimer()
+-- end
+-- 
+-- -- setup timer to resume in x secs if no action...
+-- resumeTimer = tempTimer(90, function ()
+  -- killResumeTimer()
+	-- cecho('\n&lt;yellow&gt;MURDER: &lt;white&gt;tank returned and no action within 60s')
+	-- send('gstat seems like a suspect pause....')
+	-- send('gstat resume')
+-- end, 'waitng for tank to do something after resuming (60s)')
+-- 
+-- 
+-- 
+-- 
+-- -- the problematic one seems to be when we switch rooms right as
+-- -- the tank returns because there is no mob to kill
+-- roomChanged = common.onNextEvent(tfe.events.ROOM_CHANGED, function ()
+  -- cecho('\n&lt;green&gt;MURDER:&lt;white&gt; cleared resume timer\n')
+  -- killResumeTimer()
+-- end)
+-- 
+-- combatEnded = common.onNextEvent(common.events.COMBAT_ENDED, killResumeTimer)
+-- combatStarted = common.onNextEvent(common.events.COMBAT_STARTED, killResumeTimer)	</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -787,7 +788,7 @@ end
 --
 if (murder.sleepMode == 'next') then
 
-	send('gstat pause')
+	-- send('gstat pause')
 
 	-- go straight to dance mode if our threshold is 100%
 	-- looking at you charging warriors / assasinating thieves
@@ -944,7 +945,8 @@ player.onDeadTrig = tempRegexTrigger([[^\S+ reports group status[^:]*: "(back|st
   	murder.sleepMode = 'next'
 
   	common.setParryState(false, 'something died', function ()
-  		send('gstat resume')
+  		-- send('gstat resume')
+      cecho('\n\n&lt;green&gt;MURDER: &lt;White&gt;turned off parry due to mob dying\n')
   	end)
 
 	end
@@ -1029,7 +1031,6 @@ if (murder.sleepMode == 'dance-pending') then
 
 else
 
-      
   player.autoAttack(target)
 
 end
@@ -1080,7 +1081,7 @@ else
     player.parryQueue = 0
     common.setParryState(false, 'sleepmode: mortal wound', function ()
       player.autoAttack(vic)
-      send('queue gstat return ' .. vic)
+      -- send('queue gstat return ' .. vic)
     end)
   end)
 end</script>

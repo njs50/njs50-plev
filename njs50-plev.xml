@@ -1069,18 +1069,18 @@ if (murder.tankState == 'here') then
 	-- can't do anything at this stage as mage is in combat and can't leave
 	send('gstat you should not be ere (might o hit that one too hard)')
   common.setParryState(false, 'sleepmode: mortal wound (tank in room)', function ()
-    player.autoAttack(vic)
+    -- player.autoAttack(vic)
   end)
 else
 
-  send('+gstat abort abort, mortal wound detected!')
+  send('gstat abort abort, mortal wound detected!')
 
 	-- send('opt parry &amp; stand &amp; k ' .. vic .. ' &amp; queue opt parry')
   common.onNextEvent(common.events.PARSED_PROMPT, function ()
     -- any queued parries will have been dequeued.
     player.parryQueue = 0
     common.setParryState(false, 'sleepmode: mortal wound', function ()
-      player.autoAttack(vic)
+      -- player.autoAttack(vic)
       -- send('queue gstat return ' .. vic)
     end)
   end)
@@ -3422,8 +3422,8 @@ common.onNextEvent("sysDownloadDone", function (_, f)
         end
 
         common.onNextEvent("sysDownloadDone", downloaded_package)
-
-        downloadFile(getMudletHomeDir().."/DarkTheme.mpackage","https://forums.mudlet.org/download/file.php?id=1783&amp;sid=fb6b2766fa87fccdb1acffcd8cc9cf91")
+    
+        downloadFile(getMudletHomeDir().."/DarkTheme.mpackage","https://forums.mudlet.org/download/file.php?id=1897&amp;sid=fb6b2766fa87fccdb1acffcd8cc9cf91")
 
       end)
       downloadFile(getMudletHomeDir()..(URL:ends("dat") and "/njs50-map.dat"), URL)

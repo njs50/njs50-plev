@@ -590,6 +590,7 @@ end</script>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>tank returned</name>
 					<script>murder.tankState = 'here'
+cecho(' &lt;- &lt;green&gt;MURDER: &lt;white&gt;tank has returned\n')
 -- 
 -- local combatStarted
 -- local combatEnded
@@ -673,7 +674,6 @@ end</script>
  ['mortally wounded'] = 0,
  ['DEAD!'] = 0
 }
-
 
 player.dance_threshold = player.dance_threshold or damState['bleeding freely']
 
@@ -850,9 +850,10 @@ elseif (murder.sleepMode == 'dancing') then
 			tempTimer(1, function ()
   			send('dismount &amp; stand &amp; sit')
     		send('queue gstat leave')
+        murder.tankState = 'out-pending'
 			end, 'waiting for parry to kick in (queue delay)')
 
-  		murder.tankState = 'out-pending'
+  		murder.tankState = 'leave-request-pending'
     	tempRegexTrigger([[^\S+ reports group status[^:]*: "(out|failed to leave)"]], function ()
 
         murder.tankState = 'out-confirmed'
@@ -902,8 +903,8 @@ elseif (murder.sleepMode == 'dancing') then
 
     	end, 1)
 
-    else
-      cecho('\n\n&lt;red&gt;MURDER: &lt;white&gt;wtf is the tank?\n')
+    elseif (murder.tankState ~= 'leave-request-pending') then
+      cecho('\n\n&lt;red&gt;MURDER: &lt;white&gt;wtf is the tank? (tank state: ' .. murder.tankState .. ')\n')
   	end
 
 	end)
@@ -933,25 +934,12 @@ cecho(' &lt;-- &lt;white&gt;' .. murder.sleepMode .. '\n')</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>resume murdering on mob kill</name>
-					<script>if (player.onDeadTrig ~= nil) then
-  killTrigger(player.onDeadTrig)
-  player.onDeadTrig = nil
+					<script>if (murder.sleepMode ~= 'paused') then
+
+	murder.sleepMode = 'next'
+
 end
-
-player.onDeadTrig = tempRegexTrigger([[^\S+ reports group status[^:]*: "(back|still here|saw it die)"]], function ()
-
-	if (murder.sleepMode ~= 'paused') then
-
-  	murder.sleepMode = 'next'
-
-  	common.setParryState(false, 'something died', function ()
-  		-- send('gstat resume')
-      cecho('\n\n&lt;green&gt;MURDER: &lt;White&gt;turned off parry due to mob dying\n')
-  	end)
-
-	end
-	player.onDeadTrig = nil
-end, 1)</script>
+</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1023,7 +1011,7 @@ end</script>
 
 local target = common.dotCase(common.toMurderString(matches[3]))
 
-if (murder.sleepMode == 'dance-pending') then
+if (murder.sleepMode == 'dance-pending' or murder.sleepMode == 'dancing') then
 
   -- try agian next sleep
   cecho('\n\n&lt;yellow&gt;MURDER: &lt;white&gt;missed mob during dancing phase\n\n')
@@ -1078,7 +1066,7 @@ else
 	-- send('opt parry &amp; stand &amp; k ' .. vic .. ' &amp; queue opt parry')
   common.onNextEvent(common.events.PARSED_PROMPT, function ()
     -- any queued parries will have been dequeued.
-    player.parryQueue = 0
+    -- player.parryQueue = 0
     common.setParryState(false, 'sleepmode: mortal wound', function ()
       -- player.autoAttack(vic)
       -- send('queue gstat return ' .. vic)
@@ -1736,7 +1724,7 @@ end</script>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>sprawling</name>
 					<script>disableTrigger('sprawling')
-send('stand &amp; ord all stand &amp; k &amp; l')
+send('stand &amp; ord all stand')
 tempTimer(2, function () enableTrigger('sprawling') end)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -3355,7 +3343,7 @@ njs50plev.finishInstall = function()
 
 		saveGearSet('default')
 
-    send('color columns 150')
+    send('color columns 300')
     send('color lines 150')
     expandAlias("setOption Auto.Assist true")
     expandAlias("setOption Numeric true")
@@ -4769,7 +4757,7 @@ combat.start = function()
   if (not combat.active) then
     combat.startTime = getEpoch()
 		combat.active = true
-		cecho(' &lt;white&gt;&lt;-- -=[ COMBAT started ]=-')
+		-- cecho(' &lt;white&gt;&lt;-- -=[ COMBAT started ]=-')
 		raiseEvent(common.events.COMBAT_STARTED)
     combat.clearTimer()
 	end
@@ -4780,7 +4768,7 @@ combat.finish = function ()
 	
   if (combat.active) then
     combat.active = false
-    	cecho(' &lt;white&gt; -=[ combat ended ]=-')
+    	-- cecho(' &lt;white&gt; -=[ combat ended ]=-')
     	send('queue level &amp; queue scan')
     	raiseEvent(common.events.COMBAT_ENDED, getEpoch() - combat.startTime)
     	combat.startTimer()

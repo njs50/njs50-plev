@@ -848,6 +848,7 @@ elseif (murder.sleepMode == 'dancing') then
   	if (murder.tankState == 'here') then
 			-- delay to allow queue to catch up
 			tempTimer(1, function ()
+        disableTrigger('sprawling')
   			send('dismount &amp; stand &amp; sit')
     		send('queue gstat leave')
         murder.tankState = 'out-pending'
@@ -855,7 +856,7 @@ elseif (murder.sleepMode == 'dancing') then
 
   		murder.tankState = 'leave-request-pending'
     	tempRegexTrigger([[^\S+ reports group status[^:]*: "(out|failed to leave)"]], function ()
-
+        enableTrigger('sprawling')
         murder.tankState = 'out-confirmed'
 
     		if (matches[2] == 'out') then
@@ -2090,9 +2091,35 @@ end
 				<regexCodePropertyList />
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>tell</name>
-					<script>common.chatConsole:cecho('Tell', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n")
+					<script>local chan = 'Tell'
+local msg = matches[#matches]
+local exludeAll = false
 
-</script>
+if rex.find(msg, [[^(do|ack:|running command|stonies are snooz|I have just improved at)]]) then
+  chan = 'Log'
+  exludeAll = true
+end
+
+-- if rex.find(msg, [[^(do|ack:|running command|stonies are snooz|I have just improved at)]]) then
+  -- chan = 'Log'
+  -- exludeAll = true
+-- end
+
+local ctells = {
+  ["tell the clan"] = true,
+  ["ctells"] = true,
+}
+
+
+if (ctells[matches[#matches-1]]) then
+  chan = 'Clan'
+end
+
+
+common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n", exludeAll)
+
+
+-- [OOC] Gnodrick: "he rocked it"</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>1</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2104,16 +2131,27 @@ end
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan): (.*)$</string>
+						<string>^([A-Za-z]+) (tells) you:\s*"(.+)"$</string>
+						<string>^(You) (tell \w+|tell the clan):\s*"(.+)"$</string>
+						<string>^([^:]*) (ctells):\s*"(.+)"$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>tell - two line</name>
-					<script>common.chatConsole:cecho('Tell', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
-common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[2][2] .. "\n")
+					<script>local chan = 'Tell'
+
+if rex.find(multimatches[1][1], [[^.*(ctells|tell the clan):]]) then
+  chan = 'Clan'
+end
+
+
+common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
+common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[2][2] .. "\n")
 </script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>2</conditonLineDelta>
@@ -2136,9 +2174,16 @@ common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[2][2] .. "\n")
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>tell - three line</name>
-					<script>common.chatConsole:cecho('Tell', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
-common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[2][2])
-common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[3][2] .. "\n")</script>
+					<script>local chan = 'Tell'
+
+if rex.find(multimatches[1][1], [[^.*(ctells|tell the clan):]]) then
+  chan = 'Clan'
+end
+
+
+common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
+common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[2][2])
+common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[3][2] .. "\n")</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>3</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2162,10 +2207,17 @@ common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[3][2] .. "\n")<
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>tell - four line</name>
-					<script>common.chatConsole:cecho('Tell', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
-common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[2][2])
-common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[3][2])
-common.chatConsole:cecho('Tell', '&lt;white&gt;' .. multimatches[4][2] .. "\n")
+					<script>local chan = 'Tell'
+
+if rex.find(multimatches[1][1], [[^.*(ctells|tell the clan):]]) then
+  chan = 'Clan'
+end
+
+
+common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
+common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[2][2])
+common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[3][2])
+common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[4][2] .. "\n")
 </script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>4</conditonLineDelta>
@@ -2212,6 +2264,29 @@ end</script>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>^\*\* You (gain a practice point from|improve at) (.*)\. \*\*</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>public - single line</name>
+					<script>local chan = 'Public'
+
+common.chatConsole:cecho('Public', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n")
+</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^\[\w+\] *(.*): "(.*)"$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -2737,7 +2812,8 @@ if (combat.type and combat.type ~= '') then
     damageType = combat.type,
     move = spell,
     mob = target,
-    damage = damage
+    damage = damage,
+    mobState = targetState,
   }
 
   if (combat.type == 'spell') then
@@ -2892,6 +2968,7 @@ local attackData = {
   mob = matches[6],
   damage = tonumber(matches[5]),
   damageType = 'melee',
+  mobState = matches[7],
 }
 
 if (group.members[attackData.subject]) then
@@ -2910,8 +2987,8 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^(Your|[A-Z][a-z]+'s) (.+) (scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|SAVAGES|CRIPPLES|MUTILATES|DISEMBOWELS|\* DISMEMBERS \*|\* EVISCERATES \*|\* MASSACRES \*|\* PULVERIZES \*|\*\* DEMOLISHES \*\*|\*\* EXTIRPATES \*\*|\*\*\* OBLITERATES \*\*\*|\*\*\* ERADICATES \*\*\*|\*\*\* ANNIHILATES \*\*\*) \[(\d+)\] (.*)'s .*[!.]\s+\[.+\]$</string>
-						<string>^(Your|[A-Z][a-z]+'s) (.+) (scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|SAVAGES|CRIPPLES|MUTILATES|DISEMBOWELS|\* DISMEMBERS \*|\* EVISCERATES \*|\* MASSACRES \*|\* PULVERIZES \*|\*\* DEMOLISHES \*\*|\*\* EXTIRPATES \*\*|\*\*\* OBLITERATES \*\*\*|\*\*\* ERADICATES \*\*\*|\*\*\* ANNIHILATES \*\*\*) \[(\d+)\] (.+?)[!.]\s+\[.+\]$</string>
+						<string>^(Your|[A-Z][a-z]+'s) (.+) (scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|SAVAGES|CRIPPLES|MUTILATES|DISEMBOWELS|\* DISMEMBERS \*|\* EVISCERATES \*|\* MASSACRES \*|\* PULVERIZES \*|\*\* DEMOLISHES \*\*|\*\* EXTIRPATES \*\*|\*\*\* OBLITERATES \*\*\*|\*\*\* ERADICATES \*\*\*|\*\*\* ANNIHILATES \*\*\*) \[(\d+)\] (.*)'s .*[!.]\s+\[\s*(.+?)\s*\]$</string>
+						<string>^(Your|[A-Z][a-z]+'s) (.+) (scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|SAVAGES|CRIPPLES|MUTILATES|DISEMBOWELS|\* DISMEMBERS \*|\* EVISCERATES \*|\* MASSACRES \*|\* PULVERIZES \*|\*\* DEMOLISHES \*\*|\*\* EXTIRPATES \*\*|\*\*\* OBLITERATES \*\*\*|\*\*\* ERADICATES \*\*\*|\*\*\* ANNIHILATES \*\*\*) \[(\d+)\] (.+?)[!.]\s+\[\s*(.+?)\s*\]$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -2946,6 +3023,7 @@ local attackData = {
   mob = matches[5],
   damage = tonumber(matches[6]),
   damageType = 'melee',
+  mobState = matches[7],
 }
 
 if (group.members[attackData.subject]) then
@@ -2964,8 +3042,8 @@ end</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^(Your|[A-Z][a-z]+'s) (.+) (scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|SAVAGES|CRIPPLES|MUTILATES|DISEMBOWELS|\* DISMEMBERS \*|\* EVISCERATES \*|\* MASSACRES \*|\* PULVERIZES \*|\*\* DEMOLISHES \*\*|\*\* EXTIRPATES \*\*|\*\*\* OBLITERATES \*\*\*|\*\*\* ERADICATES \*\*\*|\*\*\* ANNIHILATES \*\*\*) (.+)'s .* \[(\d+)\][!.]\s+\[.+\]$</string>
-						<string>^(Your|[A-Z][a-z]+'s) (.+) (scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|SAVAGES|CRIPPLES|MUTILATES|DISEMBOWELS|\* DISMEMBERS \*|\* EVISCERATES \*|\* MASSACRES \*|\* PULVERIZES \*|\*\* DEMOLISHES \*\*|\*\* EXTIRPATES \*\*|\*\*\* OBLITERATES \*\*\*|\*\*\* ERADICATES \*\*\*|\*\*\* ANNIHILATES \*\*\*) (.+) \[(\d+)\][!.]\s+\[.+\]$</string>
+						<string>^(Your|[A-Z][a-z]+'s) (.+) (scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|SAVAGES|CRIPPLES|MUTILATES|DISEMBOWELS|\* DISMEMBERS \*|\* EVISCERATES \*|\* MASSACRES \*|\* PULVERIZES \*|\*\* DEMOLISHES \*\*|\*\* EXTIRPATES \*\*|\*\*\* OBLITERATES \*\*\*|\*\*\* ERADICATES \*\*\*|\*\*\* ANNIHILATES \*\*\*) (.+)'s .* \[(\d+)\][!.]\s+\[\s*(.+?)\s*\]$</string>
+						<string>^(Your|[A-Z][a-z]+'s) (.+) (scratches|grazes|hits|injures|wounds|mauls|decimates|devastates|maims|SAVAGES|CRIPPLES|MUTILATES|DISEMBOWELS|\* DISMEMBERS \*|\* EVISCERATES \*|\* MASSACRES \*|\* PULVERIZES \*|\*\* DEMOLISHES \*\*|\*\* EXTIRPATES \*\*|\*\*\* OBLITERATES \*\*\*|\*\*\* ERADICATES \*\*\*|\*\*\* ANNIHILATES \*\*\*) (.+) \[(\d+)\][!.]\s+\[\s*(.+?)\s*\]$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -3582,7 +3660,7 @@ send('give all.silver.coin, all.copper.coin to mojune')</script>
 			</Alias>
 			<Alias isActive="yes" isFolder="no">
 				<name>^sort stonies junk$</name>
-				<script>send('give all.thimb, all.rag, all.coin, all.yeti.pillow ' .. group.leader)
+				<script>send('give all.thimb, all.rag, all.coin, all.yeti.pillow to ' .. group.leader)
 send('drop all.thick.deer.skin &amp; drop all.frying &amp; drop all.apron &amp; drop all.dress &amp; drop all.slab &amp; drop all.berries')</script>
 				<command></command>
 				<packageName></packageName>
@@ -3782,6 +3860,32 @@ roomInfo = roomInfo or {}
 group = group or {
 	combat = false
 }
+
+common.damState = {
+ ['perfect health'] = 1,
+ ['perfect'] = 1,
+ ['slightly scratched'] = 0.95,
+ ['scratched'] = 0.95,
+ ['few bruises'] = 0.85,
+ ['bruised'] = 0.85,
+ ['some cuts'] = 0.75,
+ ['cut'] = 0.75,
+ ['several wounds'] = 0.65,
+ ['badly wounded'] = 0.55,
+ ['wounded'] = 0.55,
+ ['many nasty wounds'] = 0.45,
+ ['nastily wounded'] = 0.45,
+ ['bleeding freely'] = 0.35,
+ ['covered in blood'] = 0.25,
+ ['leaking guts'] = 0.15,
+ ['mostly dead'] = 0.1,
+ ['stunned'] = 0,
+ ['incapacitated'] = 0,
+ ['mortally wounded'] = 0,
+ ['dying'] = 0,
+ ['DEAD!'] = 0
+}
+
 
 
 common.events = {
@@ -4217,6 +4321,7 @@ common.initPlayer = function ()
         "Clan",
         "Tell",
         "Other",
+        "Log",
       },
       -- mapTabName = "Map",
       mapTab = false,

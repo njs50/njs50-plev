@@ -4638,7 +4638,7 @@ function equipGearSet (name, callback, partial)
         if (firstLayer) then
           for idx = table.index_of(common.layers,firstLayer) + 1, #common.layers do
             local checkLayer = common.layers[idx]
-            if ((not not player.swapItems[slot] or not player.swapItems[slot][checkLayer]) and (player.gear[slot] and player.gear[slot][checkLayer])) then
+            if ((not player.swapItems[slot] or not player.swapItems[slot][checkLayer]) and (player.gear[slot] and player.gear[slot][checkLayer])) then
               swapItems(player.gear[slot][checkLayer].item, player.gear[slot][checkLayer].item, slot, checkLayer)
             end
           end

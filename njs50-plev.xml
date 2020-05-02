@@ -3489,7 +3489,7 @@ common.onNextEvent("sysDownloadDone", function (_, f)
 
         common.onNextEvent("sysDownloadDone", downloaded_package)
     
-        downloadFile(getMudletHomeDir().."/DarkTheme.mpackage","https://forums.mudlet.org/download/file.php?id=1897&amp;sid=fb6b2766fa87fccdb1acffcd8cc9cf91")
+        downloadFile(getMudletHomeDir().."/DarkTheme.mpackage","https://raw.githubusercontent.com/njs50/njs50-plev/master/DarkTheme.mpackage")
 
       end)
       downloadFile(getMudletHomeDir()..(URL:ends("dat") and "/njs50-map.dat"), URL)

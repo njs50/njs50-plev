@@ -1286,8 +1286,10 @@ end
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>^.* reports group status[^:]*: "(pfull|get full)"</string>
+						<string>^.* tells? (?:your|the) group[^:]*: "(pfull|get full)"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
@@ -2017,7 +2019,7 @@ end</script>
 
 if(matches[2] == group.leader or acceptableMasters[matches[2]]) then
   cecho('&lt;greenTEAMWORK: &lt;white&gt;command issued by leader')
-  send('reply running command: ' .. matches[3])
+  send('reply running command: ' .. matches[3], false)
 	expandAlias(matches[3])
 else
 	cecho('&lt;red&gt;TEAMWORK: &lt;white&gt;command issued by non leader')
@@ -2100,11 +2102,6 @@ if rex.find(msg, [[^(do|ack:|running command|stonies are snooz|I have just impro
   exludeAll = true
 end
 
--- if rex.find(msg, [[^(do|ack:|running command|stonies are snooz|I have just improved at)]]) then
-  -- chan = 'Log'
-  -- exludeAll = true
--- end
-
 local ctells = {
   ["tell the clan"] = true,
   ["ctells"] = true,
@@ -2118,8 +2115,7 @@ end
 
 common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n", exludeAll)
 
-
--- [OOC] Gnodrick: "he rocked it"</script>
+</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>1</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2271,9 +2267,11 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>public - single line</name>
-					<script>local chan = 'Public'
+					<script>common.chatConsole:cecho('Public', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n")
 
-common.chatConsole:cecho('Public', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n")
+
+
+-- |UC| Mohoonay: "oh i see, or i made a new char because fuck minor enchant" 
 </script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -2286,9 +2284,11 @@ common.chatConsole:cecho('Public', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") 
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^\[\w+\] *(.*): "(.*)"$</string>
+						<string>^\[\w+\] (.*): "(.*)"$</string>
+						<string>^\|\w+\| (.*): "(.*)"$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
@@ -4635,16 +4635,14 @@ function equipGearSet (name, callback, partial)
         
         local firstLayer = table.keys(layers)[1]
         
-        for idx = table.index_of(common.layers,firstLayer) + 1, #common.layers do
-          
-          local checkLayer = common.layers[idx]
-          
-          if ((not not player.swapItems[slot] or not player.swapItems[slot][checkLayer]) and (player.gear[slot] and player.gear[slot][checkLayer])) then
-            swapItems(player.gear[slot][checkLayer].item, player.gear[slot][checkLayer].item, slot, checkLayer)
+        if (firstLayer) then
+          for idx = table.index_of(common.layers,firstLayer) + 1, #common.layers do
+            local checkLayer = common.layers[idx]
+            if ((not not player.swapItems[slot] or not player.swapItems[slot][checkLayer]) and (player.gear[slot] and player.gear[slot][checkLayer])) then
+              swapItems(player.gear[slot][checkLayer].item, player.gear[slot][checkLayer].item, slot, checkLayer)
+            end
           end
-          
         end
-        
       
       end
 
@@ -6279,7 +6277,7 @@ end</script>
 				</eventHandlerList>
 			</Script>
 		</ScriptGroup>
-		<ScriptGroup isActive="no" isFolder="yes">
+		<ScriptGroup isActive="yes" isFolder="yes">
 			<name>auto assist</name>
 			<packageName></packageName>
 			<script>-------------------------------------------------

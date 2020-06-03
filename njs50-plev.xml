@@ -410,6 +410,7 @@ local prepTrig = tempRegexTrigger([[^\s*(\d+)\s*(.+?)\s*\d+\s*$]], function ()
 end)
 
 common.onNextEvent(common.events.PARSED_PROMPT, function (evt, args)
+  cecho('\n&lt;green&gt;PREP:&lt;white&gt; finished parsing prepped spells\n\n')
 	killTrigger(prepTrig)
 	raiseEvent(common.events.PARSED_PREPARED, player.prepped)
 end)	</script>
@@ -1513,6 +1514,7 @@ if (player.caster) then
 else
 
 	send('gt out of juice')
+  send('give empty.' .. vessel .. ' to Mohoonay')
 
 end
 </script>
@@ -2014,6 +2016,7 @@ end</script>
   Shazzul = true,
   Uduvrin = true,
   Gnodrick = true,
+  Quorrel = true,
 }
 
 
@@ -2097,7 +2100,7 @@ end
 local msg = matches[#matches]
 local exludeAll = false
 
-if rex.find(msg, [[^(do|ack:|running command|stonies are snooz|I have just improved at)]]) then
+if rex.find(msg, [[^(do |repopped|ee |ack:|running command|stonies are snooz|I have just improved at)]]) then
   chan = 'Log'
   exludeAll = true
 end
@@ -2626,6 +2629,9 @@ send('wear ' .. common.dotCase(matches[3]))</script>
 -- `echo Mojune casts conflagration.
 -- `echo A raging inferno *** DISINTEGRATES *** [437] a blue-skinned demon!  [ bleeding freely ]
 
+-- Gnoggh unleashes a dissonant assault at a gigantic spider!
+-- The head-splitting dissonance * THUNDERS * [196] a gigantic spider!  [ badly wounded ]
+
 local caster = matches[2]
 local spell = matches[3]
 
@@ -2667,8 +2673,10 @@ end
 					<regexCodeList>
 						<string>^(\w+) casts (.*)\.</string>
 						<string>^\+\+\+ (You) cast (.*) \+\+\+</string>
+						<string>^(\w+) unleashes a (dissonant assault)</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
@@ -2860,6 +2868,16 @@ end
 -- Shazzul parries a large shaggy wolf's attack, leaving her vulnerable to a counterattack!
 
 -- You attempt to charge a minotaur guardian, but miss and fall down.
+-- Uduvrin attempts to charge an elven city guard, but he misses and falls down.
+
+-- Taldoran smashes the stone, but reveals nothing.
+-- Taldoran smashes the stone with all his might, revealing a small opening below it.
+
+-- Moira kicks an ethereal blue stag, knocking him down to the ground.
+-- With a well timed kick you knock an elvish field worker down to the ground!
+
+-- Taldoran places his hand on the plaque and a bright light engulfs him!
+-- ^(You|[A-Z][a-z]+) places his hand on the plaque and a bright (light engulfs) (.*)!
 
 local subject = matches[2]
 local move = matches[3]
@@ -2872,6 +2890,15 @@ local attacks = {
   ['critical hit'] = true,
   ['counterattack'] = true,
   ['fall down'] = true,
+  ['falls down'] = true,
+  ['revealing'] = true,
+  ['reveals nothing'] = true,
+  ['knocking'] = true,
+}
+
+local swapMove = {
+  ['knocking'] = 'trip',
+  ['knock'] = 'trip'
 }
 
 -- swap mob and move if required
@@ -2881,8 +2908,12 @@ if (attacks[mob]) then
   move = temp
 end
 
+if (swapMove[move]) then
+  move = swapMove[move]
+end
 
-if (subject == 'You' or subject == 'Your') then
+
+if (subject == 'You' or subject == 'Your' or subject == 'With') then
   subject = player.name
 end
 
@@ -2897,6 +2928,8 @@ local attackData = {
   damage = 0,
   damageType = 'no-damage',
 }
+
+-- display(attackData)
 
 if (group.members[attackData.subject]) then
   raiseEvent(common.events.COMBAT_ATTACK, attackData)
@@ -2923,9 +2956,17 @@ end</script>
 						<string>^(You|[A-Z][a-z]+) (gouges) (.*) in the eye[!.]$</string>
 						<string>^(You|[A-Z][a-z]+) calls upon the (shadows to deestroy) (.*)[!.]$</string>
 						<string>^(You|[A-Z][a-z]+) parries (.+?)'?s? attack, leaving .* vulnerable to a (counterattack)[!.]$</string>
-						<string>^(You|[A-Z][a-z]+) attempts? to charge (.*), but miss and (fall down)[!.]$</string>
+						<string>^(You|[A-Z][a-z]+) attempts? to charge (.*), but s?h?e? ?misse?s? and (falls? down)[!.]$</string>
+						<string>^(You|[A-Z][a-z]+) (smash)e?s? the stone, but (reveals nothing).</string>
+						<string>^(You|[A-Z][a-z]+) (smash)e?s? the stone with all his might, (revealing)</string>
+						<string>^(You|[A-Z][a-z]+) kicks? (.*), (knocking) \w+ down</string>
+						<string>^(With) a well timed kick you (knock) (.*) down</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
+						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
@@ -3379,7 +3420,7 @@ end</script>
 			<packageName></packageName>
 			<time>00:01:00.000</time>
 		</Timer>
-		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>stay hydrated</name>
 			<script>send('drink soup')</script>
 			<command></command>
@@ -3920,6 +3961,24 @@ common.tableHasValue =  function (tab, val)
 end
 
 
+common.sendToChan = function(chan, msg)
+
+  if (not chan or chan == 'cecho') then   
+    cecho(msg .. '\n')
+  else
+    msg = rex.gsub(msg, [[(&lt;[^&gt;]+&gt;)]], '')
+    
+    msgs = msg:split('\n')
+    for idx, m in ipairs(msgs) do
+      if (m == '') then
+        m = '.'
+      end
+      send(chan .. ' ' .. m)
+    end
+  end
+
+end
+
 common.tfeItemListAdd = function (list, item)
 
 	local idx = 0
@@ -4223,9 +4282,9 @@ common.updateGrid = function ()
       
       -- display(data)
       
-      grid.hpbar:setValue(data.hp,data.hp_max, name .. ' : ' .. tostring(data.hp) .. 'hp')
-      grid.manabar:setValue(data.mp, data.mp_max, tostring(data.mp) .. '/' .. tostring(data.mp_max))
-      grid.movebar:setValue(math.min(data.moves, data.moves_max), data.moves_max)
+      grid.hpbar:setValue(data.hp, math.max(data.hp_max, 1), name .. ' : ' .. tostring(data.hp) .. 'hp')
+      grid.manabar:setValue(data.mp, math.max(data.mp_max, 1), tostring(data.mp) .. '/' .. tostring(data.mp_max))
+      grid.movebar:setValue(math.min(data.moves, data.moves_max), math.max(data.moves_max, 1))
     end 
   end
 end
@@ -4425,7 +4484,19 @@ common.slots = {
 
 common.layers = { 'bottom', 'under', 'base', 'over', 'top' }
 
+common.lowestGearIgnore = {
+  ["powdered wig"] = true,
+  ["golden ball of light"] = true,
+}
 
+
+common.getWeaponCondition = function(cb)
+  common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
+    cb(common.conditions[player.gear["right hand"].base.condition])
+  end)
+  send('eq')
+
+end
 
 function getLowestGearCondition (cb)
   common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
@@ -4438,7 +4509,7 @@ function getLowestGearCondition (cb)
         if (common.conditions[item.condition] == nil) then
           cecho('\n\n&lt;red&gt;[GEAR]: &lt;white&gt; unknown gear condition: ' .. item.condition .. '\n\n')
         else
-          if (common.conditions[item.condition] &lt; lowestCondition) then
+          if (not common.lowestGearIgnore[item.item] and common.conditions[item.condition] &lt; lowestCondition) then
             lowestCondition = common.conditions[item.condition]
             lowestItem = item
           end
@@ -4665,6 +4736,16 @@ function equipGearSet (name, callback, partial)
 
 end
 
+-- Error: invalid item switch of items in slot left hand
+-- {
+  -- to = "fir.gian.scap",
+  -- from = "cora.shie.reju"
+-- }
+-- {
+  -- to = "cora.shie.reju",
+  -- from = "cora.shie.reju"
+-- }
+
 
 function swapItems (to, from, slot, layer)
 
@@ -4827,6 +4908,7 @@ end
 combat.onRoomClear = function ()
 	combat.clearTimer()
 	if (murder.enabled and not murder.speedwalking and player.position == 'standing') then
+    cecho('&lt;green&gt;&lt;-- scan from room clearK\n')
 		send('queue level &amp; queue scan')
 	end
   cecho('&lt;green&gt;&lt;-- CLEAR (no combat for ' .. tostring(combat.roomClearDelay) .. ' seconds)!!! \n')
@@ -4872,7 +4954,13 @@ combat.finish = function ()
   if (combat.active) then
     combat.active = false
     	-- cecho(' &lt;white&gt; -=[ combat ended ]=-')
-    	send('queue level &amp; queue scan')
+    if (group.leader == player.name) then
+      cecho('&lt;green&gt;&lt;-- scan from combat finish\n')
+      	send('queue level &amp; queue scan')
+    else
+      cecho('&lt;green&gt;&lt;-- skipped scan due to not being leader\n')
+    end
+      
     	raiseEvent(common.events.COMBAT_ENDED, getEpoch() - combat.startTime)
     	combat.startTimer()
   end
@@ -4914,9 +5002,12 @@ common.timedTempTrigger = function (timeout, maxTriggerCount, pattern, callback,
 
 	local fcb = failcallback
 	local ocb = callback
+  local tempTimerId
 
 	local cb = function ()
 		fcb = nil;
+    -- echo('\n -- killing temp timed trigger timer\n')
+    killTimer(tempTimerId)
 		if (ocb) then
 			ocb()
 		end
@@ -4925,7 +5016,7 @@ common.timedTempTrigger = function (timeout, maxTriggerCount, pattern, callback,
 
 	local triggerId = tempRegexTrigger(pattern, cb, maxTriggerCount)
 
-	local tempTimerId = tempTimer(timeout, function ()
+	tempTimerId = tempTimer(timeout, function ()
 		-- echo('\n -- killing temp timed trigger\n')
 		killTrigger(triggerId)
 		if (fcb) then
@@ -4938,6 +5029,13 @@ common.timedTempTrigger = function (timeout, maxTriggerCount, pattern, callback,
 end
 
 timedTempTrigger = common.timedTempTrigger
+
+common.killTimedTempTrigger = function (oTT)
+  killTimer(oTT.timerId)
+  killTrigger(oTT.triggerId)
+end
+
+killTimedTempTrigger = common.killTimedTempTrigger
 
 
 common.onNextEvent = function (evt, callback)
@@ -5009,10 +5107,10 @@ oneRoomExitTrig = common.oneRoomExitTrig</script>
   Darion = true,
   Darius = true,
   Bimgore = true,
-	Marial = true,
-	Grackle = true,
-  Raksha = true,
-  Gnodrick = true,
+	-- Marial = true,
+	-- Grackle = true,
+  -- Raksha = true,
+  -- Gnodrick = true,
   Grexil = true,
 }
 
@@ -5028,7 +5126,10 @@ end
 
 common.comeToMe = function (callback)
 
-  if (group.memberCount == 1) then
+  local roll = common.newRollCall(true)
+  
+
+  if (#table.keys(roll) == 1) then
     cecho('\n&lt;yellow&gt;COMMON: &lt;white&gt;skipping regroup due to only one party member\n\n')
     callback()
     return
@@ -5036,7 +5137,7 @@ common.comeToMe = function (callback)
 
 
 	local mcb = callback
-	local roll = common.newRollCall(true)
+	
 
 	tempTimer(2, function ()
 
@@ -5451,7 +5552,11 @@ tempTimer = function(seconds, code, repeating, description)
 		-- cecho('\n&lt;green&gt;TIMER: &lt;white&gt;timer ran - ' .. tostring(timerId)  .. ' : ' .. (tempTimers[timerId] or '???') .. '\n')
 		-- display(tempTimers)
     -- rabies. next to check if oCode is a string and eval it or something lke that. bleh
-		tempTimers[timerId] = nil
+		
+    if (not repeating) then
+      tempTimers[timerId] = nil
+    end
+    
     if (type(oCode) == 'string') then
       cecho('\n\nERROR in timer code, not a function: ' .. oCode .. '\n\n')
     end
@@ -5459,7 +5564,7 @@ tempTimer = function(seconds, code, repeating, description)
 		oCode(...)
 	end
 
-	timerId = oTempTimer(seconds, decoratedCode)
+	timerId = oTempTimer(seconds, decoratedCode, repeating)
 
 	tempTimers[timerId] = (description or 'mystery timer') .. ' - ' .. tostring(seconds) .. ' seconds'
 
@@ -5478,6 +5583,7 @@ killTimer = function(timerId)
   	oKillTimer(timerId)
 	else
 		cecho('\n&lt;red&gt;TIMER: &lt;white&gt;attempted to kill missing timer - ' .. timerId .. '\n')
+    oKillTimer(timerId)
 	end
 end
 
@@ -5751,7 +5857,9 @@ improves.fillerSpell = 'filler'
 improves.castFillerLastTick = true
 
 improves.queueSpell = function(spell)
-	table.insert(improves.castQueue, spell)
+  if (not table.contains(improves.castQueue, spell)) then
+	 table.insert(improves.castQueue, spell)
+  end
 end
 
 
@@ -5879,11 +5987,13 @@ local convertRecord = function (record)
 end
 
 
+common.updateGMCPTimer = nil;
 
 common.updateFromGMCP = function()
 
   -- skip if gmcp is not fully init
   if (not gmcp.Char.Score) then
+    -- cecho('&lt;yellow&gt; &lt;-- (gmcp not fully init)')
     return
   end
 
@@ -5891,9 +6001,7 @@ common.updateFromGMCP = function()
     -- cecho('&lt;yellow&gt; &lt;-- (update already pending)')
     return
   end
-    
-  
-    
+       
   common.updateGMCPTimer = tempTimer(0.1, function()
       
     local playerStats = convertRecord(gmcp.Char.Vitals)
@@ -5919,7 +6027,8 @@ common.updateFromGMCP = function()
     raiseEvent(common.events.PARSED_GROUP);
     common.updateGMCPTimer = nil;
     -- cecho('\n&lt;green&gt;GROUP: &lt;white&gt;data updated!!\n')
-  end)
+  end, 'gmcp update')
+  
   -- cecho('&lt;orange&gt; &lt;-- update queued...\n')
   
 end
@@ -6073,33 +6182,24 @@ damageMeter.reset = function ()
   -- damageMember.byTarget = {}
 end
 
-damageMeter.report = function(target)
+damageMeter.report = function(target, chan)
+
+  chan = chan or 'cecho'
 
   if (target and group.members[target]) then
-    damageMeter.reportPlayer(target)
+    damageMeter.reportPlayer(target, chan)
     return
   end
   
   
-  -- 
-  -- testMaker = demonnic.TableMaker:new()
-  -- -- Though by itself, it won't really do much. So let's add a few columns to it
-  -- testMaker:addColumn({name = "col1", width = 15, textColor = "&lt;orange&gt;"})
-  -- testMaker:addColumn({name = "col2", width = 20, textColor = "&lt;green&gt;"})
-  -- testMaker:addColumn({name = "col3", width = 30, textColor = "&lt;purple&gt;"})
-  -- -- These are fairly minimal format options, but are enough for our demonstration purposes. 
-  -- -- So now we've described the formatting for our table, let's add some information to display and print it out.
-  -- testMaker:addRow({"row 1 col 1", "row 1 col 2", "row 1 col 3"})
-  -- testMaker:addRow({"row 2 col 1", "row 2 col 2", "row 2 col 3"})
-  -- testMaker:addRow({"row 3 col 1", "row 3 col 2", "row 3 col 3"})
-  -- cecho(testMaker:assemble())
-  
   local time = damageMeter.combatTime or 1
   local elapsedTime = (damageMeter.stopTime or getEpoch()) - damageMeter.startTime
   
-  cecho('\n\n&lt;green&gt;Damage\n')
-  cecho('&lt;white&gt;Combat Time: ' .. common.formatElapsedTime(time) .. '\n')
-  cecho('&lt;white&gt;Elapsed Time: ' .. common.formatElapsedTime(elapsedTime) .. '\n\n')
+  
+  common.sendToChan(chan, '\n&lt;green&gt;Damage')
+  common.sendToChan(chan, '&lt;white&gt;Combat Time: ' .. common.formatElapsedTime(time))
+  common.sendToChan(chan, '&lt;white&gt;Elapsed Time: ' .. common.formatElapsedTime(elapsedTime) .. '\n')
+  
   
   for member, cats in pairs(damageMeter.byMember) do
     
@@ -6111,7 +6211,7 @@ damageMeter.report = function(target)
     
     local dps = math.floor(100 * total / time) / 100
     
-    cecho(
+    common.sendToChan(chan,
       demonnic:cfText(
         member, 
         {
@@ -6131,21 +6231,19 @@ damageMeter.report = function(target)
           textColor = "&lt;white&gt;"
         }
       ) ..
-      ' dps\n'
+      ' dps'
     ) 
   end
   
   if (target and target == 'all') then
     for player, data in pairs(damageMeter.byMember) do
-      damageMeter.reportPlayer(player)
+      damageMeter.reportPlayer(player, chan)
     end
   end
   
 end
 
-damageMeter.reportPlayer = function(player)
-  -- 
-
+damageMeter.reportPlayer = function(player, chan)
 
   local time = damageMeter.combatTime or 1
   local elapsedTime = (damageMeter.stopTime or getEpoch()) - damageMeter.startTime
@@ -6157,31 +6255,31 @@ damageMeter.reportPlayer = function(player)
   end
   
   
-  cecho('\n\n&lt;green&gt;Damage by ' .. player .. '\n')
-  cecho('&lt;white&gt;Combat Time: ' .. common.formatElapsedTime(time) .. '\n')
-  cecho('&lt;white&gt;Elapsed Time: ' .. common.formatElapsedTime(elapsedTime) .. '\n')
-  cecho('&lt;white&gt;Damage output: ' .. tostring(math.floor(100 * total / time) / 100) .. ' dps\n\n')
+  common.sendToChan(chan, '\n&lt;green&gt;Damage by ' .. player)
+  common.sendToChan(chan, '&lt;white&gt;Combat Time: ' .. common.formatElapsedTime(time))
+  common.sendToChan(chan, '&lt;white&gt;Elapsed Time: ' .. common.formatElapsedTime(elapsedTime))
+  common.sendToChan(chan, '&lt;white&gt;Damage output: ' .. tostring(math.floor(100 * total / time) / 100) .. ' dps\n')
   
   
   if (damageMeter.byMember[player].type.spell) then
-    damageMeter.reportByType('spell', damageMeter.byMember[player].type.spell, player)
+    damageMeter.reportByType(chan, 'spell', damageMeter.byMember[player].type.spell, player)
   end
   
   if (damageMeter.byMember[player].type.melee) then
-    damageMeter.reportByType('melee damage', damageMeter.byMember[player].type.melee, player)
+    damageMeter.reportByType(chan, 'melee damage', damageMeter.byMember[player].type.melee, player)
   end
   
   if (damageMeter.byMember[player].type.proc) then
-    damageMeter.reportByType('procs', damageMeter.byMember[player].type.proc, player)
+    damageMeter.reportByType(chan, 'procs', damageMeter.byMember[player].type.proc, player)
   end
   
   if (damageMeter.byMember[player].type['no-damage']) then
-    damageMeter.reportByType('non damage', damageMeter.byMember[player].type['no-damage'], player)
+    damageMeter.reportByType(chan, 'non damage', damageMeter.byMember[player].type['no-damage'], player)
   end
 
 end
 
-damageMeter.reportByType = function(type, rollup, player)
+damageMeter.reportByType = function(chan, type, rollup, player)
 
   local data = rollup.spells
 
@@ -6223,12 +6321,25 @@ damageMeter.reportByType = function(type, rollup, player)
     
     local pctMelee = math.floor(10000 * stats.count / meleeHits)  / 100
     
+    
+    local calcSpecialPct = function(otherSpell, otherType)
+      local chargeCt = damageMeter.byMember[player].type[otherType].spells[otherSpell].count or 0
+      chargeCt = chargeCt + stats.count
+      return math.floor(10000 * stats.count / chargeCt) / 100    
+    end
+    
+    
+    
     if (type == 'non damage') then
       if (spell == 'fall down') then 
-        local chargeCt = damageMeter.byMember[player].type.melee.spells.charge.count or 0
-        chargeCt = chargeCt + stats.count
-        pctMelee = math.floor(10000 * stats.count / chargeCt) / 100
+        pctMelee = calcSpecialPct('charge', 'melee')
         testMaker:addRow({'charge: ' .. spell, tostring(stats.count), tostring(pctMelee) .. '%'})
+      elseif (spell == 'revealing') then 
+        pctMelee = calcSpecialPct('reveals nothing', 'no-damage')
+        testMaker:addRow({'stones: ' .. spell, tostring(stats.count), tostring(pctMelee) .. '%'})     
+      elseif (spell == 'reveals nothing') then 
+        pctMelee = calcSpecialPct('revealing', 'no-damage')
+        testMaker:addRow({'stones: ' .. spell, tostring(stats.count), tostring(pctMelee) .. '%'})               
       else 
         testMaker:addRow({spell, tostring(stats.count), tostring(pctMelee) .. '%'})
       end
@@ -6246,7 +6357,7 @@ damageMeter.reportByType = function(type, rollup, player)
     })
   end
   
-  cecho(testMaker:assemble() .. '\n\n')
+  common.sendToChan(chan, testMaker:assemble())
 
 end
 
@@ -6304,7 +6415,7 @@ combat.assistOffCooldown = true
 				<script>
 
 combat.auto_assist_on_attack = function (evt, attackData)
-
+  
   if ( group.leader and 
      player.name ~= group.leader and 
      attackData.subject == group.leader and 
@@ -6314,7 +6425,7 @@ combat.auto_assist_on_attack = function (evt, attackData)
     
     combat.assistOffCooldown = false    
     -- enable assist again after 1 second (prevent excessive spam before gmcp combat starts)
-    tempTimer(2, function () 
+    tempTimer(1, function () 
       combat.assistOffCooldown = true
     end)
 
@@ -6339,7 +6450,7 @@ end
 -- Note that you can also use external scripts --
 -------------------------------------------------
 combat.auto_assist_on_room_change = function ()
-
+  cecho('&lt;green&gt;&lt;-- room changed')
   combat.assistOffCooldown = true
   
 end</script>

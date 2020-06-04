@@ -1748,8 +1748,10 @@ tempTimer(2, function () enableTrigger('sprawling') end)</script>
 						<string>^The fall .* you!</string>
 						<string>^.* knocks you head over heels!$</string>
 						<string>^You fall</string>
+						<string>sending you sprawling!$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
@@ -2016,6 +2018,7 @@ end</script>
   Shazzul = true,
   Uduvrin = true,
   Gnodrick = true,
+  Migs = true,
   Quorrel = true,
 }
 
@@ -2100,7 +2103,7 @@ end
 local msg = matches[#matches]
 local exludeAll = false
 
-if rex.find(msg, [[^(do |repopped|ee |ack:|running command|stonies are snooz|I have just improved at)]]) then
+if rex.find(msg, [[^(do |repopped|location:|ee |ack:|running command|stonies are snooz|I have just improved at)]]) then
   chan = 'Log'
   exludeAll = true
 end
@@ -4092,11 +4095,14 @@ player.defaultConfig = function ()
   player.hasFoodBasket = false
 	player.caster = false
 	player.gearSet = 'default'
-  player.autoAttack = function(target)
-    send('backstab ' .. target)  
-    send('charge ' .. target)  
-    send('kill ' .. target)  
+  
+  player.getAttackCommand = function(target)
+    return 'kill ' .. target
   end
+  
+  player.autoAttack = function(target)
+    send(player.getAttackCommand(target))
+  end  
 
 end
 
@@ -4425,11 +4431,14 @@ player.scripts.YOUR_NAME_HERE = function ()
 	player.vessel = 'leather.waterskin'
 	player.caster = false
 	player.hasFoodBasket = false
-  player.useBerserk = false
+  
+  player.getAttackCommand = function(target)
+    return 'kill ' .. target
+  end
   
   player.autoAttack = function(target)
-    send('+kill ' .. target) -- .. ' &amp; berserk &amp; queue stand'  
-  end
+    send(player.getAttackCommand(target))
+  end  
 
 end</script>
 			<eventHandlerList />
@@ -6388,7 +6397,7 @@ end</script>
 				</eventHandlerList>
 			</Script>
 		</ScriptGroup>
-		<ScriptGroup isActive="yes" isFolder="yes">
+		<ScriptGroup isActive="no" isFolder="yes">
 			<name>auto assist</name>
 			<packageName></packageName>
 			<script>-------------------------------------------------

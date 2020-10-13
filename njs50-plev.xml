@@ -9,18 +9,24 @@
 -- Prompt:
 -- ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;
 
-
 -- need to have the group parsed aleady to have things to fill in
 if ( not group.leader or not player.name ) then
 
-    send('group all')
-
-		echo('\nWaiting for leader before parsing prompt...\n')
-		if (not player.initPending) then
-			player.initPending = true
-			common.initPlayer()
-		end
-
+    if (not player.pendingGroup) then
+      
+      send('group all')
+      player.pendingGroup = true
+  
+    		echo('\nWaiting for leader/group before parsing prompt...\n')
+        
+    		if (not player.initPending) then
+        player.pendingGroup = nil
+    			player.initPending = true
+    			common.initPlayer()
+    		end
+        
+    end
+  
 else
 
 	-- prompt flags:
@@ -1421,6 +1427,8 @@ end)</script>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>out of food</name>
 					<script>disableTrigger('out of food')
+display(player.hasFoodBasket)
+
 
 tempTimer(3, function()
   enableTrigger('out of food')
@@ -1490,19 +1498,34 @@ end)
 
 local vessel = common.dotCase(matches[2])
 
+if (gmcp.Char.Score.class == 'druid') then
+  
+  local cmd = 'cast dowse &amp; cast dowse &amp; ' ..
+    'queue drink puddle &amp; queue fill empty.' .. vessel .. ' puddle'
+    
+    send(cmd)
+    
+    timedTempTrigger(3, 1, 'You cannot do that while sleeping\.$', function ()
+  		  send('stand &amp; ' .. cmd .. ' &amp; queue sleep')
+    end)
+    
+    timedTempTrigger(3, 1, 'Perhaps you should stand first\.$', function ()
+  		  send('stand &amp; ' .. cmd)
+    end)    
 
-if (player.caster) then
+
+elseif (player.caster) then
 
   if (common and common.getManaAndCast) then
     send('remove blanket')
     common.getManaAndCast(10, 'create water', vessel, false, function ()
-    	send('drink ' .. vessel)
+      	send('drink ' .. vessel)
     end)
 
   else
 
     timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function ()
-  		send('stand &amp; remove blanket &amp; empty ' .. vessel .. ' &amp; cast create water .. ' .. vessel .. ' &amp; wear blanket &amp; sleep')
+  		  send('stand &amp; remove blanket &amp; empty ' .. vessel .. ' &amp; cast create water .. ' .. vessel .. ' &amp; wear blanket &amp; sleep')
     end)
 
     send('remove blanket &amp; cast create water ' .. vessel)
@@ -1784,9 +1807,9 @@ send('look')
 tempTimer(2, function ()
 
   tfe.gotoRoom(rnum, function ()
-  	tempTimer(1, function ()
-  		send('gstat ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
-  	end)
+    	tempTimer(1, function ()
+    		send('gstat ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
+    	end)
   end)
 
 end)</script>
@@ -1824,6 +1847,49 @@ player.nextTarget = vic
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>^(.*) reports? group status[^:]*: "next is (.*)"</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>set next room deets</name>
+					<script>-- local vic = matches[3]
+-- player.nextTarget = vic
+
+-- You report group status: "next room has 7 targets, aoe-safe, destroy: gelatinous.cube"
+
+local tank = matches[2]
+
+if (tank == 'You') then 
+  tank = player.name
+end
+
+local nextRoom = {
+  targetCount = tonumber(matches[3]),
+  aoe = matches[4] == 'aoe-safe',
+  nasty = matches[5] == 'destroy',
+  target = matches[6],
+}
+
+if (group.leader == tank) then
+  player.nextRoom = nextRoom
+else
+  cecho('\n\n&lt;red&gt;TEAMWORK:&lt;white&gt; next room command came from non tank\n\n')
+end
+</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^(.*) reports? group status[^:]*: "next room has (\d+) targets?, (aoe-safe|no-aoe), (attack|destroy): (.*)"$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1904,8 +1970,10 @@ end</script>
 					<regexCodeList>
 						<string>^(An? .+?|The .+?|\w+) tells the group[^:]*: "time (for|to) (.*)"</string>
 						<string>^(You) tell your group[^:]*: "time (for|to) (.*)"</string>
+						<string>^(An? .+?|The .+?|\w+) reports? group status: "time (for|to) (.*)"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
@@ -1928,8 +1996,10 @@ end</script>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>^(An? .+?|The .+?|\w+) tells the group[^:]*: "(\w+) can you (.*)"</string>
+						<string>^(An? .+?|The .+?|\w+) reports group status[^:]*: "(\w+) can you (.*)"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
@@ -2018,18 +2088,33 @@ end</script>
   Shazzul = true,
   Uduvrin = true,
   Gnodrick = true,
-  Migs = true,
   Quorrel = true,
+  Drulethan = true,
+  Umarra = true,
+  Uni = true,
+  Corim = true,
+  Gnomigs = true,
+  Trea = true,
 }
 
+local from = matches[2]
+local cmd = matches[3]
 
-if(matches[2] == group.leader or acceptableMasters[matches[2]]) then
-  cecho('&lt;greenTEAMWORK: &lt;white&gt;command issued by leader')
-  send('reply running command: ' .. matches[3], false)
-	expandAlias(matches[3])
+if(from == group.leader or acceptableMasters[from]) then
+
+  cecho('\n&lt;green&gt;TEAMWORK: &lt;white&gt;command issued by ' .. from .. ': ' .. cmd)
+  if (rex.find(cmd, [[^(t|te|tel|tell|jun|junk) ]]) and not rex.find(cmd, [[^tell ]] .. from .. ' ')) then
+    send('tell ' .. from .. ' 403 Forbidden')
+  elseif (rex.find(cmd, [[;]])) then
+    send('tell ' .. from .. ' 403 Forbidden')    
+  else 
+    send('tell ' .. from .. ' running command: ' .. matches[3], false)
+    expandAlias(matches[3]) 
+  end
+
 else
 	cecho('&lt;red&gt;TEAMWORK: &lt;white&gt;command issued by non leader')
-  send('reply command ignored due to not being leader or whitelisted')
+  send('tell ' .. from .. ' 401 Not Authorized')
 end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -3433,6 +3518,7 @@ end</script>
 		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>improve ticker</name>
 			<script>cecho('\n&lt;white&gt;Improve - halftick\n')
+
 improves.castSpell()
 send('drink soup')</script>
 			<command></command>
@@ -3890,6 +3976,200 @@ cecho('\n&lt;green&gt;Brembledon &lt;white&gt;&gt; Amber')</script>
 	<ActionPackage />
 	<ScriptPackage>
 		<Script isActive="yes" isFolder="no">
+			<name>debug helpers</name>
+			<packageName></packageName>
+			<script>-- preserve functions we are about to decorate
+oKillTimer = oKillTimer or killTimer
+oTempTimer = oTempTimer or tempTimer
+oTempRegexTrigger = oTempRegexTrigger or tempRegexTrigger
+oTempTrigger = oTempTrigger or tempTrigger
+
+oRaiseEvent = oRaiseEvent or raiseEvent
+oRegisterAnonymousEventHandler = oRegisterAnonymousEventHandler or registerAnonymousEventHandler
+oKillAnonymousEventHandler = oKillAnonymousEventHandler or killAnonymousEventHandler
+
+
+eventHandlers = eventHandlers or {}
+
+function registerAnonymousEventHandler(evt, fn, selfDestruct)
+
+	local thisData = {
+		handlerId = 0,
+		thisEvt = evt,
+		lcb = fn,
+	}
+
+  local callback
+
+	if (type(thisData.lcb) == 'string') then
+  		callback =thisData.lcb
+			cecho('\n&lt;red&gt;EVENT: &lt;white&gt;event handler defined as string - ' .. thisData.lcb .. ' : ' .. '\n')
+	else
+		callback = function (...)
+    		local cb = thisData.lcb
+    		-- cecho('\n&lt;green&gt;EVENT: &lt;white&gt;event handler triggered - ' .. tostring(thisData.handlerId) .. ' : ' .. thisData.thisEvt .. '\n')
+				-- display(arg)
+    		return cb(unpack(arg))
+    	end
+	end
+
+	thisData.handlerId = oRegisterAnonymousEventHandler(evt, callback, selfDestruct)
+	eventHandlers[thisData.handlerId] = evt
+
+	return thisData.handlerId
+
+end
+
+function killAnonymousEventHandler(id)
+
+	if (eventHandlers[id] ~= nil) then
+		-- cecho('\n&lt;green&gt;EVENT: &lt;white&gt;killed handler - ' .. tostring(id) .. ' : ' .. eventHandlers[id] .. '\n')
+		eventHandlers[id] = nil
+	else
+		-- cecho('\n&lt;red&gt;TIMER: &lt;white&gt;attempted to kill missing event handler - ' .. id .. '\n')
+	end
+
+	return oKillAnonymousEventHandler(id)
+
+end
+
+
+-- allow us to track raised events
+function raiseEvent(...)
+	-- cecho('\n&lt;green&gt;EVENT: &lt;white&gt;raised - ' .. arg[1] .. '\n')
+	return oRaiseEvent(unpack(arg))
+end
+
+function displayEventHandlers()
+	display(eventHandlers)
+end
+
+
+-- triggers
+
+local oKillTrigger = oKillTrigger or killTrigger
+tempTriggers = tempTriggers or {}
+
+
+
+local wrapTrigger = function (triggerCommand)
+
+	local oCommand = triggerCommand
+
+	return function (regex, code, expireAfter)
+
+  	local trigId = nil
+  	local oCode = code
+  	local expires = expireAfter
+
+  	local newCode = function (...)
+
+			if (tempTriggers[trigId]) then
+      		tempTriggers[trigId].calls = tempTriggers[trigId].calls + 1
+      		if (tempTriggers[trigId].calls == expires) then
+    	  			tempTriggers[trigId] = nil
+      			-- cecho('\n&lt;orange&gt;trigger died of natural causes - ' .. trigId .. ' : ' .. regex .. '\n')
+      		end
+			end
+
+  		return oCode(...)
+  	end
+
+  	trigId = oCommand(regex, newCode, expires)
+
+  	tempTriggers[trigId] = tempTriggers[trigId] or { calls = 0, regex = regex }
+
+  	return trigId
+  end
+
+
+end
+
+
+
+tempRegexTrigger = wrapTrigger(oTempRegexTrigger)
+tempTrigger = wrapTrigger(oTempTrigger)
+
+killTrigger = function(id)
+	if (tempTriggers[id] ) then
+		tempTriggers[id] = nil
+	end
+	return oKillTrigger(id)
+end
+
+displayTempTriggers = function()
+	display(tempTriggers)
+end
+
+
+-- timers
+
+
+
+tempTimers = tempTimers or {}
+
+tempTimer = function(seconds, code, repeating, description)
+  
+  if (type(repeating) == 'string') then
+    description = repeating
+    repeating = false
+  end
+
+
+	local timerId
+
+	local oCode = code
+
+	local decoratedCode = function (...)
+		-- cecho('\n&lt;green&gt;TIMER: &lt;white&gt;timer ran - ' .. tostring(timerId)  .. ' : ' .. (tempTimers[timerId] or '???') .. '\n')
+		-- display(tempTimers)
+    -- rabies. next to check if oCode is a string and eval it or something lke that. bleh
+		
+    if (not repeating) then
+      tempTimers[timerId] = nil
+    end
+    
+    if (type(oCode) == 'string') then
+      cecho('\n\nERROR in timer code, not a function: ' .. oCode .. '\n\n')
+    end
+
+		oCode(...)
+	end
+
+	timerId = oTempTimer(seconds, decoratedCode, repeating)
+
+	tempTimers[timerId] = (description or 'mystery timer') .. ' - ' .. tostring(seconds) .. ' seconds'
+
+	-- cecho('\n&lt;green&gt;TIMER: &lt;white&gt;timer setup - ' .. tostring(timerId) .. ' : ' .. tempTimers[timerId] .. '\n')
+
+	return timerId
+
+end
+
+
+killTimer = function(timerId)
+
+	if (tempTimers[timerId] ) then
+  	-- cecho('\n&lt;orange&gt;TIMER: &lt;white&gt;killed with fire - ' .. timerId .. ' : ' .. tempTimers[timerId] .. '\n')
+  	tempTimers[timerId] = nil
+  	oKillTimer(timerId)
+	else
+		cecho('\n&lt;red&gt;TIMER: &lt;white&gt;attempted to kill missing timer - ' .. timerId .. '\n')
+    oKillTimer(timerId)
+	end
+end
+
+displayTempTimers = function()
+	display(tempTimers)
+end
+
+
+
+
+</script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
 			<name>common</name>
 			<packageName></packageName>
 			<script>-------------------------------------------------
@@ -3928,6 +4208,21 @@ common.damState = {
  ['mortally wounded'] = 0,
  ['dying'] = 0,
  ['DEAD!'] = 0
+}
+
+common.damStateInverse = {
+ ['1']    = 'perfect health',
+ ['0.95'] = 'scratched',
+ ['0.85'] = 'bruised',
+ ['0.75'] = 'cut',
+ ['0.65'] = 'several wounds',
+ ['0.55'] = 'wounded',
+ ['0.45'] = 'nastily wounded',
+ ['0.35'] = 'bleeding freely',
+ ['0.25'] = 'covered in blood',
+ ['0.15'] = 'leaking guts',
+ ['0.10'] = 'mostly dead',
+ ['0']    = 'fucked'
 }
 
 
@@ -4314,6 +4609,14 @@ common.initPlayer = function ()
   
   -- rest to defaults for init
   
+  if (not gmcp.Char.Score.name) then
+    cecho('\ngmcp not init, trying again in 2 seconds\n\n')
+    tempTimer(2, function()
+      common.initPlayer()
+    end)
+    return
+  end
+  
 	player.name = gmcp.Char.Score.name
 
 
@@ -4402,7 +4705,7 @@ common.initPlayer = function ()
   loadSavedGearSets()
 
 
-	send('score &amp; eq &amp; group &amp; inv &amp; typo &amp; prep')
+	send('score &amp; eq &amp; group &amp; inv &amp; typo &amp; prep &amp; abil all')
 
 end
 
@@ -4463,6 +4766,7 @@ common.conditions = {
   ["very worn"] = 2,
   worn = 3,
   ["very scratched"] = 4,
+  ["very scratch"] = 4,
   scratched = 5,
   reasonable = 6,
   good = 7,
@@ -4501,7 +4805,12 @@ common.lowestGearIgnore = {
 
 common.getWeaponCondition = function(cb)
   common.onNextEvent(common.events.PARSED_EQUIPMENT, function()
-    cb(common.conditions[player.gear["right hand"].base.condition])
+    if not (player.gear["right hand"] and player.gear["right hand"].base) then
+      cb(common.conditions['perfect'])
+    else
+      cb(common.conditions[player.gear["right hand"].base.condition])
+    end
+    
   end)
   send('eq')
 
@@ -4917,7 +5226,7 @@ end
 combat.onRoomClear = function ()
 	combat.clearTimer()
 	if (murder.enabled and not murder.speedwalking and player.position == 'standing') then
-    cecho('&lt;green&gt;&lt;-- scan from room clearK\n')
+    cecho('&lt;green&gt;&lt;-- scan from room clear\n')
 		send('queue level &amp; queue scan')
 	end
   cecho('&lt;green&gt;&lt;-- CLEAR (no combat for ' .. tostring(combat.roomClearDelay) .. ' seconds)!!! \n')
@@ -5006,45 +5315,12 @@ combat.clearEventWatcher = registerAnonymousEventHandler(common.events.ROOM_CLEA
 -- Note that you can also use external Scripts --
 -------------------------------------------------
 
+-- moved to common
+common.timedTempTrigger = njs50.timedTempTrigger
+timedTempTrigger = njs50.timedTempTrigger
 
-common.timedTempTrigger = function (timeout, maxTriggerCount, pattern, callback, failcallback)
-
-	local fcb = failcallback
-	local ocb = callback
-  local tempTimerId
-
-	local cb = function ()
-		fcb = nil;
-    -- echo('\n -- killing temp timed trigger timer\n')
-    killTimer(tempTimerId)
-		if (ocb) then
-			ocb()
-		end
-	end
-
-
-	local triggerId = tempRegexTrigger(pattern, cb, maxTriggerCount)
-
-	tempTimerId = tempTimer(timeout, function ()
-		-- echo('\n -- killing temp timed trigger\n')
-		killTrigger(triggerId)
-		if (fcb) then
-			fcb()
-		end
-	end, 'timed temp trigger')
-
-	return {triggerId = triggerId, timerId = tempTimerId}
-
-end
-
-timedTempTrigger = common.timedTempTrigger
-
-common.killTimedTempTrigger = function (oTT)
-  killTimer(oTT.timerId)
-  killTrigger(oTT.triggerId)
-end
-
-killTimedTempTrigger = common.killTimedTempTrigger
+common.killTimedTempTrigger = njs50.killTimedTempTrigger
+killTimedTempTrigger = njs50.killTimedTempTrigger
 
 
 common.onNextEvent = function (evt, callback)
@@ -5102,7 +5378,14 @@ common.oneRoomExitTrig = function (direction, code)
 
 end
 
-oneRoomExitTrig = common.oneRoomExitTrig</script>
+oneRoomExitTrig = common.oneRoomExitTrig
+
+
+common.clearTriggers = function(aTriggers)
+  for i, j in pairs(aTriggers) do 
+    killTrigger(j)
+  end
+end</script>
 			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">
@@ -5267,7 +5550,7 @@ common.fixConditions = function (callback)
 			if (murder.paused) then
     		murder.resume()
     	end
-  		callback()
+  		if callback then callback() end
 		else
 			send('gstatus not yet healthy enough... retrying')
 			tempTimer(10, function()
@@ -5409,200 +5692,6 @@ common.groupPrepFull = function (cb)
 	send('gstat get full')
 
 end
-</script>
-			<eventHandlerList />
-		</Script>
-		<Script isActive="yes" isFolder="no">
-			<name>debug helpers</name>
-			<packageName></packageName>
-			<script>-- preserve functions we are about to decorate
-oKillTimer = oKillTimer or killTimer
-oTempTimer = oTempTimer or tempTimer
-oTempRegexTrigger = oTempRegexTrigger or tempRegexTrigger
-oTempTrigger = oTempTrigger or tempTrigger
-
-oRaiseEvent = oRaiseEvent or raiseEvent
-oRegisterAnonymousEventHandler = oRegisterAnonymousEventHandler or registerAnonymousEventHandler
-oKillAnonymousEventHandler = oKillAnonymousEventHandler or killAnonymousEventHandler
-
-
-eventHandlers = eventHandlers or {}
-
-function registerAnonymousEventHandler(evt, fn, selfDestruct)
-
-	local thisData = {
-		handlerId = 0,
-		thisEvt = evt,
-		lcb = fn,
-	}
-
-  local callback
-
-	if (type(thisData.lcb) == 'string') then
-  		callback =thisData.lcb
-			cecho('\n&lt;red&gt;EVENT: &lt;white&gt;event handler defined as string - ' .. thisData.lcb .. ' : ' .. '\n')
-	else
-		callback = function (...)
-    		local cb = thisData.lcb
-    		-- cecho('\n&lt;green&gt;EVENT: &lt;white&gt;event handler triggered - ' .. tostring(thisData.handlerId) .. ' : ' .. thisData.thisEvt .. '\n')
-				-- display(arg)
-    		return cb(unpack(arg))
-    	end
-	end
-
-	thisData.handlerId = oRegisterAnonymousEventHandler(evt, callback, selfDestruct)
-	eventHandlers[thisData.handlerId] = evt
-
-	return thisData.handlerId
-
-end
-
-function killAnonymousEventHandler(id)
-
-	if (eventHandlers[id] ~= nil) then
-		-- cecho('\n&lt;green&gt;EVENT: &lt;white&gt;killed handler - ' .. tostring(id) .. ' : ' .. eventHandlers[id] .. '\n')
-		eventHandlers[id] = nil
-	else
-		-- cecho('\n&lt;red&gt;TIMER: &lt;white&gt;attempted to kill missing event handler - ' .. id .. '\n')
-	end
-
-	return oKillAnonymousEventHandler(id)
-
-end
-
-
--- allow us to track raised events
-function raiseEvent(...)
-	-- cecho('\n&lt;green&gt;EVENT: &lt;white&gt;raised - ' .. arg[1] .. '\n')
-	return oRaiseEvent(unpack(arg))
-end
-
-function displayEventHandlers()
-	display(eventHandlers)
-end
-
-
--- triggers
-
-local oKillTrigger = oKillTrigger or killTrigger
-tempTriggers = tempTriggers or {}
-
-
-
-local wrapTrigger = function (triggerCommand)
-
-	local oCommand = triggerCommand
-
-	return function (regex, code, expireAfter)
-
-  	local trigId = nil
-  	local oCode = code
-  	local expires = expireAfter
-
-  	local newCode = function (...)
-
-			if (tempTriggers[trigId]) then
-      		tempTriggers[trigId].calls = tempTriggers[trigId].calls + 1
-      		if (tempTriggers[trigId].calls == expires) then
-    	  			tempTriggers[trigId] = nil
-      			-- cecho('\n&lt;orange&gt;trigger died of natural causes - ' .. trigId .. ' : ' .. regex .. '\n')
-      		end
-			end
-
-  		return oCode(...)
-  	end
-
-  	trigId = oCommand(regex, newCode, expires)
-
-  	tempTriggers[trigId] = tempTriggers[trigId] or { calls = 0, regex = regex }
-
-  	return trigId
-  end
-
-
-end
-
-
-
-tempRegexTrigger = wrapTrigger(oTempRegexTrigger)
-tempTrigger = wrapTrigger(oTempTrigger)
-
-killTrigger = function(id)
-	if (tempTriggers[id] ) then
-		tempTriggers[id] = nil
-	end
-	return oKillTrigger(id)
-end
-
-displayTempTriggers = function()
-	display(tempTriggers)
-end
-
-
--- timers
-
-
-
-tempTimers = tempTimers or {}
-
-tempTimer = function(seconds, code, repeating, description)
-  
-  if (type(repeating) == 'string') then
-    description = repeating
-    repeating = false
-  end
-
-
-	local timerId
-
-	local oCode = code
-
-	local decoratedCode = function (...)
-		-- cecho('\n&lt;green&gt;TIMER: &lt;white&gt;timer ran - ' .. tostring(timerId)  .. ' : ' .. (tempTimers[timerId] or '???') .. '\n')
-		-- display(tempTimers)
-    -- rabies. next to check if oCode is a string and eval it or something lke that. bleh
-		
-    if (not repeating) then
-      tempTimers[timerId] = nil
-    end
-    
-    if (type(oCode) == 'string') then
-      cecho('\n\nERROR in timer code, not a function: ' .. oCode .. '\n\n')
-    end
-
-		oCode(...)
-	end
-
-	timerId = oTempTimer(seconds, decoratedCode, repeating)
-
-	tempTimers[timerId] = (description or 'mystery timer') .. ' - ' .. tostring(seconds) .. ' seconds'
-
-	-- cecho('\n&lt;green&gt;TIMER: &lt;white&gt;timer setup - ' .. tostring(timerId) .. ' : ' .. tempTimers[timerId] .. '\n')
-
-	return timerId
-
-end
-
-
-killTimer = function(timerId)
-
-	if (tempTimers[timerId] ) then
-  	-- cecho('\n&lt;orange&gt;TIMER: &lt;white&gt;killed with fire - ' .. timerId .. ' : ' .. tempTimers[timerId] .. '\n')
-  	tempTimers[timerId] = nil
-  	oKillTimer(timerId)
-	else
-		cecho('\n&lt;red&gt;TIMER: &lt;white&gt;attempted to kill missing timer - ' .. timerId .. '\n')
-    oKillTimer(timerId)
-	end
-end
-
-displayTempTimers = function()
-	display(tempTimers)
-end
-
-
-
-
 </script>
 			<eventHandlerList />
 		</Script>
@@ -5821,6 +5910,8 @@ tfe = tfe or {}
 tfe.char_fighting = function ()
 
   local fighting = gmcp.Char.Fighting or {}
+  
+  -- display(gmcp.Char.Fighting)
 
   local count = 0
 
@@ -5881,10 +5972,15 @@ end
 improves.castSpell = function ()
 
 	if (#improves.castQueue == 0) then
-
-		cecho('\n\n -= ' .. improves.fillerSpell .. ' =-\n\n')
-		send(improves.fillerSpell)
-		improves.castFillerLastTick = true
+    
+    cecho('\n\n -= improve filler =-\n\n')
+    if type(improves.fillerSpell) == 'string' then 
+  		send(improves.fillerSpell)
+    elseif type(improves.fillerSpell) == 'function' then   
+      improves.fillerSpell()
+    end
+    
+    improves.castFillerLastTick = true
 
 	else
 
@@ -5925,6 +6021,14 @@ improves.defaultMageList = {
   'ice lance',
   'conflagration'
 }
+
+improves.druidAoeList = {
+  'impede',
+  'storm',
+  'aqueous spirit',
+  'xerotes',
+}
+
 
 improves.spellList = improves.spellList or improves.defaultMageList
 
@@ -6002,7 +6106,7 @@ common.updateFromGMCP = function()
 
   -- skip if gmcp is not fully init
   if (not gmcp.Char.Score) then
-    -- cecho('&lt;yellow&gt; &lt;-- (gmcp not fully init)')
+    cecho('&lt;yellow&gt; &lt;-- (gmcp update but not fully init)')
     return
   end
 
@@ -6035,7 +6139,7 @@ common.updateFromGMCP = function()
   
     raiseEvent(common.events.PARSED_GROUP);
     common.updateGMCPTimer = nil;
-    -- cecho('\n&lt;green&gt;GROUP: &lt;white&gt;data updated!!\n')
+    -- cecho('&lt;green&gt; &lt;--- &lt;white&gt;data updated!!\n')
   end, 'gmcp update')
   
   -- cecho('&lt;orange&gt; &lt;-- update queued...\n')
@@ -6097,6 +6201,20 @@ end</script>
 end</script>
 				<eventHandlerList>
 					<string>COMMON:: combat_player_hit</string>
+				</eventHandlerList>
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>common.groupClearUpdateTimer</name>
+				<packageName></packageName>
+				<script>common.groupClearUpdateTimer = function()
+  common.updateGMCPTimer = nil
+  cecho('&lt;yellow&gt; &lt;-- (cleared update gmcp timer)')
+end
+
+-- this one is for initial mod load in case it was already set
+common.updateGMCPTimer = nil</script>
+				<eventHandlerList>
+					<string>gmcp.Room.Info</string>
 				</eventHandlerList>
 			</Script>
 		</ScriptGroup>

@@ -4033,6 +4033,15 @@ function killAnonymousEventHandler(id)
 
 end
 
+function killAnonymousEventHandlerByName(name)
+  for i, k in pairs(eventHandlers) do 
+    if (k == name) then
+      cecho('\n&lt;green&gt;EVENT: &lt;white&gt;killed handler - ' .. tostring(i) .. ' : ' .. k .. '\n')
+      killAnonymousEventHandler(i)
+    end
+  end
+end
+
 
 -- allow us to track raised events
 function raiseEvent(...)

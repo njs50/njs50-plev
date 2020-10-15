@@ -7,7 +7,7 @@
 			<script>-- set prompt to this:
 
 -- Prompt:
--- ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;
+-- ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;%\
 
 -- need to have the group parsed aleady to have things to fill in
 if ( not group.leader or not player.name ) then
@@ -3566,7 +3566,7 @@ njs50plev.finishInstall = function()
 
     -- set prompt
 
-    send("prompt ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;")
+    send("prompt ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;%\\")
 
     -- setup aliases
     send('alias *ef eat food &amp; eat food &amp; drop all.food &amp; get 4*food')
@@ -5199,6 +5199,173 @@ function performSwap (callback)
 
 	player.swapItems = {}
 
+end</script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>casting / respell</name>
+			<packageName></packageName>
+			<script>-- first check if we need to re-up BM
+njs50 = njs50 or {}
+
+njs50.cast = function (spell, options)
+  
+  -- target, callback, failCallback
+  options = options or {}
+  
+  local target = options.target
+  local callback = options.callback
+  local failCallback = options.failCallback
+
+-- You don't know the spell hardiness.
+-- Unknown spell.
+-- You need a brown duck feather to cast float.
+-- The room doesn't contain any beings matching "nutjob".
+-- +++ You cast bless +++
+  
+  local spellUnknown, castFailed, castSuccess, shortMana, castFailedSleep, reagentFail, msg
+  
+  local cleanTriggers = function()
+    killTrigger(castFailed)
+    killTrigger(spellUnknown)
+    killTrigger(castSuccess)
+    killTrigger(shortMana)
+    killTrigger(castFailedSleep)
+    killTrigger(reagentFail)
+  end
+  
+  spellUnknown = tempRegexTrigger([[^(Unknown spell|You don't know the spell ]] .. spell .. [[)\.$]], function()
+    msg = 'failed due to unkown spell - ' .. spell .. '?'
+    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+    cleanTriggers()
+    if (failCallback) then failCallback(msg) end 
+  end, 1)
+  
+  castFailedSleep = tempRegexTrigger([[^You cannot do that while sleeping$]], function ()
+    msg = 'failed to do something while sleeping - ' .. spell .. '?'
+    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+    cleanTriggers()
+    if (failCallback) then failCallback(msg) end        
+  end, 1)  
+  
+  castFailed = tempRegexTrigger([[^&gt;&gt; Your ]] .. spell .. [[ casting is disrupted. &lt;&lt;$]], function ()
+    msg = 'casting ' .. spell .. ' was disrupted'
+    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+    cleanTriggers()
+    if (failCallback) then failCallback(msg) end    
+  end, 1)
+  
+  reagentFail = tempRegexTrigger([[^You need (.*) to cast ]] .. spell .. [[\.$]], function ()
+    msg = 'missing ' .. matches[2] .. ' for casting ' .. spell
+    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+    cleanTriggers()
+    if (failCallback) then failCallback(msg) end
+  end, 1)
+  
+  shortMana = tempRegexTrigger([[^You need \d+ energy points to cast ]] .. spell .. [[\.$]], function ()
+    msg = 'not enough mana to cast ' .. spell
+    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+    cleanTriggers()
+    if (failCallback) then failCallback(msg) end
+  end, 1)
+  
+  castSuccess = tempRegexTrigger([[^\+\+\+ You cast ]] .. spell .. [[ \+\+\+$]], function ()
+    cecho('\n&lt;green&gt;CAST: &lt;white&gt;spell - ' .. spell .. '!\n\n')
+    cleanTriggers()
+    if (callback) then callback() end
+  end, 1)  
+  
+  local cmd = 'cast ' .. spell
+  
+  if (target and target ~= '') then
+    cmd = cmd .. ' ' .. target
+  end
+  
+  send(cmd)
+
+end
+
+-- buffs = {
+  -- sustenance = 'You are being sustained.',
+  -- bless = 'You feel righteous.',
+-- }
+
+njs50.respell = function(buffs, target)
+  
+  if (player.pendingRespell) then
+  
+    if (target and target ~= '') then
+      send('queue ' .. target .. ' respell is already queued')
+    end
+    
+  else
+    
+    local co
+    
+    player.pendingRespell = true
+    
+    common.getAffects( function (affects)
+      
+      local respellFailed = false
+      local failMessage = ''
+  
+      co = coroutine.create(function()
+      
+        for spell, affectText in pairs(buffs) do 
+        
+              
+          if (not respellFailed and not affects[affectText]) then
+            njs50.cast(spell, {
+              callback = function ()
+                local ok, errorMsg = coroutine.resume(co)
+                if not ok then
+                  error("Error in co-routine respell: " .. errorMsg)
+                end
+              end,
+              failCallback = function(msg)
+                respellFailed = true
+                failMessage = msg
+                local ok, errorMsg = coroutine.resume(co)
+                if not ok then
+                  error("Error in co-routine respell: " .. errorMsg)
+                end
+              end
+            })
+            coroutine.yield()
+          end 
+  
+        end
+        
+        player.pendingRespell = nil
+        
+        if (respellFailed) then
+           
+           cecho('\n&lt;red&gt;RESPELL: &lt;white&gt;failed! - ' .. failMessage .. '\n\n')
+          
+          if (target and target ~= '') then
+            send('queue ' .. target .. ' ' .. failMessage .. ' (' .. player.name .. ')')
+          end
+               
+        else
+        
+          cecho('\n&lt;green&gt;RESPELL: &lt;white&gt;completed!\n\n')
+          
+          if (target and target ~= '') then
+            send('queue ' .. target .. ' respell done (' .. player.name .. ')')
+          end
+          
+        end
+        
+      end)
+    
+      local ok, errorMsg = coroutine.resume(co)
+      if not ok then
+        error("Error in co-routine respell: " .. errorMsg)
+      end
+      
+    end)
+    
+  end
 end</script>
 			<eventHandlerList />
 		</Script>

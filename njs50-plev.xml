@@ -5223,10 +5223,11 @@ njs50.cast = function (spell, options)
 -- The room doesn't contain any beings matching "nutjob".
 -- +++ You cast bless +++
   
-  local spellUnknown, castFailed, castSuccess, shortMana, castFailedSleep, reagentFail, msg
+  local spellUnknown, castFailed, castFailedBank, castSuccess, shortMana, castFailedSleep, reagentFail, msg
   
   local cleanTriggers = function()
     killTrigger(castFailed)
+    killTrigger(castFailedBank)
     killTrigger(spellUnknown)
     killTrigger(castSuccess)
     killTrigger(shortMana)
@@ -5254,6 +5255,15 @@ njs50.cast = function (spell, options)
     cleanTriggers()
     if (failCallback) then failCallback(msg) end    
   end, 1)
+  
+  castFailedBank = tempRegexTrigger([[^As you cast ]] .. spell .. [[, you feel the energy drain from you and nothing happens\.$]], function ()
+    msg = 'casting ' .. spell .. ' failed due to no magic room'
+    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+    cleanTriggers()
+    if (failCallback) then failCallback(msg) end    
+  end, 1)
+    
+  -- As you cast float
   
   reagentFail = tempRegexTrigger([[^You need (.*) to cast ]] .. spell .. [[\.$]], function ()
     msg = 'missing ' .. matches[2] .. ' for casting ' .. spell
@@ -5289,6 +5299,10 @@ end
   -- sustenance = 'You are being sustained.',
   -- bless = 'You feel righteous.',
 -- }
+
+njs50.cancelPendingRespell = function()
+  player.pendingRespell = nil
+end
 
 njs50.respell = function(buffs, target)
   

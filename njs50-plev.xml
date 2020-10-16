@@ -336,7 +336,6 @@ else
 		raiseEvent(common.events.PARSED_INVENTORY)
 		player.parsingInventory = false
 
-
 	else
 
 		-- inventory line
@@ -5351,6 +5350,7 @@ njs50.respell = function(buffs, target)
         end
         
         player.pendingRespell = nil
+        send('inventory')
         
         if (respellFailed) then
            
@@ -5382,6 +5382,64 @@ njs50.respell = function(buffs, target)
   end
 end</script>
 			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>player.manageInventory</name>
+			<packageName></packageName>
+			<script>player = player or {}
+
+-- player.keepInPack = {
+  -- ["a spotted cheetah skin"] = true,
+  -- ["a shadowy rod"] = true,
+  -- ["a feather-tipped rod"] = true,
+  -- ["a pearl"] = true,
+  -- ["a feathered talisman"] = true,
+  -- ["a multicoloured belt of the elements"] = true,
+  -- ["a cottonwood rod of presage"] = true,
+  -- ["a dowsing stick"] = true,
+  -- ["a soft, snow-white bear skin"] = true,
+  -- ["a shadowbox"] = true
+-- }
+
+player.manageInventory = function(evt, data)
+  
+  local moveItems = {}
+  
+-- "a soft, snow-white bear skin"
+
+  for item, qty in pairs(player.inventory) do
+    
+    -- ffs. a poop might come an enchanted poop if you are detecting magic
+    
+    altItem = rex.gsub(item, [[^an? ]], 'an enchanted ')
+    
+    if (player.keepInPack[item]) then
+    
+      -- lua common.itemShorten("a soft, snow-white bear skin")
+      local itemStr = ''
+      
+      if (qty &gt; 1) then
+        itemStr = tostring(qty) .. '*'
+      end
+      
+      itemStr = itemStr .. common.itemShorten(item)
+      
+      table.insert(moveItems, itemStr)
+      
+    end
+  
+  end
+  
+  display('bah', moveItems)
+  
+  if (#moveItems &gt; 0) then
+    send('put ' .. table.concat(moveItems, ',') .. ' in ' .. player.pack)
+  end
+
+end</script>
+			<eventHandlerList>
+				<string>COMMON:parsed_inventory_contents</string>
+			</eventHandlerList>
 		</Script>
 		<Script isActive="yes" isFolder="no">
 			<name>combat</name>

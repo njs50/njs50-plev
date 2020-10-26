@@ -10,7 +10,7 @@
 -- ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;%\
 
 -- need to have the group parsed aleady to have things to fill in
-if ( not group.leader or not player.name ) then
+if ( not player.name ) then
 
     if (not player.pendingGroup) then
       
@@ -2094,6 +2094,8 @@ end</script>
   Corim = true,
   Gnomigs = true,
   Trea = true,
+  Aleron = true,
+  Brazden = true,
 }
 
 local from = matches[2]
@@ -2198,8 +2200,19 @@ local ctells = {
 }
 
 
+local gtells = {
+  ["tell your group"] = true,
+  ["tells the group"] = true,
+}
+
+
 if (ctells[matches[#matches-1]]) then
   chan = 'Clan'
+end
+
+
+if (gtells[matches[#matches-1]]) then
+  chan = 'Group'
 end
 
 
@@ -2218,8 +2231,8 @@ common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. '
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>^([A-Za-z]+) (tells) you:\s*"(.+)"$</string>
-						<string>^(You) (tell \w+|tell the clan):\s*"(.+)"$</string>
-						<string>^([^:]*) (ctells):\s*"(.+)"$</string>
+						<string>^(You) (tell \w+|tell the clan|tell your group):\s*"(.+)"$</string>
+						<string>^([^:]*) (ctells|tells the group):\s*"(.+)"$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -2233,6 +2246,11 @@ common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. '
 
 if rex.find(multimatches[1][1], [[^.*(ctells|tell the clan):]]) then
   chan = 'Clan'
+end
+
+
+if rex.find(multimatches[1][1], [[^.*(tell your group|tells the group):]]) then
+  chan = 'Group'
 end
 
 
@@ -2250,7 +2268,7 @@ common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[2][2] .. "\n")
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan):$</string>
+						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan|You tell your group|[A-Za-z]+ tells the group):$</string>
 						<string>^\s*(".*")$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
@@ -2266,6 +2284,9 @@ if rex.find(multimatches[1][1], [[^.*(ctells|tell the clan):]]) then
   chan = 'Clan'
 end
 
+if rex.find(multimatches[1][1], [[^.*(tell your group|tells the group):]]) then
+  chan = 'Group'
+end
 
 common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
 common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[2][2])
@@ -2281,7 +2302,7 @@ common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[3][2] .. "\n")</s
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan):$</string>
+						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan|You tell your group|[A-Za-z]+ tells the group):$</string>
 						<string>^\s*(".*[^"])$</string>
 						<string>^\s*(\s[^" ].*")$</string>
 					</regexCodeList>
@@ -2299,6 +2320,9 @@ if rex.find(multimatches[1][1], [[^.*(ctells|tell the clan):]]) then
   chan = 'Clan'
 end
 
+if rex.find(multimatches[1][1], [[^.*(tell your group|tells the group):]]) then
+  chan = 'Group'
+end
 
 common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
 common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[2][2])
@@ -2316,7 +2340,7 @@ common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[4][2] .. "\n")
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan):$</string>
+						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan|You tell your group|[A-Za-z]+ tells the group):$</string>
 						<string>^\s*(".*[^"])$</string>
 						<string>^\s*(\s[^"]*\s*)$</string>
 						<string>^\s*(\s[^" ].*")$</string>
@@ -3500,7 +3524,7 @@ end</script>
 		</TriggerGroup>
 	</TriggerPackage>
 	<TimerPackage>
-		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>dont' time out!</name>
 			<script>send('\n', false)</script>
 			<command></command>
@@ -3518,8 +3542,7 @@ end</script>
 			<name>improve ticker</name>
 			<script>cecho('\n&lt;white&gt;Improve - halftick\n')
 
-improves.castSpell()
-send('drink soup')</script>
+improves.castSpell()</script>
 			<command></command>
 			<packageName></packageName>
 			<time>00:00:35.000</time>
@@ -3916,6 +3939,13 @@ end</script>
 			<command></command>
 			<packageName></packageName>
 			<regex></regex>
+			<Alias isActive="yes" isFolder="no">
+				<name>gear</name>
+				<script>gearSets()</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^gear$</regex>
+			</Alias>
 			<Alias isActive="yes" isFolder="no">
 				<name>gear</name>
 				<script>equipSet(matches[2])
@@ -4693,9 +4723,10 @@ common.initPlayer = function ()
       gap = 10,
       consoles = {
         "All",
-        "Public", 
         "Clan",
+        "Group",
         "Tell",
+        "Public", 
         "Other",
         "Log",
       },
@@ -4847,6 +4878,14 @@ function getLowestGearCondition (cb)
     cb(lowestCondition)
   end)
   send('eq')
+end
+
+
+function gearSets()
+  cecho('\n&lt;green&gt;GEAR:&lt;white&gt; saved sets:\n\n')
+  for set, deets in pairs(player.gearSets) do
+    cecho(set .. '\n')
+  end
 end
 
 
@@ -5290,7 +5329,11 @@ njs50.cast = function (spell, options)
     cmd = cmd .. ' ' .. target
   end
   
-  send(cmd)
+  if (options.queueSpellImprove and player.skills[spell] &lt; 10) then
+    improves.queueSpell(cmd)
+  else
+    send(cmd)
+  end
 
 end
 
@@ -5303,9 +5346,9 @@ njs50.cancelPendingRespell = function()
   player.pendingRespell = nil
 end
 
-njs50.respell = function(buffs, target)
+njs50.respell = function(buffs, target, cb, queueSpellImprove)
   
-  if (player.pendingRespell) then
+  if (lw) then
   
     if (target and target ~= '') then
       send('queue ' .. target .. ' respell is already queued')
@@ -5329,6 +5372,7 @@ njs50.respell = function(buffs, target)
               
           if (not respellFailed and not affects[affectText]) then
             njs50.cast(spell, {
+              queueSpellImprove = queueSpellImprove,
               callback = function ()
                 local ok, errorMsg = coroutine.resume(co)
                 if not ok then
@@ -5368,6 +5412,8 @@ njs50.respell = function(buffs, target)
             send('queue ' .. target .. ' respell done (' .. player.name .. ')')
           end
           
+          if (cb) then tempTimer(0, cb) end
+          
         end
         
       end)
@@ -5387,6 +5433,8 @@ end</script>
 			<name>player.manageInventory</name>
 			<packageName></packageName>
 			<script>player = player or {}
+
+player.keepInPack = player.keepInPack or {}
 
 -- player.keepInPack = {
   -- ["a spotted cheetah skin"] = true,
@@ -5409,11 +5457,12 @@ player.manageInventory = function(evt, data)
 
   for item, qty in pairs(player.inventory) do
     
-    -- ffs. a poop might come an enchanted poop if you are detecting magic
+    -- ffs. "a poop might" become "an enchanted poop" if you are detecting magic
+    item = common.itemSanitize(item)
     
-    altItem = rex.gsub(item, [[^an? ]], 'an enchanted ')
+    altItem = rex.gsub(item, [[^an? ]], 'a ')
     
-    if (player.keepInPack[item]) then
+    if (player.keepInPack[item] or player.keepInPack[altItem]) then
     
       -- lua common.itemShorten("a soft, snow-white bear skin")
       local itemStr = ''
@@ -5429,9 +5478,7 @@ player.manageInventory = function(evt, data)
     end
   
   end
-  
-  display('bah', moveItems)
-  
+    
   if (#moveItems &gt; 0) then
     send('put ' .. table.concat(moveItems, ',') .. ' in ' .. player.pack)
   end
@@ -5440,6 +5487,136 @@ end</script>
 			<eventHandlerList>
 				<string>COMMON:parsed_inventory_contents</string>
 			</eventHandlerList>
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>druid junk</name>
+			<packageName></packageName>
+			<script>druid = druid or {}
+
+druid.skipXerotes = {
+  gale = true,
+  ["strong gale"] = true,
+  storm = true,
+  ["violent storm"] = true,
+  hurricane = true,
+}
+
+druid.landwalk = function(cb)
+    
+  local landwalkTerrains = {
+    ['47'] = "Dark Bamboo",
+    ['42'] = "Bamboo Forest",
+    ['53'] = "Forest",
+    ['56'] = "Jungle",
+    ['25'] = "Rainforest",
+    ['35'] = "Tundra",
+    ['52'] = "Field",
+    ['43'] = "Beach",
+    ['48'] = "Desert",
+    ['45'] = "Cave",
+    ['55'] = "Hills",
+    ['20'] = "Mountain",
+    ['31'] = "Swamp",
+  }
+  
+  
+  -- start with current room
+  local checkRooms = {
+    { vnum = gmcp.Room.Info.vnum, cost = 0, terrain = landwalkTerrains[tostring(getRoomEnv(gmcp.Room.Info.vnum))] }
+  }
+  
+  local checkedRooms = {}
+  checkedRooms[tostring(gmcp.Room.Info.vnum)] = true
+  
+  local foundWays = {}
+  if (checkRooms[1].terrain) then
+    table.insert(foundWays, checkRooms[1])
+  end
+  
+  
+  local getAdjacentRooms = function(rooms, checkedRooms, foundWays)
+    
+    local newRooms = {}
+    
+    for i,room in pairs(rooms) do
+      
+      for exitDir, newVnum in pairs(getRoomExits(room.vnum)) do
+      
+        if (not checkedRooms[tostring(newVnum)]) then
+          
+          checkedRooms[tostring(newVnum)] = true
+          
+          -- if this room is locked then we need to ignore it
+          if (not roomLocked(newVnum)) then
+          
+            local thisRoom = {
+              vnum = newVnum, 
+              cost = room.cost + getRoomWeight(newVnum), 
+              terrain = landwalkTerrains[tostring(getRoomEnv(newVnum))],
+            }
+            table.insert(newRooms, thisRoom)
+            if (thisRoom.terrain) then
+              table.insert(foundWays, thisRoom)
+            end
+            
+          end
+        end
+      
+      end
+      
+    end
+    
+    return newRooms, checkedRooms, foundWays
+  
+  end
+  
+  local room_count = 0;
+  
+  while (#foundWays == 0 and room_count &lt; 100) do
+    room_count = room_count + 1
+    checkRooms, checkedRooms, foundWays  = getAdjacentRooms(checkRooms, checkedRooms, foundWays)
+  end
+  -- 
+  -- display(checkRooms, checkedRooms, foundWays, room_count)
+  -- cecho('\n\n----\n\n')
+  
+  table.sort(foundWays, function(a,b) return a.cost &lt; b.cost end)
+  
+  if (#foundWays &gt; 0) then
+    
+    cecho('\n\n&lt;green&gt;MAPPER:&lt;white&gt; closest landwalk terrain is ' .. tostring(room_count) .. ' rooms away\n')
+  
+    common.getAffects( function (affects)
+    
+      local clw = function()
+        njs50.cast('landwalk', {
+          callback = function()
+            if (cb) then cb() end
+          end
+        })
+      end
+    
+      local lw = function()
+        if (gmcp.Room.Info.vnum == foundWays[1].vnum) then
+          clw()
+        else
+          tfe.gotoRoom(foundWays[1].vnum, clw)
+        end
+      end
+    
+      if (not affects["You are able to bind lands together."]) then
+        njs50.cast('landbinding', { callback = lw })
+      else
+        lw()
+      end
+    end)  
+  
+  else
+    cecho('\n\n&lt;red&gt;MAPPER:&lt;white&gt;; no path found to landwalkable terrain\n')
+  end
+
+end</script>
+			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">
 			<name>combat</name>
@@ -5462,41 +5639,46 @@ combat.roomClearDelay = 5
 -- wants to get fighty before declaring the room clear
 combat.startTimer = function ()
 	if(combat.clear_timer) then
-		cecho('&lt;yellow&gt;&lt;-- restarting room clear timer\n')
+		-- cecho('&lt;yellow&gt;&lt;-- restarting room clear timer\n')
 		combat.clearTimer()
 	end  
+  -- cecho('&lt;yellow&gt;&lt;-- setting room clear timer for 5s\n')
 	combat.clear_timer = tempTimer(combat.roomClearDelay, function()
     combat.clear_timer = nil
+    -- cecho('&lt;yellow&gt;&lt;-- running on room clear\n')
     combat.onRoomClear()
   end, 'combat clear timer')
 end
 
 combat.onRoomClear = function ()
-	combat.clearTimer()
+	-- cecho('&lt;green&gt;&lt;-- room is clear ...\n')
+  combat.clearTimer()
 	if (murder.enabled and not murder.speedwalking and player.position == 'standing') then
-    cecho('&lt;green&gt;&lt;-- scan from room clear\n')
+    -- cecho('&lt;green&gt;&lt;-- scan from room clear\n')
 		send('queue level &amp; queue scan')
 	end
-  cecho('&lt;green&gt;&lt;-- CLEAR (no combat for ' .. tostring(combat.roomClearDelay) .. ' seconds)!!! \n')
+  -- cecho('&lt;green&gt;&lt;-- CLEAR (no combat for ' .. tostring(combat.roomClearDelay) .. ' seconds)!!! \n')
   raiseEvent(common.events.ROOM_CLEAR)
 end
 
 
 combat.clearTimer = function()
 	if (combat.clear_timer) then
+    -- cecho('&lt;yellow&gt;&lt;-- room clear timer cancelled ...\n')
 		killTimer(combat.clear_timer)
 	end
 	combat.clear_timer = nil
 end
 
 combat.reset = function()
+  -- cecho('&lt;yellow&gt;&lt;-- room found - reseting combat timer\n')
 	combat.startTimer()
 end
 
 combat.extendRoomCheck = function ()
 
 	if (combat.clear_timer) then
-		cecho('&lt;green&gt;&lt;-- EXTEND ROOM CLEAR CHECK\n')
+		-- cecho('&lt;green&gt;&lt;-- EXTEND ROOM CLEAR CHECK\n')
 		combat.clearTimer()
     combat.startTimer()
 	end
@@ -5547,7 +5729,10 @@ if (combat.clearEventWatcher) then
   killAnonymousEventHandler(combat.clearEventWatcher)
   combat.clearEventWatcher = nil
 end
-combat.clearEventWatcher = registerAnonymousEventHandler(common.events.ROOM_CLEAR, combat.clearTimer)
+combat.clearEventWatcher = registerAnonymousEventHandler(common.events.ROOM_CLEAR, function()
+  cecho('&lt;green&gt;&lt;-- room clear event happened\n')
+  combat.clearTimer()
+end)
 
 
 
@@ -6170,6 +6355,10 @@ tfe.char_fighting = function ()
   combat.mobs = count
   
   if (count == 0 and combat.active) then
+    if (combat.finshDelayTimer ~= nil) then
+      killTimer(combat.finshDelayTimer)
+      combat.finshDelayTimer = nil
+    end 
     combat.finshDelayTimer = tempTimer(1, function()
       combat.finish()
       combat.finshDelayTimer = nil

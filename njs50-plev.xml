@@ -2004,9 +2004,7 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>someone joins a group</name>
-					<script>group = {}
-
-send('group')</script>
+					<script>send('group')</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2094,6 +2092,7 @@ end</script>
   Corim = true,
   Gnomigs = true,
   Trea = true,
+  Chundrick = true,
   Aleron = true,
   Brazden = true,
 }
@@ -2169,7 +2168,7 @@ end
 				</Trigger>
 			</TriggerGroup>
 			<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-				<name>tells</name>
+				<name>log messages</name>
 				<script></script>
 				<triggerType>0</triggerType>
 				<conditonLineDelta>0</conditonLineDelta>
@@ -2183,175 +2182,6 @@ end
 				<colorTriggerBgColor>#000000</colorTriggerBgColor>
 				<regexCodeList />
 				<regexCodePropertyList />
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>tell</name>
-					<script>local chan = 'Tell'
-local msg = matches[#matches]
-local exludeAll = false
-
-if rex.find(msg, [[^(do |repopped|location:|ee |ack:|running command|stonies are snooz|I have just improved at)]]) then
-  chan = 'Log'
-  exludeAll = true
-end
-
-local ctells = {
-  ["tell the clan"] = true,
-  ["ctells"] = true,
-}
-
-
-local gtells = {
-  ["tell your group"] = true,
-  ["tells the group"] = true,
-}
-
-
-if (ctells[matches[#matches-1]]) then
-  chan = 'Clan'
-end
-
-
-if (gtells[matches[#matches-1]]) then
-  chan = 'Group'
-end
-
-
-common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n", exludeAll)
-
-</script>
-					<triggerType>0</triggerType>
-					<conditonLineDelta>1</conditonLineDelta>
-					<mStayOpen>0</mStayOpen>
-					<mCommand></mCommand>
-					<packageName></packageName>
-					<mFgColor>#ff0000</mFgColor>
-					<mBgColor>#ffff00</mBgColor>
-					<mSoundFile></mSoundFile>
-					<colorTriggerFgColor>#000000</colorTriggerFgColor>
-					<colorTriggerBgColor>#000000</colorTriggerBgColor>
-					<regexCodeList>
-						<string>^([A-Za-z]+) (tells) you:\s*"(.+)"$</string>
-						<string>^(You) (tell \w+|tell the clan|tell your group):\s*"(.+)"$</string>
-						<string>^([^:]*) (ctells|tells the group):\s*"(.+)"$</string>
-					</regexCodeList>
-					<regexCodePropertyList>
-						<integer>1</integer>
-						<integer>1</integer>
-						<integer>1</integer>
-					</regexCodePropertyList>
-				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>tell - two line</name>
-					<script>local chan = 'Tell'
-
-if rex.find(multimatches[1][1], [[^.*(ctells|tell the clan):]]) then
-  chan = 'Clan'
-end
-
-
-if rex.find(multimatches[1][1], [[^.*(tell your group|tells the group):]]) then
-  chan = 'Group'
-end
-
-
-common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
-common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[2][2] .. "\n")
-</script>
-					<triggerType>0</triggerType>
-					<conditonLineDelta>2</conditonLineDelta>
-					<mStayOpen>0</mStayOpen>
-					<mCommand></mCommand>
-					<packageName></packageName>
-					<mFgColor>#ff0000</mFgColor>
-					<mBgColor>#ffff00</mBgColor>
-					<mSoundFile></mSoundFile>
-					<colorTriggerFgColor>#000000</colorTriggerFgColor>
-					<colorTriggerBgColor>#000000</colorTriggerBgColor>
-					<regexCodeList>
-						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan|You tell your group|[A-Za-z]+ tells the group):$</string>
-						<string>^\s*(".*")$</string>
-					</regexCodeList>
-					<regexCodePropertyList>
-						<integer>1</integer>
-						<integer>1</integer>
-					</regexCodePropertyList>
-				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>tell - three line</name>
-					<script>local chan = 'Tell'
-
-if rex.find(multimatches[1][1], [[^.*(ctells|tell the clan):]]) then
-  chan = 'Clan'
-end
-
-if rex.find(multimatches[1][1], [[^.*(tell your group|tells the group):]]) then
-  chan = 'Group'
-end
-
-common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
-common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[2][2])
-common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[3][2] .. "\n")</script>
-					<triggerType>0</triggerType>
-					<conditonLineDelta>3</conditonLineDelta>
-					<mStayOpen>0</mStayOpen>
-					<mCommand></mCommand>
-					<packageName></packageName>
-					<mFgColor>#ff0000</mFgColor>
-					<mBgColor>#ffff00</mBgColor>
-					<mSoundFile></mSoundFile>
-					<colorTriggerFgColor>#000000</colorTriggerFgColor>
-					<colorTriggerBgColor>#000000</colorTriggerBgColor>
-					<regexCodeList>
-						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan|You tell your group|[A-Za-z]+ tells the group):$</string>
-						<string>^\s*(".*[^"])$</string>
-						<string>^\s*(\s[^" ].*")$</string>
-					</regexCodeList>
-					<regexCodePropertyList>
-						<integer>1</integer>
-						<integer>1</integer>
-						<integer>1</integer>
-					</regexCodePropertyList>
-				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>tell - four line</name>
-					<script>local chan = 'Tell'
-
-if rex.find(multimatches[1][1], [[^.*(ctells|tell the clan):]]) then
-  chan = 'Clan'
-end
-
-if rex.find(multimatches[1][1], [[^.*(tell your group|tells the group):]]) then
-  chan = 'Group'
-end
-
-common.chatConsole:cecho(chan, '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. multimatches[1][1] .. " ")
-common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[2][2])
-common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[3][2])
-common.chatConsole:cecho(chan, '&lt;white&gt;' .. multimatches[4][2] .. "\n")
-</script>
-					<triggerType>0</triggerType>
-					<conditonLineDelta>4</conditonLineDelta>
-					<mStayOpen>0</mStayOpen>
-					<mCommand></mCommand>
-					<packageName></packageName>
-					<mFgColor>#ff0000</mFgColor>
-					<mBgColor>#ffff00</mBgColor>
-					<mSoundFile></mSoundFile>
-					<colorTriggerFgColor>#000000</colorTriggerFgColor>
-					<colorTriggerBgColor>#000000</colorTriggerBgColor>
-					<regexCodeList>
-						<string>^([A-Za-z]+ tells you|You tell \w+|.* ctells|You tell the clan|You tell your group|[A-Za-z]+ tells the group):$</string>
-						<string>^\s*(".*[^"])$</string>
-						<string>^\s*(\s[^"]*\s*)$</string>
-						<string>^\s*(\s[^" ].*")$</string>
-					</regexCodeList>
-					<regexCodePropertyList>
-						<integer>1</integer>
-						<integer>1</integer>
-						<integer>1</integer>
-						<integer>1</integer>
-					</regexCodePropertyList>
-				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>prac/imp</name>
 					<script>-- ** You improve at escape. **
@@ -2376,33 +2206,6 @@ end</script>
 						<string>^\*\* You (gain a practice point from|improve at) (.*)\. \*\*</string>
 					</regexCodeList>
 					<regexCodePropertyList>
-						<integer>1</integer>
-					</regexCodePropertyList>
-				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
-					<name>public - single line</name>
-					<script>common.chatConsole:cecho('Public', '&lt;green&gt;' .. getTime(true, "hh:mm:ss") .. ': &lt;white&gt;' .. matches[1] .. "\n")
-
-
-
--- |UC| Mohoonay: "oh i see, or i made a new char because fuck minor enchant" 
-</script>
-					<triggerType>0</triggerType>
-					<conditonLineDelta>0</conditonLineDelta>
-					<mStayOpen>0</mStayOpen>
-					<mCommand></mCommand>
-					<packageName></packageName>
-					<mFgColor>#ff0000</mFgColor>
-					<mBgColor>#ffff00</mBgColor>
-					<mSoundFile></mSoundFile>
-					<colorTriggerFgColor>#000000</colorTriggerFgColor>
-					<colorTriggerBgColor>#000000</colorTriggerBgColor>
-					<regexCodeList>
-						<string>^\[\w+\] (.*): "(.*)"$</string>
-						<string>^\|\w+\| (.*): "(.*)"$</string>
-					</regexCodeList>
-					<regexCodePropertyList>
-						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
@@ -6508,6 +6311,60 @@ improves.getImproveSpell = function ()
 
 end</script>
 			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>channel.update</name>
+			<packageName></packageName>
+			<script>channel = channel or {}
+
+channel.seq = channel.seq or {}
+
+local chatTabs = {
+  Gossip = 'Public',
+  OOC =  'Public',
+  UC =  'Public',
+  ATALK =  'Public',
+  Yell =  'Public',
+  Ctell =  'Clan',
+  Tell = 'Tell',
+  Cstatus = nil,
+  Gtell = 'Group',
+  Gstatus = nil,
+  Log = 'Log',
+}
+
+
+channel.update = function()
+
+  for chan, status in pairs(gmcp.Channels) do
+  
+    if (channel.seq[chan] == nil or channel.seq[chan] ~= status.sequence) then
+      channel.seq[chan] = status.sequence
+  
+      
+      if (chatTabs[chan]) then
+        -- 
+        local excludeAll = false
+        
+        if chan == 'Tell' and rex.find(status.message, [[^(do |repopped|location:|ee |ack:|running command)]]) then
+          chan = 'Log'
+          excludeAll = true
+        end    
+        
+        local message = '[' .. chan .. '] ' .. status.who .. ': ' .. status.message
+        common.consoleMessage(chatTabs[chan], message, 'green', excludeAll)
+        
+      end
+      
+    end
+    
+  end
+  
+
+end</script>
+			<eventHandlerList>
+				<string>gmcp.Channels</string>
+			</eventHandlerList>
 		</Script>
 		<ScriptGroup isActive="yes" isFolder="yes">
 			<name>gmcp-group</name>

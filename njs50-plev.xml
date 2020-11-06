@@ -3324,6 +3324,48 @@ end</script>
 					</regexCodePropertyList>
 				</Trigger>
 			</TriggerGroup>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>xp calc</name>
+				<script>xp_record = xp_record or {}
+
+table.insert(xp_record, {dt = getEpoch(), val = tonumber(matches[2])})</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^You receive (\d+) experience points\.$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>You have been KILLED!!</name>
+				<script>send('gstat I died in room #' .. tostring(gmcp.Room.Info.vnum))</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>You have been KILLED!!</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>2</integer>
+				</regexCodePropertyList>
+			</Trigger>
 		</TriggerGroup>
 	</TriggerPackage>
 	<TimerPackage>
@@ -3349,6 +3391,15 @@ improves.castSpell()</script>
 			<command></command>
 			<packageName></packageName>
 			<time>00:00:35.000</time>
+		</Timer>
+		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+			<name>xp</name>
+			<script>-- run this every so often to clear out data older than 1hr
+
+expandAlias('xp')</script>
+			<command></command>
+			<packageName></packageName>
+			<time>00:20:00.000</time>
 		</Timer>
 	</TimerPackage>
 	<AliasPackage>
@@ -3583,6 +3634,20 @@ commands[matches[2]]()</script>
 				<packageName></packageName>
 				<regex>^plev (start|stop|dance-threshold|dance-return) ?(.*)$</regex>
 			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>put leveling gear</name>
+				<script>send('put levWeap,levArmor leveling &amp; gs &amp; put leveling ' .. player.bag .. ' &amp; ps')</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^pll$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>get leveling gear</name>
+				<script>send('gs &amp; get leveling ' .. player.bag .. ' &amp; ps &amp; get levWeap,levArmor leveling')</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^gll$</regex>
+			</Alias>
 		</AliasGroup>
 		<AliasGroup isActive="yes" isFolder="yes">
 			<name>drop junk</name>
@@ -3802,6 +3867,58 @@ cecho('\n&lt;green&gt;Brembledon &lt;white&gt;&gt; Amber')</script>
 				<command></command>
 				<packageName></packageName>
 				<regex>^gates$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>xp report</name>
+				<script>xp_record = xp_record or {}
+
+local getSlice = function(arr, dt_min)
+
+  local ret = {}
+    
+  for idx, val in pairs(arr) do
+    
+    if val.dt &gt;= dt_min then
+      table.insert(ret, val)
+    end
+    
+  end
+
+  return ret
+
+end
+
+
+local sumVals = function(arr)
+  
+  local ret = 0
+    
+  for idx, val in pairs(arr) do
+    ret = ret + val.val
+  end
+
+  return ret
+
+end
+
+local last_hour = getSlice(xp_record, getEpoch() - (60*60))
+
+-- discard any records older than one hour
+xp_record = last_hour
+
+local xpt = sumVals(last_hour)
+cecho('\n' .. tostring(#last_hour) .. ' kills in previous hour is: &lt;purple&gt;' .. njs50.commaCase(tostring(xpt)) .. 'xp\n')
+
+
+
+local last_five_mins = getSlice(xp_record, getEpoch() - (60*10))
+xpt = sumVals(last_five_mins)
+cecho('\n' .. tostring(#last_five_mins) .. ' kills in previous ten minutes is: &lt;purple&gt;' .. njs50.commaCase(tostring(xpt)) .. '\n\n')
+
+</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^xp$</regex>
 			</Alias>
 		</AliasGroup>
 	</AliasPackage>
@@ -5064,18 +5181,27 @@ njs50.cast = function (spell, options)
 -- The room doesn't contain any beings matching "nutjob".
 -- +++ You cast bless +++
   
-  local spellUnknown, castFailed, castFailedBank, castSuccess, shortMana, castFailedSleep, reagentFail, msg
+  local spellUnknown, castFailed, castFailedBank, castSuccess, shortMana, castFailedSleep, reagentFail, msg, spellUnprepped
   
   local cleanTriggers = function()
     killTrigger(castFailed)
     killTrigger(castFailedBank)
     killTrigger(spellUnknown)
     killTrigger(castSuccess)
-    killTrigger(shortMana)
+    -- killTrigger(shortMana)
     killTrigger(castFailedSleep)
     killTrigger(reagentFail)
+    killTrigger(spellUnprepped)
   end
   
+  -- You don't have tornado prepared.
+  spellUnprepped = tempRegexTrigger([[^You don't have ]] .. spell .. [[ prepared\.$]], function()
+    msg = 'failed due to unprepped spell - ' .. spell .. '?'
+    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+    cleanTriggers()
+    if (failCallback) then failCallback(msg) end 
+  end, 1)
+    
   spellUnknown = tempRegexTrigger([[^(Unknown spell|You don't know the spell ]] .. spell .. [[)\.$]], function()
     msg = 'failed due to unkown spell - ' .. spell .. '?'
     cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
@@ -5113,12 +5239,14 @@ njs50.cast = function (spell, options)
     if (failCallback) then failCallback(msg) end
   end, 1)
   
-  shortMana = tempRegexTrigger([[^You need \d+ energy points to cast ]] .. spell .. [[\.$]], function ()
-    msg = 'not enough mana to cast ' .. spell
-    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
-    cleanTriggers()
-    if (failCallback) then failCallback(msg) end
-  end, 1)
+  -- this is caught by the missing reagent pattern above
+  -- You need 75 energy points to cast summon.
+  -- shortMana = tempRegexTrigger([[^You need \d+ energy points to cast ]] .. spell .. [[\.$]], function ()
+    -- msg = 'not enough mana to cast ' .. spell
+    -- cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+    -- cleanTriggers()
+    -- if (failCallback) then failCallback(msg) end
+  -- end, 1)
   
   castSuccess = tempRegexTrigger([[^\+\+\+ You cast ]] .. spell .. [[ \+\+\+$]], function ()
     cecho('\n&lt;green&gt;CAST: &lt;white&gt;spell - ' .. spell .. '!\n\n')
@@ -5149,7 +5277,14 @@ njs50.cancelPendingRespell = function()
   player.pendingRespell = nil
 end
 
-njs50.respell = function(buffs, target, cb, queueSpellImprove)
+njs50.respell = function (buffs, options)
+
+  options = options or {}
+
+  local target = options.target
+  local cb = options.callback
+  local fcb = options.failCallback
+  local queueSpellImprove = options.queueSpellImprove
   
   if (lw) then
   
@@ -5201,11 +5336,13 @@ njs50.respell = function(buffs, target, cb, queueSpellImprove)
         
         if (respellFailed) then
            
-           cecho('\n&lt;red&gt;RESPELL: &lt;white&gt;failed! - ' .. failMessage .. '\n\n')
+          cecho('\n&lt;red&gt;RESPELL: &lt;white&gt;failed! - ' .. failMessage .. '\n\n')
           
           if (target and target ~= '') then
             send('queue ' .. target .. ' ' .. failMessage .. ' (' .. player.name .. ')')
           end
+          
+          if fcb then fcb() end
                
         else
         
@@ -5532,6 +5669,7 @@ if (combat.clearEventWatcher) then
   killAnonymousEventHandler(combat.clearEventWatcher)
   combat.clearEventWatcher = nil
 end
+
 combat.clearEventWatcher = registerAnonymousEventHandler(common.events.ROOM_CLEAR, function()
   cecho('&lt;green&gt;&lt;-- room clear event happened\n')
   combat.clearTimer()
@@ -5903,7 +6041,7 @@ common.groupPrepFree = function (cb)
 		end
 	end)
 
-	send('gt pfree')
+	send('gstat pfree')
 
 end
 

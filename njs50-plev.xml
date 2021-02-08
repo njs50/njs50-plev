@@ -539,7 +539,7 @@ end)</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^Skill\s+Level\s+Cost\s+Pracs\s+Prerequsites\s*$</string>
+						<string>^Skill\s+Level\s+Cost\s+Pracs\s+Prerequisites\s*$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -1497,7 +1497,7 @@ end)
 
 local vessel = common.dotCase(matches[2])
 
-if (gmcp.Char.Score.class == 'druid') then
+if (player.caster and gmcp.Char.Score.class == 'druid') then
   
   local cmd = 'cast dowse &amp; cast dowse &amp; ' ..
     'queue drink puddle &amp; queue fill empty.' .. vessel .. ' puddle'
@@ -1515,23 +1515,12 @@ if (gmcp.Char.Score.class == 'druid') then
 
 elseif (player.caster) then
 
-  if (common and common.getManaAndCast) then
-    send('remove blanket')
-    common.getManaAndCast(10, 'create water', vessel, false, function ()
-      	send('drink ' .. vessel)
-    end)
-
-  else
-
-    timedTempTrigger(2, 1, '^You cannot do that while sleeping\.$', function ()
-  		  send('stand &amp; remove blanket &amp; empty ' .. vessel .. ' &amp; cast create water .. ' .. vessel .. ' &amp; wear blanket &amp; sleep')
-    end)
-
-    send('remove blanket &amp; cast create water ' .. vessel)
-    send('drink ' .. vessel)
-
-  end
-
+  send('stand &amp; remove blanket')
+  caster.createWater(vessel, function()
+    send('drink ' .. vessel .. '.water')
+  end, function()
+    send('gstat help! i fucked up making water in ' .. vessel)
+  end)
 
 else
 
@@ -1557,7 +1546,7 @@ end
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>created bad water</name>
 					<script>local vessel = common.dotCase(matches[2])
 
@@ -3369,14 +3358,14 @@ table.insert(xp_record, {dt = getEpoch(), val = tonumber(matches[2])})</script>
 		</TriggerGroup>
 	</TriggerPackage>
 	<TimerPackage>
-		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>dont' time out!</name>
 			<script>send('\n', false)</script>
 			<command></command>
 			<packageName></packageName>
 			<time>00:01:00.000</time>
 		</Timer>
-		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>stay hydrated</name>
 			<script>send('drink soup')</script>
 			<command></command>
@@ -3392,7 +3381,26 @@ improves.castSpell()</script>
 			<packageName></packageName>
 			<time>00:00:35.000</time>
 		</Timer>
-		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+			<name>check last kill time and alert</name>
+			<script>local alertPeriod = 300
+
+if (murder.lastKillTime and murder.enabled) then
+
+  local lk = getEpoch() - murder.lastKillTime
+  local msg = 'Last mob was killed ' .. common.formatElapsedTime(lk) .. ' ago'
+
+  if (lk &gt; alertPeriod) then
+    common.sendSlack(msg)
+    cecho('\n&lt;red&gt;MURDER&lt;white&gt;: ' .. msg .. '\n')
+  end
+
+end</script>
+			<command></command>
+			<packageName></packageName>
+			<time>00:00:30.000</time>
+		</Timer>
+		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>xp</name>
 			<script>-- run this every so often to clear out data older than 1hr
 
@@ -3907,13 +3915,25 @@ local last_hour = getSlice(xp_record, getEpoch() - (60*60))
 xp_record = last_hour
 
 local xpt = sumVals(last_hour)
+local timeToLevel = gmcp.Char.Score.xp_needed / xpt
+local entireLevelTime = gmcp.Char.Score.xp_level / xpt
+
 cecho('\n' .. tostring(#last_hour) .. ' kills in previous hour is: &lt;purple&gt;' .. njs50.commaCase(tostring(xpt)) .. 'xp\n')
 
 
 
 local last_five_mins = getSlice(xp_record, getEpoch() - (60*10))
 xpt = sumVals(last_five_mins)
-cecho('\n' .. tostring(#last_five_mins) .. ' kills in previous ten minutes is: &lt;purple&gt;' .. njs50.commaCase(tostring(xpt)) .. '\n\n')
+cecho(tostring(#last_five_mins) .. ' kills in previous ten minutes is: &lt;purple&gt;' .. njs50.commaCase(tostring(xpt)) .. '\n')
+
+
+
+
+cecho('\nTime to level is: &lt;purple&gt;' .. common.formatElapsedTime(timeToLevel*3600) .. '\n')
+
+cecho('Entire level would take: &lt;purple&gt;' .. common.formatElapsedTime(entireLevelTime*3600) .. '\n\n')
+
+
 
 </script>
 				<command></command>
@@ -4125,6 +4145,384 @@ end
 
 
 </script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>queue</name>
+			<packageName></packageName>
+			<script>njs50 = njs50 or {}
+
+
+njs50.queue = function(options)
+
+  local queue = {}
+  
+  options = options or {}  
+  
+  options.name = options.name or 'queue'
+  
+  queue.queue = {}
+  
+  queue.add = function(cmd, description)
+
+    if not (type(cmd) == 'table') then
+      cmd = { cmd }
+    end
+    
+    for idx, cmd in ipairs(cmd) do
+      local stage = {cmd = cmd, description = description or '', complete = false}
+      table.insert(queue.queue, stage)
+      if (queue.startedAsync) then
+        queue.execAync(stage)
+      end
+    end
+
+  end
+  
+  local start = function()
+    queue.startTime = getEpoch()
+    cecho('\n&lt;green&gt;QUEUE:&lt;white&gt; starting ' .. options.name .. '!\n')
+  end
+  
+  local stop = function()
+    queue.endTime = getEpoch()
+    cecho('\n&lt;green&gt;QUEUE:&lt;white&gt; ' .. options.name .. ' completed after ' .. common.formatElapsedTime(math.ceil(queue.endTime - queue.startTime)))
+    if (options.callback) then
+      options.callback()
+    end
+  end
+  
+  local stopFail = function()
+    queue.endTime = getEpoch()
+    cecho('\n&lt;red&gt;QUEUE:&lt;white&gt; ' .. options.name .. ' failed after ' .. common.formatElapsedTime(math.ceil(queue.endTime - queue.startTime)))
+    if (options.failCallback) then
+      options.failCallback()
+    end
+  end
+
+  
+  
+  local advanceSyncQueue = function()
+    local ok, errorMsg = coroutine.resume(queue.coroutine)
+    if not ok then
+      queue.coroutine = nil
+      stopFail()
+      error("Error in " .. options.name .. ": " .. errorMsg)
+    end    
+  end   
+  
+  queue.startSync = function()
+    
+    start()    
+        -- 
+        
+    local addMinTimeCheck
+    
+    addMinTimeCheck = function()
+      
+      queue.add(function(cb)   
+        local elapsed = getEpoch() - queue.startTime
+        local remaining = options.minTime - elapsed
+        if elapsed &gt;= options.minTime then
+          cb()
+        elseif remaining &lt;= 2 then
+          tempTimer(remaining, cb)
+        else
+          addMinTimeCheck()
+          tempTimer(2, cb)
+        end
+      end, 'check min time has elapsed')
+
+    end    
+    
+        
+    if (options.minTime and options.minTime &gt; 0) then
+      addMinTimeCheck()
+    end       
+        -- 
+        
+    queue.coroutine = coroutine.create(function()
+      
+      for idx, stage in ipairs(queue.queue) do
+        cecho('\n&lt;green&gt;QUEUE:&lt;white&gt; ' .. options.name .. ' starting stage ' .. tostring(idx) .. ' : ' .. stage.description .. '\n')   
+        stage.cmd(function()
+          -- can't advance from within this thread for some reason?
+          tempTimer(0,advanceSyncQueue)
+        end)
+        coroutine.yield()
+      end 
+
+      stop()
+      
+    end)
+  
+    advanceSyncQueue()
+    
+  end
+  
+  
+  queue.execAync = function(stage)
+    
+    queue.startedAsync = true
+    cecho('\n&lt;green&gt;QUEUE:&lt;white&gt; ' .. options.name .. ' starting : ' .. stage.description .. '\n')   
+    tempTimer(0, function()
+      local ok, errorMsg = pcall(function() 
+        stage.cmd(function()
+          
+          stage.completed = true
+          for idx, stage in ipairs(queue.queue) do
+            if (not stage.completed) then
+              return
+            end
+          end
+          
+          stop() 
+          -- cecho('\n&lt;green&gt;QUEUE:&lt;white&gt; completed!\n')
+          if (options.callback) then
+            options.callback()
+          end     
+        
+        end)
+      end)
+      
+      if (not ok) then
+        stopFail()
+        error("Error in queue: " .. errorMsg)    
+      end
+    end)
+      
+  end
+  
+  queue.startAsync = function()
+    
+    start() 
+    
+    if (options.minTime and options.minTime &gt; 0) then
+      queue.add(function(cb)
+        tempTimer(options.minTime, cb)
+      end, 'queue minimum time')
+    end
+
+    queue.startedAsync = true
+    for idx, stage in ipairs(queue.queue) do
+      queue.execAync(stage) 
+    end 
+
+  end
+
+  
+  return queue
+
+end
+
+-- 
+-- njs50.queueTestAsync = function()
+-- 
+-- 
+  -- local q = njs50.queue({ 
+    -- callback = function() 
+      -- cecho('\ndone done\n')
+    -- end,
+    -- failCallback = function()
+      -- cecho('\ndone failed\n')
+    -- end,
+    -- minTime = 10,
+    -- name = 'async test'
+  -- })
+  -- 
+  -- q.add(function(cb)
+    -- send('dance')
+    -- tempTimer(2, function()
+      -- error('fucked out')
+      -- -- 
+        -- -- q.add(function(cb)
+          -- -- send('cheer')
+          -- -- tempTimer(5, function()
+            -- -- cecho('\ndynamic add completed\n')
+            -- -- cb()
+          -- -- end)
+        -- -- end, 'blep 3 async')
+        -- 
+    -- end)
+    -- tempTimer(5, cb)
+  -- end, 'blep 1 async')
+  -- 
+  -- q.add(function(cb)
+    -- send('cry')
+    -- tempTimer(3, cb)
+  -- end, 'blep 2 async')
+  -- 
+-- 
+-- 
+  -- q.startAsync()
+-- 
+-- 
+-- end
+-- 
+-- njs50.queueTestSync = function()
+-- 
+-- 
+  -- local q = njs50.queue({ 
+    -- callback = function() 
+      -- cecho('\ndone done done\n')
+    -- end,
+    -- failCallback = function()
+      -- cecho('\ndone failed\n')
+    -- end,
+    -- minTime = 15,
+    -- name = 'sync test'
+  -- })
+  -- 
+  -- q.add(
+    -- {
+      -- function(cb)
+        -- send('dance')
+        -- tempTimer(3, cb)
+      -- end,
+      -- function(cb)
+        -- send('cry')
+        -- cb()
+      -- end
+    -- }, 
+    -- 'blep 1 - bulk add'
+  -- )
+  -- 
+  -- q.add(function(cb)
+    -- send('laugh')
+    -- 
+    -- q.add(function(cb)
+      -- send('cheer')
+      -- tempTimer(2, cb)
+    -- end, 'blep 4 - dynamically added')    
+    -- 
+    -- tempTimer(3, cb)
+  -- end, 'blep 3')
+-- 
+  -- q.startSync()
+-- 
+-- end</script>
+			<eventHandlerList />
+		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>make-food-drink</name>
+			<packageName></packageName>
+			<script>caster = caster or {}
+
+  
+caster.createWater = function(vessel, cb, fcb)
+    
+  local notWaterTrig
+  local createdWaterTrig
+  local createdWaterTimer
+  
+  local clearTrigs = function()
+    
+    if (notWaterTrig) then
+      killTrigger(notWaterTrig)
+      notWaterTrig = nil
+    end
+    
+    if (createdWaterTrig) then
+      killTrigger(createdWaterTrig)
+      createdWaterTrig = nil
+    end  
+  end
+  
+  
+  createdWaterTrig = tempRegexTrigger([[^An? ]] .. vessel ..  [[ fills to overflowing with (.*)\.$]], function()
+    if (matches[2]) == 'water' then
+      clearTrigs()
+      cb()
+    else
+      send('empty all.' .. common.dotCase(vessel))
+      send('cast create water ' .. common.dotCase(vessel))     
+    end
+  end)
+  
+  
+  notWaterTrig = tempRegexTrigger([[^(&lt;[^&gt;]+&gt;)?You can only cast create water on a drink container\.$]], function()
+    clearTrigs()
+    fcb()
+  end)
+
+  send('cast create water ' .. common.dotCase(vessel))  
+  
+end
+  
+
+
+caster.snackBreak = function(cb)
+
+  caster.snackBreakTime = true
+
+  local foodTrig, q, drinkTrig
+
+  q = njs50.queue({ 
+    callback = function() 
+      killTrigger(foodTrig)
+      killTrigger(drinkTrig)
+      send('gstat snack time is over')
+      caster.snackBreakTime = nil
+      if (cb) then cb() end
+    end,
+    minTime = 10,
+    name = 'snack break'
+  })
+
+  q.startSync()
+  
+
+  foodTrig = tempRegexTrigger([[^(\w+) reports group status: "snack me"$]], function()
+    local vic = matches[2]
+    q.add(function(cb)
+      cecho('\n\n&lt;white&gt;make food for ' .. vic .. '\n')
+      njs50.cast(
+        'create food', { 
+        callback = function()
+          -- don't want to trigger on same cast twice
+          tempTimer(0, function()
+            njs50.cast(
+              'create food', { 
+              callback = function()
+                send('give 2*food ' .. vic)
+                cb()
+              end
+            })  
+          end)    
+        end
+      })
+    end, 'snacks for ' .. vic)
+  end)
+  
+  
+  -- A dark crystal goblet fills to overflowing with slime mold juice.
+  -- A dark crystal goblet fills to overflowing with water.
+
+  
+  drinkTrig = tempRegexTrigger([[^(\w+) gives an empty (.*) to you\.$]], function()
+     
+    local playa = matches[2]
+    local vessel = matches[3]
+    
+    q.add(function(cb)
+        
+      caster.createWater(vessel, function()
+        send('give ' .. common.dotCase(vessel) .. '.water ' .. playa)
+        cb()
+      end, function()
+        clearTrigs()
+        send('tell ' .. playa .. ' Thanks for the ' .. vessel .. ' I\'m not going to fill it with water.')
+        cb()
+      end)
+
+    end, 'creating water for ' .. playa)
+  
+  end)
+  
+  
+  send('gstat snack break')
+  send('gstat tell me snack me for food or pass me an empty vessel for a refil, you have 10 seconds to comply.')
+end</script>
 			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">
@@ -5260,8 +5658,16 @@ njs50.cast = function (spell, options)
     cmd = cmd .. ' ' .. target
   end
   
-  if (options.queueSpellImprove and player.skills[spell] &lt; 10) then
-    improves.queueSpell(cmd)
+  if (options.queueSpellImprove) then
+    if (player.skills[spell] &lt; 10) then
+      improves.queueSpell(cmd)
+    else
+      cecho('\n&lt;green&gt;RESPELL:&lt;white&gt; improve mode, skipping ' .. cmd .. '\n')
+      tempTimer(0, function()
+        cleanTriggers()
+        if (callback) then callback() end
+      end)
+    end
   else
     send(cmd)
   end
@@ -5275,6 +5681,16 @@ end
 
 njs50.cancelPendingRespell = function()
   player.pendingRespell = nil
+end
+
+
+njs50.defaultRespell = function(cb)
+   njs50.respell(player.buffs, {
+    target = 'gstat', 
+    callback = function()
+      if (cb) then cb() end
+    end
+  })
 end
 
 njs50.respell = function (buffs, options)
@@ -5332,7 +5748,7 @@ njs50.respell = function (buffs, options)
         end
         
         player.pendingRespell = nil
-        send('inventory')
+        
         
         if (respellFailed) then
            
@@ -5352,8 +5768,11 @@ njs50.respell = function (buffs, options)
             send('queue ' .. target .. ' respell done (' .. player.name .. ')')
           end
           
-          if (cb) then tempTimer(0, cb) end
-          
+          njs50.onNextEvent(common.events.PARSED_INVENTORY, function()
+            if (cb) then tempTimer(0, cb) end
+          end)
+          send('inventory')
+  
         end
         
       end)
@@ -5457,6 +5876,9 @@ druid.landwalk = function(cb)
     ['55'] = "Hills",
     ['20'] = "Mountain",
     ['31'] = "Swamp",
+    
+    -- ffs. random terrains
+    ['100'] = "Sandy Cavern",
   }
   
   
@@ -6422,7 +6844,7 @@ improves.improveLeech = function (spell)
   end
 end
 
-improves.getImproveSpell = function ()
+improves.getImproveSpellName = function ()
 
   if (#improves.spellList == 0) then
     return ''
@@ -6444,6 +6866,19 @@ improves.getImproveSpell = function ()
       return improves.getImproveSpell()
     end
   end
+
+  return spell
+
+end
+
+improves.getImproveSpell = function ()
+  
+  local spell = improves.getImproveSpellName()
+
+  if (spell =='') then
+    return ''
+  end
+
 
   return 'cast ' .. spell
 

@@ -2085,6 +2085,9 @@ end</script>
   Chundrick = true,
   Aleron = true,
   Brazden = true,
+  Bede = true,
+  Migs = true,
+  Darrarki = true,
 }
 
 local from = matches[2]

@@ -1713,7 +1713,8 @@ replace(matches[2] .. common.commaCase(matches[3]) .. matches[4])
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>magic sleep/silence wears off</name>
-					<script>send('stand &amp; group &amp; scan')
+					<script>send('stand &amp; group')
+murder.scan('woke up')
 player.equippingSet = nil
 if (healer and healer.clearQueued) then
   healer.clearQueued()
@@ -4597,8 +4598,8 @@ common.events = {
 	ROOM_CHANGED = 'COMMON::room_changed',
 	COMBAT_ENDED = 'COMMON::combat_ended',
 	COMBAT_STARTED = 'COMMON::combat_started',
-  COMBAT_ATTACK = 'COMMON:: combat_attack',
-  COMBAT_PLAYER_HIT = 'COMMON:: combat_player_hit',
+  COMBAT_ATTACK = 'COMMON::combat_attack',
+  COMBAT_PLAYER_HIT = 'COMMON::combat_player_hit',
 	WALK_DONE = 'COMMON::speedwalk_completed',
 	ROOM_CLEAR = 'COMMON::current_room_is_clear',
 	PARRY_STATE_CHANGE = 'COMMON::parry_state_change',
@@ -5579,17 +5580,24 @@ njs50.cast = function (spell, options)
 -- The room doesn't contain any beings matching "nutjob".
 -- +++ You cast bless +++
   
-  local spellUnknown, castFailed, castFailedBank, castSuccess, shortMana, castFailedSleep, reagentFail, msg, spellUnprepped
+  local spellUnprepped, spellUnknown, castFailedSleep
+  
+  local castFailed, castFailedBank, reagentFail
+  
+  local castSuccess, shortMana, msg
   
   local cleanTriggers = function()
+    killTrigger(spellUnprepped)
+    killTrigger(spellUnknown)
+    killTrigger(castFailedSleep)
+    
     killTrigger(castFailed)
     killTrigger(castFailedBank)
-    killTrigger(spellUnknown)
+    killTrigger(reagentFail)
+   
     killTrigger(castSuccess)
     -- killTrigger(shortMana)
-    killTrigger(castFailedSleep)
-    killTrigger(reagentFail)
-    killTrigger(spellUnprepped)
+    
   end
   
   -- You don't have tornado prepared.
@@ -6016,8 +6024,7 @@ combat.onRoomClear = function ()
 	-- cecho('&lt;green&gt;&lt;-- room is clear ...\n')
   combat.clearTimer()
 	if (murder.enabled and not murder.speedwalking and player.position == 'standing') then
-    -- cecho('&lt;green&gt;&lt;-- scan from room clear\n')
-		send('queue level &amp; queue scan')
+    murder.scan('room clear')
 	end
   -- cecho('&lt;green&gt;&lt;-- CLEAR (no combat for ' .. tostring(combat.roomClearDelay) .. ' seconds)!!! \n')
   raiseEvent(common.events.ROOM_CLEAR)
@@ -6063,10 +6070,9 @@ combat.finish = function ()
 	
   if (combat.active) then
     combat.active = false
-    	-- cecho(' &lt;white&gt; -=[ combat ended ]=-')
+    	cecho(' &lt;white&gt; -=[ combat ended ]=-')
     if (group.leader == player.name) then
-      cecho('&lt;green&gt;&lt;-- scan from combat finish\n')
-      	send('queue level &amp; queue scan')
+      murder.scan('combat ended')
     else
       cecho('&lt;green&gt;&lt;-- skipped scan due to not being leader\n')
     end
@@ -6689,7 +6695,7 @@ combat.hit = function(evt, attackData)
   -- display(attackData)
 end</script>
 			<eventHandlerList>
-				<string>COMMON:: combat_attack</string>
+				<string>COMMON::combat_attack</string>
 			</eventHandlerList>
 		</Script>
 		<Script isActive="yes" isFolder="no">
@@ -6707,7 +6713,7 @@ tfe.char_fighting = function ()
 
   local fighting = gmcp.Char.Fighting or {}
   
-  -- display(gmcp.Char.Fighting)
+  -- display(gmcp.Char)
 
   local count = 0
 
@@ -6722,9 +6728,11 @@ tfe.char_fighting = function ()
       killTimer(combat.finshDelayTimer)
       combat.finshDelayTimer = nil
     end 
+    combat.finishPending = true
     combat.finshDelayTimer = tempTimer(1, function()
       combat.finish()
       combat.finshDelayTimer = nil
+      combat.finishPending = nil
     end)
   elseif (count &gt; 0 and not combat.active) then
     if (combat.finshDelayTimer ~= nil) then
@@ -6734,7 +6742,9 @@ tfe.char_fighting = function ()
     combat.start()
   end
 
-end</script>
+end
+
+</script>
 			<eventHandlerList>
 				<string>gmcp.Char.Fighting</string>
 			</eventHandlerList>
@@ -6863,7 +6873,7 @@ improves.getImproveSpellName = function ()
     if (player.skills[spell] == nil or player.skills[spell] &gt;= 10 or player.skills[spell] == 0) then
       cecho('\n&lt;yellow&gt;removing ' .. spell .. ' from impprove list\n')
       table.remove(improves.spellList, player.impAttempt)
-      return improves.getImproveSpell()
+      return improves.getImproveSpellName()
     end
   end
 
@@ -6875,7 +6885,7 @@ improves.getImproveSpell = function ()
   
   local spell = improves.getImproveSpellName()
 
-  if (spell =='') then
+  if (spell == '') then
     return ''
   end
 
@@ -6998,10 +7008,12 @@ common.updateFromGMCP = function()
     end
     
     
-    for name, stats in pairs(gmcp.Group.members) do
-      group.memberCount = group.memberCount + 1
-      group.members[name] = true
-      group[name] = convertRecord(stats)
+    if (gmcp.Group.members) then
+      for name, stats in pairs(gmcp.Group.members) do
+        group.memberCount = group.memberCount + 1
+        group.members[name] = true
+        group[name] = convertRecord(stats)
+      end
     end
   
     raiseEvent(common.events.PARSED_GROUP);
@@ -7067,7 +7079,7 @@ end</script>
 
 end</script>
 				<eventHandlerList>
-					<string>COMMON:: combat_player_hit</string>
+					<string>COMMON::combat_player_hit</string>
 				</eventHandlerList>
 			</Script>
 			<Script isActive="yes" isFolder="no">
@@ -7378,7 +7390,7 @@ damageMeter.hit = function(evt, attackData)
   end
 end</script>
 				<eventHandlerList>
-					<string>COMMON:: combat_attack</string>
+					<string>COMMON::combat_attack</string>
 				</eventHandlerList>
 			</Script>
 		</ScriptGroup>
@@ -7432,7 +7444,7 @@ combat.auto_assist_on_attack = function (evt, attackData)
 end
 </script>
 				<eventHandlerList>
-					<string>COMMON:: combat_attack</string>
+					<string>COMMON::combat_attack</string>
 				</eventHandlerList>
 			</Script>
 			<Script isActive="yes" isFolder="no">

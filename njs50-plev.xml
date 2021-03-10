@@ -577,6 +577,129 @@ end</script>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>parse who</name>
+					<script>
+-- cecho(' &lt;green&gt;&lt;- who starts\n')
+
+local who = {
+  Befriended = {},
+  Known = {},
+  Unknown = {},
+  clan = {}
+}
+
+local playerType = multimatches[2][2]
+
+local ptTrig = tempRegexTrigger([[^\s+(Befriended|Known|Unknown)\s*$]], function()
+  playerType = matches[2]
+  -- cecho(' &lt;green&gt;&lt;- pt: ' .. playerType .. '\n')
+end)
+
+
+local pTrig = tempRegexTrigger([[\[\s+(\d+)? (\w+|\?\?)\s+(\w\w\w)\s+(\w\w)?\s+\] (\w+)[,. ](.*?)\s+ (\w\w\w\w| -- )]], function()
+  -- display(matches)
+  -- cecho(' &lt;green&gt;&lt;- captured\n')
+  local playa = {
+    level = matches[2],
+    class = matches[3],
+    race = matches[4],
+    flags = matches[5],
+    name = matches[6],
+    title = matches[7],
+    clan = matches[8],
+  }
+  
+  if (playa.level == '') then
+    playa.level = 0
+  else
+    playa.level = tonumber(playa.level)
+  end
+
+  if (playa.clan ~= ' -- ') then
+    who.clan[playa.clan] = who.clan[playa.clan] or {}
+    who.clan[playa.clan][playa.name] = playa
+  end
+  
+  who[playerType][playa.name] = playa
+  
+end)
+
+
+tempRegexTrigger([[^\s+\[\s+\d+ players \|\s+\d+ high \|\s+\d+ record \]\s*$]], function()
+  -- cecho(' &lt;green&gt;&lt;- who ends\n')
+  killTrigger(ptTrig)
+  killTrigger(pTrig)
+  raiseEvent(common.events.PARSED_WHO, who)
+end, 1)
+
+
+-- -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                                   -- Befriended
+                                   -- ----------
+-- [   ??   Vyn CL ] Chundrick is in Medienne for Shields                   BoTS
+-- [ 88 Dru Ogr    ] Mojune is lost                                         BoTS
+-- [   ??   Hum    ] Shopiere tell me report to find my location             -- 
+-- 
+                                     -- Known
+                                     -- -----
+-- [ 88 Mag Ogr    ] Bede is in Wastes                                      BoTS
+-- [   ??   Ogr    ] Bimgore the ogre                                        -- 
+-- [ 87 Thi Gob    ] Brazden is an Australian sex symbol. Rawr.             BoTS
+-- [ 51 Brd Orc    ] Kathaar Werewolf bar mitzvah, spooky scary.            BoTS
+-- [ 85 Mon Trl    ] Milthian following                                     BoTS
+-- [ 87 Mon Liz    ] Shazzul Slens                                          BoTS
+-- [ 90 Thi Vyn    ] Taldoran.                                              BoTS
+-- [   ??   Ogr    ] Umarra follow-mode                                      -- 
+-- [ 90 Dru Gob    ] Uni nil                                                 -- 
+-- 
+                                    -- Unknown
+                                    -- -------
+-- [   ??   Ogr    ] Affenaut incomprehensible at worst. afk at best.        -- 
+-- [   ??   Hum    ] Anri is running Theatre in the Hills                    -- 
+-- [ 30 Dru Ent    ] Ashera is running Rabbits                               -- 
+-- [ 90 Thi Gob    ] Avlis is running: Castle Lag                            -- 
+-- [   ??   Dwf    ] Calimar is running MBEARS                               -- 
+-- [ 90 Cle Ogr    ] Corim the ogre cleric                                   -- 
+-- [ 83 Pal Hum    ] Cyhi Fin.                                              SAGE
+-- [ 40 Mon Hum    ] Drakondor the human                                     -- 
+-- [ 49 War Hum    ] Euphe Jergaaaaaaaaaault!                                -- 
+-- [ 49 Pal Ogr CL ] Gnoggh Citadull                                        BoTS
+-- [   ??   Vyn    ] Katria is rather self-destructive.                      -- 
+-- [ 90 Pal Vyn    ] Lafiel Celestine, has lost HOPE.                        -- 
+-- [ 90 Mag Vyn    ] Mazren was inspiration for the vyan wizard doll         -- 
+-- [   ??   Ogr    ] Nitia.                                                  -- 
+-- [  5 Thi Gob    ] Paulus the goblin                                       -- 
+-- [   ??   Hum    ] Seras now with major enchant                            -- 
+-- [ 90 Mon Gob    ] Shingo the goblin                                       -- 
+-- [ 90 Mon Liz    ] Straus the lizardman                                    -- 
+-- [ 90 Brd Orc    ] Thalos the sonic blender                                -- 
+-- [   ??   Hum    ] Thullkor I don't know where.                            -- 
+-- [ 30 Thi Gob    ] Trea is in Stonies                                     BoTS
+-- [ 72 Cle Ogr    ] Wahooka, PST if you need to smile.                      -- 
+-- [ 21 Ran Elf    ] Xamdam the elf                                          -- 
+-- [ 16 Mag Gob CL ] Yurvin Sphinxes                                        SAGE
+-- -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                      -- [ 36 players | 36 high | 46 record ]</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>1</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-</string>
+						<string>^\s+(Befriended|Known|Unknown)\s*$</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>2</integer>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
 			</TriggerGroup>
 			<TriggerGroup isActive="no" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>sleep-murder</name>
@@ -2056,44 +2179,11 @@ end</script>
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>command by leader or authority figure</name>
-					<script>local acceptableMasters = {
-  Gnoggh = true,
-  Taldoran = true,
-  Trongle = true,
-  Marsuvious = true,
-  Altus = true,
-  Mojune = true,
-  Mohoonay = true,
-  Myrth = true,
-  Darion = true,
-  Darius = true,
-  Grehild = true,
-  Bimgore = true,
-  Eluard = true,
-  Raksha = true,
-  Gnodrick = true,
-  Shazzul = true,
-  Uduvrin = true,
-  Gnodrick = true,
-  Quorrel = true,
-  Drulethan = true,
-  Umarra = true,
-  Uni = true,
-  Corim = true,
-  Gnomigs = true,
-  Trea = true,
-  Chundrick = true,
-  Aleron = true,
-  Brazden = true,
-  Bede = true,
-  Migs = true,
-  Darrarki = true,
-}
-
+					<script>
 local from = matches[2]
 local cmd = matches[3]
 
-if(from == group.leader or acceptableMasters[from]) then
+if(from == group.leader or clan.acceptableMasters[from]) then
 
   cecho('\n&lt;green&gt;TEAMWORK: &lt;white&gt;command issued by ' .. from .. ': ' .. cmd)
   if (rex.find(cmd, [[^(t|te|tel|tell|jun|junk) ]]) and not rex.find(cmd, [[^tell ]] .. from .. ' ')) then
@@ -3404,6 +3494,19 @@ end</script>
 			<packageName></packageName>
 			<time>00:00:30.000</time>
 		</Timer>
+		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+			<name>map backup</name>
+			<script>mapper = mapper or {}
+mapper.backupVersion = mapper.backupVersion or 0
+mapper.backupVersion = (mapper.backupVersion + 1) % 5
+
+local fileName = getMudletHomeDir() .. "/map/backup" .. mapper.backupVersion .. ".dat"
+saveMap(fileName)
+echo("Map has been saved as " .. fileName)</script>
+			<command></command>
+			<packageName></packageName>
+			<time>00:10:00.000</time>
+		</Timer>
 		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>xp</name>
 			<script>-- run this every so often to clear out data older than 1hr
@@ -3412,6 +3515,13 @@ expandAlias('xp')</script>
 			<command></command>
 			<packageName></packageName>
 			<time>00:20:00.000</time>
+		</Timer>
+		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+			<name>check who is online (grants bitches to clannies)</name>
+			<script>send('who')</script>
+			<command></command>
+			<packageName></packageName>
+			<time>00:15:00.000</time>
 		</Timer>
 	</TimerPackage>
 	<AliasPackage>
@@ -4596,6 +4706,7 @@ common.events = {
 	PARSED_INVENTORY = 'COMMON:parsed_inventory_contents',
 	PARSED_PREPARED = 'COMMON:parsed_prepared_spells',
 	PARSED_EQUIPMENT = 'COMMON:parsed_equipment',
+  PARSED_WHO = 'COMMON::parsed_who',
 	CHANGED_EQUIPMENT = 'COMMON:changed_equipment',
 	MOVE_DETECTED = 'COMMON::move_detected',
 	ROOM_CHANGED = 'COMMON::room_changed',
@@ -9685,6 +9796,74 @@ end
 			<script>raiseEvent('njs50PlevLoaded')</script>
 			<eventHandlerList />
 		</Script>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>bitches for clan</name>
+			<packageName></packageName>
+			<script></script>
+			<eventHandlerList />
+			<Script isActive="yes" isFolder="no">
+				<name>clan.checkBitches</name>
+				<packageName></packageName>
+				<script>clan = clan or {}
+
+clan.acceptableMasters = clan.acceptableMasters or {
+  Gnoggh = true,
+  Taldoran = true,
+  Trongle = true,
+  Marsuvious = true,
+  Altus = true,
+  Mojune = true,
+  Mohoonay = true,
+  Myrth = true,
+  Darion = true,
+  Darius = true,
+  Grehild = true,
+  Bimgore = true,
+  Eluard = true,
+  Raksha = true,
+  Gnodrick = true,
+  Shazzul = true,
+  Uduvrin = true,
+  Gnodrick = true,
+  Quorrel = true,
+  Drulethan = true,
+  Umarra = true,
+  Uni = true,
+  Corim = true,
+  Gnomigs = true,
+  Trea = true,
+  Chundrick = true,
+  Aleron = true,
+  Brazden = true,
+  Bede = true,
+  Migs = true,
+  Darrarki = true,
+}
+
+clan.checkBitches = function(evt, who)
+
+  display(who.Befriended[player.name].clan)
+  
+  if (who.Befriended[player.name] and who.Befriended[player.name].clan ~= ' -- ') then
+    
+    clan.online = who.clan[who.Befriended[player.name].clan]
+  
+    for name, playa in pairs(clan.online) do
+      if (not clan.acceptableMasters[name]) then
+        clan.acceptableMasters[name] = true
+        cecho('&lt;green&gt;CLAN:&lt;white&gt; bitches granted to ' .. name .. ' due to clan member\n')
+      end
+    end
+  
+  end
+  
+
+end</script>
+				<eventHandlerList>
+					<string>COMMON::parsed_who</string>
+				</eventHandlerList>
+			</Script>
+		</ScriptGroup>
 	</ScriptPackage>
 	<KeyPackage />
 	<HelpPackage>

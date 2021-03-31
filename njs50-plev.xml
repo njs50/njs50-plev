@@ -4207,6 +4207,11 @@ tempTimer = function(seconds, code, repeating, description)
     repeating = false
   end
 
+  -- repeating being nil breaks mudlet :-[
+  if (not repeating) then
+    repeating = false
+  end
+
 
 	local timerId
 

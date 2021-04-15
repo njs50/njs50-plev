@@ -54,14 +54,15 @@ else
 	if string.find(promptFlags, '[chi]') then player.hidden = true else player.hidden = false end
 
 
+-- gmcp is better source now
 
-  group[player.name].hp = tonumber(matches[3])
-  group[player.name].mp = tonumber(matches[4])
-  group[player.name].moves = tonumber(matches[5])
-
-  player.hp = tonumber(matches[3])
-  player.mp = tonumber(matches[4])
-  player.moves = tonumber(matches[5])
+  -- group[player.name].hp = tonumber(matches[3])
+  -- group[player.name].mp = tonumber(matches[4])
+  -- group[player.name].moves = tonumber(matches[5])
+-- 
+  -- player.hp = tonumber(matches[3])
+  -- player.mp = tonumber(matches[4])
+  -- player.moves = tonumber(matches[5])
 
   group.lowest_moves = tonumber(matches[6])
 
@@ -1816,7 +1817,9 @@ replace(matches[2] .. common.commaCase(matches[3]) .. matches[4])
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>You happily follow x.</name>
-					<script>group.leader = matches[2]</script>
+					<script>if (group.leader ~= 'it') then
+  group.leader = matches[2]
+end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1964,12 +1967,13 @@ player.nextTarget = vic
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="yes" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>set next room deets</name>
 					<script>-- local vic = matches[3]
 -- player.nextTarget = vic
 
 -- You report group status: "next room has 7 targets, aoe-safe, destroy: gelatinous.cube"
+-- You report group status: "next room has 2 targets, no-aoe, attack: wolf.flam, cc-order: 1.monstrou.glassy.ooze,1.wolf.flam"
 
 local tank = matches[2]
 
@@ -1982,6 +1986,7 @@ local nextRoom = {
   aoe = matches[4] == 'aoe-safe',
   nasty = matches[5] == 'destroy',
   target = matches[6],
+  ccMobs = matches[7],
 }
 
 if (group.leader == tank) then
@@ -2001,7 +2006,7 @@ end
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^(.*) reports? group status[^:]*: "next room has (\d+) targets?, (aoe-safe|no-aoe), (attack|destroy): (.*)"$</string>
+						<string>^(.*) reports? group status[^:]*: "next room has (\d+) targets?, (aoe-safe|no-aoe), (attack|destroy): (.*?), cc-order: (.*)"$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -3431,7 +3436,10 @@ table.insert(xp_record, {dt = getEpoch(), val = tonumber(matches[2])})</script>
 			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>You have been KILLED!!</name>
-				<script>send('gstat I died in room #' .. tostring(gmcp.Room.Info.vnum))</script>
+				<script>send('gstat I died in room #' .. tostring(gmcp.Room.Info.vnum))
+if (group.leader == player.name) then
+  murder.groupDo('recite recall')
+end</script>
 				<triggerType>0</triggerType>
 				<conditonLineDelta>0</conditonLineDelta>
 				<mStayOpen>0</mStayOpen>
@@ -3507,7 +3515,7 @@ echo("Map has been saved as " .. fileName)</script>
 			<packageName></packageName>
 			<time>00:10:00.000</time>
 		</Timer>
-		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>xp</name>
 			<script>-- run this every so often to clear out data older than 1hr
 
@@ -3973,6 +3981,48 @@ end</script>
 			<command></command>
 			<packageName></packageName>
 			<regex></regex>
+			<Alias isActive="yes" isFolder="no">
+				<name>repair something</name>
+				<script>local o = matches[2]
+
+send('remove ' .. o)
+o = o:gsub('2.','')
+send('queue dip ' .. o .. ' youth')
+send('queue repair ' .. o)
+send('queue wear ' .. o)
+send('queue eq')</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^rep (.*)$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>grep</name>
+				<script>local pattern = matches[3]
+local cmd = matches[2]
+
+cecho('\n&lt;green&gt;GREP:&lt;white&gt; searching "' .. cmd .. '" for: ' .. pattern .. '\n')
+
+local killLineTrig = tempRegexTrigger([[^.*$]], function()
+  if (not rex.match(matches[1], [[(?i)]] .. pattern)) then
+    display(matches[1])
+    deleteLine()
+  end
+end)
+
+
+common.onNextEvent(common.events.PARSED_PROMPT, function()
+  killTrigger(killLineTrig)
+  tempTimer(0, function()
+    send('\n', false) -- get a new prompt since we killed the last one
+    cecho('\n&lt;green&gt;GREP:&lt;white&gt; search done\n')
+  end)
+end)
+
+send(cmd, false)</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>(.+?) ?\| grep (.+)$</regex>
+			</Alias>
 			<Alias isActive="yes" isFolder="no">
 				<name>display gates</name>
 				<script>cecho('\n&lt;green&gt;Brithbarad &lt;white&gt;&gt; Outback')
@@ -5699,6 +5749,10 @@ njs50.cast = function (spell, options)
 -- The room doesn't contain any beings matching "nutjob".
 -- +++ You cast bless +++
   
+  -- handle being webbed!
+  -- You can't cast spells while entangled.
+  -- You break out of the web holding you.
+  
   local spellUnprepped, spellUnknown, castFailedSleep
   
   local castFailed, castFailedBank, reagentFail
@@ -5973,139 +6027,6 @@ end</script>
 			<eventHandlerList>
 				<string>COMMON:parsed_inventory_contents</string>
 			</eventHandlerList>
-		</Script>
-		<Script isActive="yes" isFolder="no">
-			<name>druid junk</name>
-			<packageName></packageName>
-			<script>druid = druid or {}
-
-druid.skipXerotes = {
-  gale = true,
-  ["strong gale"] = true,
-  storm = true,
-  ["violent storm"] = true,
-  hurricane = true,
-}
-
-druid.landwalk = function(cb)
-    
-  local landwalkTerrains = {
-    ['47'] = "Dark Bamboo",
-    ['42'] = "Bamboo Forest",
-    ['53'] = "Forest",
-    ['56'] = "Jungle",
-    ['25'] = "Rainforest",
-    ['35'] = "Tundra",
-    ['52'] = "Field",
-    ['43'] = "Beach",
-    ['48'] = "Desert",
-    ['45'] = "Cave",
-    ['55'] = "Hills",
-    ['20'] = "Mountain",
-    ['31'] = "Swamp",
-    
-    -- ffs. random terrains
-    ['100'] = "Sandy Cavern",
-  }
-  
-  
-  -- start with current room
-  local checkRooms = {
-    { vnum = gmcp.Room.Info.vnum, cost = 0, terrain = landwalkTerrains[tostring(getRoomEnv(gmcp.Room.Info.vnum))] }
-  }
-  
-  local checkedRooms = {}
-  checkedRooms[tostring(gmcp.Room.Info.vnum)] = true
-  
-  local foundWays = {}
-  if (checkRooms[1].terrain) then
-    table.insert(foundWays, checkRooms[1])
-  end
-  
-  
-  local getAdjacentRooms = function(rooms, checkedRooms, foundWays)
-    
-    local newRooms = {}
-    
-    for i,room in pairs(rooms) do
-      
-      for exitDir, newVnum in pairs(getRoomExits(room.vnum)) do
-      
-        if (not checkedRooms[tostring(newVnum)]) then
-          
-          checkedRooms[tostring(newVnum)] = true
-          
-          -- if this room is locked then we need to ignore it
-          if (not roomLocked(newVnum)) then
-          
-            local thisRoom = {
-              vnum = newVnum, 
-              cost = room.cost + getRoomWeight(newVnum), 
-              terrain = landwalkTerrains[tostring(getRoomEnv(newVnum))],
-            }
-            table.insert(newRooms, thisRoom)
-            if (thisRoom.terrain) then
-              table.insert(foundWays, thisRoom)
-            end
-            
-          end
-        end
-      
-      end
-      
-    end
-    
-    return newRooms, checkedRooms, foundWays
-  
-  end
-  
-  local room_count = 0;
-  
-  while (#foundWays == 0 and room_count &lt; 100) do
-    room_count = room_count + 1
-    checkRooms, checkedRooms, foundWays  = getAdjacentRooms(checkRooms, checkedRooms, foundWays)
-  end
-  -- 
-  -- display(checkRooms, checkedRooms, foundWays, room_count)
-  -- cecho('\n\n----\n\n')
-  
-  table.sort(foundWays, function(a,b) return a.cost &lt; b.cost end)
-  
-  if (#foundWays &gt; 0) then
-    
-    cecho('\n\n&lt;green&gt;MAPPER:&lt;white&gt; closest landwalk terrain is ' .. tostring(room_count) .. ' rooms away\n')
-  
-    common.getAffects( function (affects)
-    
-      local clw = function()
-        njs50.cast('landwalk', {
-          callback = function()
-            if (cb) then cb() end
-          end
-        })
-      end
-    
-      local lw = function()
-        if (gmcp.Room.Info.vnum == foundWays[1].vnum) then
-          clw()
-        else
-          tfe.gotoRoom(foundWays[1].vnum, clw)
-        end
-      end
-    
-      if (not affects["You are able to bind lands together."]) then
-        njs50.cast('landbinding', { callback = lw })
-      else
-        lw()
-      end
-    end)  
-  
-  else
-    cecho('\n\n&lt;red&gt;MAPPER:&lt;white&gt;; no path found to landwalkable terrain\n')
-  end
-
-end</script>
-			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">
 			<name>combat</name>
@@ -7033,6 +6954,7 @@ local chatTabs = {
   Gtell = 'Group',
   Gstatus = nil,
   Log = 'Log',
+  Other = 'Other',
 }
 
 
@@ -7051,6 +6973,11 @@ channel.update = function()
         if chan == 'Tell' and rex.find(status.message, [[^(do |repopped|location:|ee |ack:|running command)]]) then
           chan = 'Log'
           excludeAll = true
+        end
+        
+        if (chan == 'Yell' and status.language == 'unknown') then
+          chan = 'Other'
+          excludeAll = true        
         end    
         
         local message = '[' .. chan .. '] ' .. status.who .. ': ' .. status.message
@@ -9847,7 +9774,7 @@ clan.acceptableMasters = clan.acceptableMasters or {
 
 clan.checkBitches = function(evt, who)
 
-  display(who.Befriended[player.name].clan)
+  -- display(who.Befriended[player.name].clan)
   
   if (who.Befriended[player.name] and who.Befriended[player.name].clan ~= ' -- ') then
     

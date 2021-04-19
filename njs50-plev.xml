@@ -3457,6 +3457,332 @@ end</script>
 					<integer>2</integer>
 				</regexCodePropertyList>
 			</Trigger>
+			<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>puzzles</name>
+				<script></script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList />
+				<regexCodePropertyList />
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>solve hanoi</name>
+					<script>local json = common.json
+
+cecho('&lt;green&gt; &lt;---&lt;white&gt; hello plates!!\n')
+
+local plates = {
+  {}, {}, {}
+}
+
+moveCursor(0, getLineNumber())
+
+for  i=1, 5 do
+  moveCursorUp(1)
+  selectCurrentLine()
+  local text = getSelection()
+  -- table.insert(lines, text)
+  
+  for m in rex.gmatch(text, [[\s\*+\s]]) do
+  
+    local start, finish = text:find(m, nil, true)
+    
+    start = start + 1;
+    finish = finish;
+    length = finish - start
+    center = start + ( (length - 1) / 2)
+    
+    if (center == 40) then
+      table.insert(plates[3], length)
+    elseif (center == 24) then
+      table.insert(plates[2], length)
+    elseif (center == 8) then
+      table.insert(plates[1], length)
+    end
+    
+  end 
+  
+end
+
+if (#plates[3] == 5) then
+  
+  send('gstat puzzle solved')
+  player.hanoi = nil
+  
+else
+
+  local swap = function (x,y)
+    -- tempTimer(0.1, function()
+      if (#plates[x] == 0) then
+        send('move ' .. y .. ' ' .. x)
+        player.hanoi_lastmoved = x
+      elseif (#plates[y] == 0) then
+        send('move ' .. x .. ' ' .. y)
+        player.hanoi_lastmoved = y
+      elseif plates[x][#plates[x]] &lt; plates[y][#plates[y]] then
+        send('move ' .. x .. ' ' .. y) 
+        player.hanoi_lastmoved = y       
+      elseif plates[x][#plates[x]] &gt; plates[y][#plates[y]] then
+        send('move ' .. y .. ' ' .. x)
+        player.hanoi_lastmoved = x
+      else
+        cecho('\n\nsomething is fucked\n\n')
+      end
+      -- display(common.json.encode(plates), 'swapping ' .. tostring(x) .. ' and ' .. tostring(y))
+    -- end)
+  end
+
+-- make the legal move between pegs A and C (in either direction),
+-- make the legal move between pegs A and B (in either direction),
+-- make the legal move between pegs B and C (in either direction),
+-- repeat until complete.
+
+
+  -- player.hanoi = player.hanoi or -1
+  -- player.hanoi = (player.hanoi + 1) % 3
+
+  -- if (player.hanoi == 0) then
+   -- swap(1, 3)
+  -- elseif (player.hanoi == 1) then
+    -- swap(1, 2)
+  -- elseif (player.hanoi == 2) then
+    -- swap(2,3)
+  -- else
+    -- cecho('fail time!')
+  -- end
+  
+  -- if all are on plate 1, move first bit to plate 3
+  player.hanoi_lastmoved = player.hanoi_lastmoved or -1
+  
+  local isEven = function (x)
+    if (((x+1)/2) % 2 == 0) then
+      return true
+    end
+    return false
+  end
+ 
+   
+  local getVal = function(x) 
+    if #plates[x] == 0 then return 0 end
+    return plates[x][#plates[x]]
+  end
+  
+  
+  local swapValue = function(x, y)
+    
+    if (x == player.hanoi_lastmoved) then return -1 end
+    
+    if (x == y) then return -1 end
+    
+    local valx = getVal(x)
+    local valy = getVal(y)
+    
+    if valx == 0 then return -1 end
+    
+    if valy == 0 then return 0 end
+
+    if valx &gt; valy then return -1 end
+    
+    if isEven(valx) and isEven(valy) then return -1 end
+    
+    if (not isEven(valx)) and (not isEven(valy)) then return -1 end
+    
+    return valy
+  
+  end
+
+  
+  if (#plates[1] == 5) then
+    
+    send('move 1 3')
+    player.hanoi_lastmoved = 3
+  
+  elseif (#plates[2] == 5) then
+    
+    send('move 2 3')
+    player.hanoi_lastmoved = 3
+    
+  else
+    
+    
+    local bestVal = -1
+    local bestX, bestY
+    
+    for i=1,3 do 
+      for j=1,3 do
+        local thisSwapVal = swapValue(i,j)
+        if (thisSwapVal &gt; bestVal) then
+          bestVal = thisSwapVal
+          bestX = i
+          bestY = j
+          -- display(bestVal,getVal(bestX),getVal(bestY))
+        end
+      end
+    end
+    -- 
+    -- display(common.json.encode(plates), 'swapping bestval:' .. tostring(bestVal) .. ' -&gt; ' .. tostring(bestX) .. ' and ' .. tostring(bestY))
+    -- display(swapValue(bestX, bestY))
+    
+    if (bestVal ~= -1) then
+      send('move ' .. tostring(bestX) .. ' ' .. tostring(bestY))
+      player.hanoi_lastmoved = bestY
+    else
+      cecho('\nNo valid moves!!! - moving at random\n\n')
+      for i=1,3 do 
+        for j=1,3 do
+          if (i ~= j and i ~= player.hanoi_lastmoved and getVal(i) &lt; getVal(j)) then
+            send('move ' .. tostring(i) .. ' ' .. tostring(j))
+            player.hanoi_lastmoved = j
+            return
+          end
+        end
+      end
+    end
+  end
+
+end
+
+
+
+
+
+
+-- "   *********          ***              *       "</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>\_____________/ \_____________/ \_____________/</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>2</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>solve sliding tile puzzle - js</name>
+					<script>tp = tp or {}
+
+tp.nodes = tp.nodes or { {}, {}, {}, {} }
+
+
+tp.y = tp.y or 0
+tp.y = tp.y + 1
+
+
+if (tp.y == 1) then
+  
+  cecho('&lt;green&gt; &lt;-- start tile puzzle\n')
+  
+  -- setup trig to parse lines
+  tp.parseLines = tempRegexTrigger([[\|\s+(\d*)\s+\|\s+(\d*)\s+\|\s+(\d*)\s+\|\s+(\d*)\s+\|]], function()
+  
+    for idx=1, 4 do
+      
+      -- display(idx)
+      local thisVal = matches[idx+1]
+      
+      
+      if (thisVal ~= '') then
+        thisVal = tonumber(thisVal)
+      end
+
+      
+      table.insert(tp.nodes[tp.y], thisVal);
+      
+      
+      
+      
+    end
+
+    
+  end)  
+end
+
+
+
+if (tp.y == 5) then
+
+
+  cecho('&lt;green&gt; &lt;-- end tile puzzle\n')
+  
+  killTrigger(tp.parseLines)
+  
+  display(tp)
+  
+  local url = catalog.serverUrl .. "/puzzle/tile"
+  -- local url = 'http://localhost:3000' .. "/puzzle/tile"
+
+
+  -- first we create something to handle the success, and tell us what we got
+  registerAnonymousEventHandler('sysPostHttpDone', function(event, rurl, response)
+    
+    if rurl == url then 
+
+      local solution = common.json.decode(response)
+      
+      if (#solution == 0) then
+      
+        send('shake puzzle &amp; look puzzle')
+        
+      else
+        
+        disableTrigger('solve sliding tile puzzle - js')
+        
+        tempBeginOfLineTrigger('Success!', function()
+          enableTrigger('solve sliding tile puzzle - js')
+        end, 1)
+        
+        for idx, piece in ipairs(solution) do
+          send('shift ' .. tostring(piece))
+        end
+     
+      end
+      
+      
+    else 
+      return true 
+    end -- this will show us the response body, or if it's not the right url, then do not delete the handler
+    
+  end, true) -- this sets it to delete itself after it fires 
+    
+  postHTTP(common.json.encode(tp.nodes), url, {["Content-type"] = "application/json"})
+
+    
+  tp = nil
+  
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>=====================</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>2</integer>
+					</regexCodePropertyList>
+				</Trigger>
+			</TriggerGroup>
 		</TriggerGroup>
 	</TriggerPackage>
 	<TimerPackage>
@@ -6975,7 +7301,7 @@ channel.update = function()
           excludeAll = true
         end
         
-        if (chan == 'Yell' and status.language == 'unknown') then
+        if (chan == 'Yell' and (status.language == 'unknown' or status.language == 'primal')) then
           chan = 'Other'
           excludeAll = true        
         end    

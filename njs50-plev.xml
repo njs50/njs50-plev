@@ -67,9 +67,12 @@ else
   group.lowest_moves = tonumber(matches[6])
 
 	if (matches[7] and matches[7] ~= '') then
+    
+    -- using gmcp now...
 		-- echo('\nsetting leader hp to ' .. tostring(matches[7]))
-  	if (group[group.leader]) then
-			group[group.leader].hp = tonumber(matches[7])
+  	if (group.members[group.leader]) then
+			
+      -- group[group.leader].hp = tonumber(matches[7])
 		else
 			cecho('\n^^&lt;orange&gt;PROMPT &lt;white&gt; i spy leader hp but might not be grouped yet...\n')
 		end
@@ -217,7 +220,10 @@ end)
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>parse group</name>
-					<script>-- Leader: Darion
+					<script>-- depricated, getting this stuff from gmcp now
+
+
+-- Leader: Darion
 --
 -- [ 14 Pal Dwf   ] Darion                209/209     94/94   138/138       122869
 -- [ 41 Pal Dwf L ] Darion                641/641   100/100   205/205     11787449
@@ -240,7 +246,7 @@ if (matches[3]) then
 			return
 		end
 
-    local status = group[matches[2]] or {}
+    local status = group.data[matches[2]] or {}
 
     status.hp = tonumber(matches[3])
     status.hp_max = tonumber(matches[4])
@@ -254,7 +260,6 @@ if (matches[3]) then
     selectString(matches[1],1)
     replace(matches[1]:gsub(matches[9], common.commaCase(matches[9])))
     -- cecho(' &lt;- &lt;green&gt;replaced some numbers\n')
-    group[matches[2]] = status
 
 		-- dupe into player info for conwenience
 		if (matches[2] == player.name) then
@@ -265,8 +270,8 @@ if (matches[3]) then
 
 		if (not player.tripping) then
 			group.memberCount = group.memberCount + 1
-			group.members = group.members or {}
 			group.members[matches[2]] = true
+      group.data[matches[2]] = status
 		end
 
 	else
@@ -281,6 +286,7 @@ else
 		if (not player.tripping) then
   		group.memberCount = 0
   		group.members = {}
+      group.data = {}
 		end
 	else
 		echo(' &lt;-- tripping')
@@ -1817,9 +1823,15 @@ replace(matches[2] .. common.commaCase(matches[3]) .. matches[4])
 				</Trigger>
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>You happily follow x.</name>
-					<script>if (group.leader ~= 'it') then
-  group.leader = matches[2]
-end</script>
+					<script>-- depricated.. using gmcp
+
+if (matches[2] ~= 'it') then
+  send('group')
+end
+-- 
+-- if (matches[2] ~= 'it') then
+  -- group.leader = matches[2]
+-- end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -3798,7 +3810,7 @@ end</script>
 			<script>send('drink soup')</script>
 			<command></command>
 			<packageName></packageName>
-			<time>00:01:15.000</time>
+			<time>00:02:15.000</time>
 		</Timer>
 		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>improve ticker</name>
@@ -5428,7 +5440,7 @@ common.updateGrid = function ()
       
     for idx, name in pairs(table.keys(group.members)) do
       -- display(idx,val)
-      local data = group[name]
+      local data = group.data[name]
       local grid = common.wm.gridEntries[idx]
       
       grid.container:show()
@@ -6079,9 +6091,13 @@ njs50.cast = function (spell, options)
   -- You can't cast spells while entangled.
   -- You break out of the web holding you.
   
+  -- handle missing target
+  -- Nothing found matching "gem bright".
+  
+  
   local spellUnprepped, spellUnknown, castFailedSleep
   
-  local castFailed, castFailedBank, reagentFail
+  local castFailed, castFailedBank, reagentFail, missingTarget
   
   local castSuccess, shortMana, msg
   
@@ -6093,71 +6109,16 @@ njs50.cast = function (spell, options)
     killTrigger(castFailed)
     killTrigger(castFailedBank)
     killTrigger(reagentFail)
+    
+    if (missingTarget) then
+      killTrigger(missingTarget)
+    end
    
     killTrigger(castSuccess)
     -- killTrigger(shortMana)
     
   end
-  
-  -- You don't have tornado prepared.
-  spellUnprepped = tempRegexTrigger([[^You don't have ]] .. spell .. [[ prepared\.$]], function()
-    msg = 'failed due to unprepped spell - ' .. spell .. '?'
-    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
-    cleanTriggers()
-    if (failCallback) then failCallback(msg) end 
-  end, 1)
-    
-  spellUnknown = tempRegexTrigger([[^(Unknown spell|You don't know the spell ]] .. spell .. [[)\.$]], function()
-    msg = 'failed due to unkown spell - ' .. spell .. '?'
-    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
-    cleanTriggers()
-    if (failCallback) then failCallback(msg) end 
-  end, 1)
-  
-  castFailedSleep = tempRegexTrigger([[^You cannot do that while sleeping$]], function ()
-    msg = 'failed to do something while sleeping - ' .. spell .. '?'
-    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
-    cleanTriggers()
-    if (failCallback) then failCallback(msg) end        
-  end, 1)  
-  
-  castFailed = tempRegexTrigger([[^&gt;&gt; Your ]] .. spell .. [[ casting is disrupted. &lt;&lt;$]], function ()
-    msg = 'casting ' .. spell .. ' was disrupted'
-    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
-    cleanTriggers()
-    if (failCallback) then failCallback(msg) end    
-  end, 1)
-  
-  castFailedBank = tempRegexTrigger([[^As you cast ]] .. spell .. [[, you feel the energy drain from you and nothing happens\.$]], function ()
-    msg = 'casting ' .. spell .. ' failed due to no magic room'
-    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
-    cleanTriggers()
-    if (failCallback) then failCallback(msg) end    
-  end, 1)
-    
-  -- As you cast float
-  
-  reagentFail = tempRegexTrigger([[^You need (.*) to cast ]] .. spell .. [[\.$]], function ()
-    msg = 'missing ' .. matches[2] .. ' for casting ' .. spell
-    cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
-    cleanTriggers()
-    if (failCallback) then failCallback(msg) end
-  end, 1)
-  
-  -- this is caught by the missing reagent pattern above
-  -- You need 75 energy points to cast summon.
-  -- shortMana = tempRegexTrigger([[^You need \d+ energy points to cast ]] .. spell .. [[\.$]], function ()
-    -- msg = 'not enough mana to cast ' .. spell
-    -- cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
-    -- cleanTriggers()
-    -- if (failCallback) then failCallback(msg) end
-  -- end, 1)
-  
-  castSuccess = tempRegexTrigger([[^\+\+\+ You cast ]] .. spell .. [[ \+\+\+$]], function ()
-    cecho('\n&lt;green&gt;CAST: &lt;white&gt;spell - ' .. spell .. '!\n\n')
-    cleanTriggers()
-    if (callback) then callback() end
-  end, 1)  
+ 
   
   local cmd = 'cast ' .. spell
   
@@ -6167,15 +6128,103 @@ njs50.cast = function (spell, options)
   
   if (options.queueSpellImprove) then
     if (player.skills[spell] &lt; 10) then
+      
+      cmd = cmd .. ' &amp; wait 1 &amp; queue leech ' .. spell
+    
       improves.queueSpell(cmd)
+      
+      tempTimer(0, function()
+        if (callback) then callback() end
+      end)
+      
     else
+    
       cecho('\n&lt;green&gt;RESPELL:&lt;white&gt; improve mode, skipping ' .. cmd .. '\n')
       tempTimer(0, function()
-        cleanTriggers()
         if (callback) then callback() end
       end)
     end
   else
+  
+    if (target and target ~= '') then
+      
+      local nt = rex.gsub(target, [[\.]], " ")
+      
+      missingTarget = tempRegexTrigger([[^Nothing found matching "]] .. nt .. [[)"\.$]], function()
+        msg = 'failed due to missing target - ' .. target .. '?'
+        cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+        cleanTriggers()
+        if (failCallback) then failCallback(msg) end 
+      end, 1)
+    
+    end
+    
+  
+   
+    -- You don't have tornado prepared.
+    spellUnprepped = tempRegexTrigger([[^You don't have ]] .. spell .. [[ prepared\.$]], function()
+      msg = 'failed due to unprepped spell - ' .. spell .. '?'
+      cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+      cleanTriggers()
+      if (failCallback) then failCallback(msg) end 
+    end, 1)
+      
+    spellUnknown = tempRegexTrigger([[^(Unknown spell|You don't know the spell ]] .. spell .. [[)\.$]], function()
+      msg = 'failed due to unkown spell - ' .. spell .. '?'
+      cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+      cleanTriggers()
+      if (failCallback) then failCallback(msg) end 
+    end, 1)
+    
+    castFailedSleep = tempRegexTrigger([[^You cannot do that while sleeping$]], function ()
+      msg = 'failed to do something while sleeping - ' .. spell .. '?'
+      cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+      cleanTriggers()
+      if (failCallback) then failCallback(msg) end        
+    end, 1)  
+    
+    castFailed = tempRegexTrigger([[^&gt;&gt; Your ]] .. spell .. [[ casting is disrupted. &lt;&lt;$]], function ()
+      msg = 'casting ' .. spell .. ' was disrupted'
+      cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+      cleanTriggers()
+      if (failCallback) then failCallback(msg) end    
+    end, 1)
+    
+    castFailedBank = tempRegexTrigger([[^As you cast ]] .. spell .. [[, you feel the energy drain from you and nothing happens\.$]], function ()
+      msg = 'casting ' .. spell .. ' failed due to no magic room'
+      cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+      cleanTriggers()
+      if (failCallback) then failCallback(msg) end    
+    end, 1)
+      
+    -- As you cast float
+    
+    reagentFail = tempRegexTrigger([[^You need (.*) to cast ]] .. spell .. [[\.$]], function ()
+      msg = 'missing ' .. matches[2] .. ' for casting ' .. spell
+      cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+      cleanTriggers()
+      if (failCallback) then failCallback(msg) end
+    end, 1)
+    
+    -- this is caught by the missing reagent pattern above
+    -- You need 75 energy points to cast summon.
+    -- shortMana = tempRegexTrigger([[^You need \d+ energy points to cast ]] .. spell .. [[\.$]], function ()
+      -- msg = 'not enough mana to cast ' .. spell
+      -- cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
+      -- cleanTriggers()
+      -- if (failCallback) then failCallback(msg) end
+    -- end, 1)
+    
+    castSuccess = tempRegexTrigger([[^\+\+\+ You cast ]] .. spell .. [[ \+\+\+$]], function ()
+      cecho('\n&lt;green&gt;CAST: &lt;white&gt;spell - ' .. spell .. '!\n\n')
+      cleanTriggers()
+      if (callback) then callback() end
+    end, 1)    
+  
+  
+  
+  
+  
     send(cmd)
   end
 
@@ -7151,7 +7200,7 @@ improves.castSpell = function ()
     
     cecho('\n\n -= improve filler =-\n\n')
     if type(improves.fillerSpell) == 'string' then 
-  		send(improves.fillerSpell)
+  		expandAlias(improves.fillerSpell)
     elseif type(improves.fillerSpell) == 'function' then   
       improves.fillerSpell()
     end
@@ -7321,6 +7370,12 @@ end</script>
 				<string>gmcp.Channels</string>
 			</eventHandlerList>
 		</Script>
+		<Script isActive="yes" isFolder="no">
+			<name>leveling tools</name>
+			<packageName></packageName>
+			<script></script>
+			<eventHandlerList />
+		</Script>
 		<ScriptGroup isActive="yes" isFolder="yes">
 			<name>gmcp-group</name>
 			<packageName></packageName>
@@ -7369,12 +7424,14 @@ common.updateFromGMCP = function()
     local playerStats = convertRecord(gmcp.Char.Vitals)
     
     group.lowest_moves = gmcp.Group.minmv
+    group.leader = gmcp.Group.leader
     
     group.memberCount = 1
-    group.members = {[gmcp.Char.Score.name] = true}
-  
-    group[gmcp.Char.Score.name] = playerStats
     
+    group.members = {[gmcp.Char.Score.name] = true}
+    group.data = {[gmcp.Char.Score.name] = playerStats}
+    
+      
     for stat, val in pairs(playerStats) do
       player[stat] = val
     end
@@ -7384,7 +7441,7 @@ common.updateFromGMCP = function()
       for name, stats in pairs(gmcp.Group.members) do
         group.memberCount = group.memberCount + 1
         group.members[name] = true
-        group[name] = convertRecord(stats)
+        group.data[name] = convertRecord(stats)
       end
     end
   
@@ -7766,7 +7823,7 @@ end</script>
 				</eventHandlerList>
 			</Script>
 		</ScriptGroup>
-		<ScriptGroup isActive="no" isFolder="yes">
+		<ScriptGroup isActive="yes" isFolder="yes">
 			<name>auto assist</name>
 			<packageName></packageName>
 			<script>-------------------------------------------------
@@ -10086,8 +10143,6 @@ clan.acceptableMasters = clan.acceptableMasters or {
   Quorrel = true,
   Drulethan = true,
   Umarra = true,
-  Uni = true,
-  Corim = true,
   Gnomigs = true,
   Trea = true,
   Chundrick = true,

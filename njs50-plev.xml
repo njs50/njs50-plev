@@ -1325,7 +1325,6 @@ end</script>
 					<name>get full if under x%</name>
 					<script>local amt =  tonumber(matches[3]) / 100
 
-local player = group[player.name]
 
 local getFull = false
 
@@ -2203,7 +2202,7 @@ local cmd = matches[3]
 if(from == group.leader or clan.acceptableMasters[from]) then
 
   cecho('\n&lt;green&gt;TEAMWORK: &lt;white&gt;command issued by ' .. from .. ': ' .. cmd)
-  if (rex.find(cmd, [[^(t|te|tel|tell|jun|junk) ]]) and not rex.find(cmd, [[^tell ]] .. from .. ' ')) then
+  if (rex.find(cmd, [[^(t|te|tel|tell|jun|junk|ti|tit|titl|title) ]]) and not rex.find(cmd, [[^tell ]] .. from .. ' ')) then
     send('tell ' .. from .. ' 403 Forbidden')
   elseif (rex.find(cmd, [[;]])) then
     send('tell ' .. from .. ' 403 Forbidden')    
@@ -5267,9 +5266,9 @@ end
 
 common.fullEnough = function()
   
-  if ((group[player.name].hp / group[player.name].hp_max) &gt; 0.9) and
-     ((group[player.name].mp / group[player.name].mp_max) &gt; 0.9) and
-     ((group[player.name].moves / group[player.name].moves_max) &gt; 0.8) then
+  if ((group.data[player.name].hp / group.data[player.name].hp_max) &gt; 0.9) and
+     ((group.data[player.name].mp / group.data[player.name].mp_max) &gt; 0.9) and
+     ((group.data[player.name].moves / group.data[player.name].moves_max) &gt; 0.8) then
      
     return true
   end
@@ -5872,6 +5871,7 @@ function equipGearSet (name, callback, partial)
 
 
 			-- make sure we aren't just switching left/right things
+      
 			local removeRedundantSwap = function (slot, layer)
 					if (player.swapItems["left " .. slot] and player.swapItems["left " .. slot][layer] and
 						player.swapItems["right " .. slot] and player.swapItems["right " .. slot][layer] and
@@ -5884,6 +5884,9 @@ function equipGearSet (name, callback, partial)
   			end
 			end
 
+      
+
+
 
 			removeRedundantSwap('hand finger', 'over')
 			removeRedundantSwap('hand finger', 'base')
@@ -5891,11 +5894,40 @@ function equipGearSet (name, callback, partial)
 			removeRedundantSwap('wrist', 'base')
 			removeRedundantSwap('wrist', 'over')
 
+     
+      
+        -- ["left hand"] = {
+          -- base = {
+            -- from = "dar.ston.dagg.desp",
+            -- to = "blac.stri.leat"
+          -- }
+        -- },
+      
+      -- weapons are fucked up if we are dual weiling the same weap but want to swap left hand
+      -- remove the right hand weap also in this case
+      if ( player.swapItems["left hand"] and player.swapItems["left hand"].base) then
+      
+        if (player.gear["left hand"] and player.gear["left hand"].base and player.gear["right hand"].base.item == player.gear["left hand"].base.item) then
+          swapItems(player.gear["right hand"].base.item, player.gear["right hand"].base.item, "right hand", "base")
+        end   
+      end 
+
 
       -- swap all layers on top of any layers changing due to fucked up things like Xanas bracelets
       for slot, layers in pairs(player.swapItems) do
         
+        -- for whatever reason sometimes the first item isnt the lowest layer
         local firstLayer = table.keys(layers)[1]
+        local flIndex = table.index_of(common.layers,firstLayer)
+        
+        for layer in pairs(layers) do 
+          local thisIndex = table.index_of(common.layers,layer)
+          if (thisIndex &lt; flIndex) then
+            flIndex = thisIndex
+            firstLayer = layer
+          end
+        end 
+
         
         if (firstLayer) then
           for idx = table.index_of(common.layers,firstLayer) + 1, #common.layers do
@@ -5909,15 +5941,24 @@ function equipGearSet (name, callback, partial)
       end
 
 
-      -- display(player.swapItems)
-
 
 			local cb = function ()
 				callback()
 			end
-
-			-- lets do it...
-			performSwap(cb)
+      
+      if #table.keys(player.swapItems) == 0 then
+        
+        cecho('\n&lt;green&gt;GEAR SWAP: &lt;white&gt;no gear needs swapping\n')
+    		player.equippingSet = nil
+    		if cb then cb() end
+    		raiseEvent(common.events.CHANGED_EQUIPMENT)
+        
+      else
+  
+  			-- lets do it...
+  			performSwap(cb)
+    
+      end
 
 		end -- end check if this was a valid set
 
@@ -7823,7 +7864,7 @@ end</script>
 				</eventHandlerList>
 			</Script>
 		</ScriptGroup>
-		<ScriptGroup isActive="yes" isFolder="yes">
+		<ScriptGroup isActive="no" isFolder="yes">
 			<name>auto assist</name>
 			<packageName></packageName>
 			<script>-------------------------------------------------

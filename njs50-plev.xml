@@ -534,6 +534,7 @@ common.onNextEvent(common.events.PARSED_PROMPT, function ()
   -- cecho('&lt;green&gt; &lt;--- incoming skills done')
   killTrigger(skillParser)
   -- display(player.skills)
+  raiseEvent(common.events.PARSED_ABILITIES, player.skills)
 end)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -1626,10 +1627,15 @@ end)
 
 local vessel = common.dotCase(matches[2])
 
-if (player.caster and gmcp.Char.Score.class == 'druid') then
+if player.hasSoupBarrel then
+
+  send('gl &amp; get barr.soup loot &amp; fill empty.' .. player.vessel .. ' soup.barrel')
+  send('put soup.barr loot &amp; pl &amp; dw') 
+    
+elseif (player.caster and gmcp.Char.Score.class == 'druid') then
   
   local cmd = 'cast dowse &amp; cast dowse &amp; ' ..
-    'queue drink puddle &amp; queue fill empty.' .. vessel .. ' puddle'
+    'queue fill empty.' .. vessel .. ' puddle.clear &amp; drink puddle.clear'
     
     send(cmd)
     
@@ -1670,6 +1676,30 @@ end
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>^An? (.*) you are carrying is already empty.</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>intro back</name>
+					<script>local vic = matches[3]
+
+send('queue lang vya &amp; queue intro ' .. vic)
+send('queue lang human &amp; queue intro ' .. vic)
+send('queue lang ogris &amp; queue intro ' .. vic)</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>introduces (him|her)self as '(.+)'\.$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
 						<integer>1</integer>
@@ -4311,6 +4341,14 @@ end</script>
 				<packageName></packageName>
 				<regex>^gear-save (.*)</regex>
 			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>gear-delete</name>
+				<script>deleteGearSet(matches[2])
+</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^gear-delete (.*)</regex>
+			</Alias>
 		</AliasGroup>
 		<AliasGroup isActive="yes" isFolder="yes">
 			<name>misc</name>
@@ -5094,7 +5132,8 @@ common.events = {
 	PARSED_EXITS = 'COMMON::parsed_room_exits',
 	PARSED_SCORE = 'COMMON::parsed_score_page',
 	PARSED_GROUP = 'COMMON::parsed_group_status',
-	PARSED_AFFECTS = 'COMMON::parsed_player_affects',
+	PARSED_ABILITIES = 'COMMON::parsed_player_abilities',
+  PARSED_AFFECTS = 'COMMON::parsed_player_affects',
 	PARSED_INVENTORY = 'COMMON:parsed_inventory_contents',
 	PARSED_PREPARED = 'COMMON:parsed_prepared_spells',
 	PARSED_EQUIPMENT = 'COMMON:parsed_equipment',
@@ -5472,104 +5511,107 @@ common.initPlayer = function ()
   
   -- rest to defaults for init
   
-  if (not gmcp.Char.Score.name) then
-    cecho('\ngmcp not init, trying again in 2 seconds\n\n')
-    tempTimer(2, function()
-      common.initPlayer()
-    end)
-    return
-  end
-  
-	player.name = gmcp.Char.Score.name
-
-
-	if not (player.scripts and player.scripts[player.name]) then
-    echo('\nSetting  default player script for ' .. player.name .. '!\n')
-    player.scripts[player.name] = player.defaultConfig
-	end
-
-		echo('\nRunning player script for ' .. player.name .. '!\n')
-    player.defaultConfig()
-		player.scripts[player.name]()
-
-	if (not common.topContainer) then
-
-		-- init windows
-    common.topContainer = Geyser.Container:new({
-      name = "top_container",    -- give it a unique name here
-			x=0,
-			y=0,
-      width = "100%",
-			height="25%",
-    })
-
-    common.leftContainer = Geyser.Container:new({
-      name = "left_container",    -- give it a unique name here
-			x=0,
-			y="25%",
-      width = 200,
-			height="75%",
-    })
-
-		common.mapContainer = Geyser.Container:new({
-      name = "map_container",    -- give it a unique name here
-			x=0,
-			y=0,
-      width = "40%",
-			height="100%",
-    }, common.topContainer) --
-
-		common.chatContainer = Geyser.Container:new({
-      name = "chat_container",    -- give it a unique name here
-			x = "40%",
-			y = 0,
-      width = "60%",
-			height = "100%",
-      padding = 10,
-    }, common.topContainer)
-
-				-- init windows
-    common.mapper = Geyser.Mapper:new({
-      name = "geyser_map",    -- give it a unique name here
-			x=0,
-			y=0,
-      width = "100%",
-			height="100%",
-    }, common.mapContainer)
-
-    common.chatConsole = EMCO:new({
-      x = 0,
-      y = 0,
-      width = "100%",
-      height = "100%",
-      allTab = true,
-      allTabName = "All",
-      fontSize = 14,
-      gap = 10,
-      consoles = {
-        "All",
-        "Clan",
-        "Group",
-        "Tell",
-        "Public", 
-        "Other",
-        "Log",
-      },
-      -- mapTabName = "Map",
-      mapTab = false,
-      -- activeTabCSS = stylesheet,
-      -- inactiveTabCSS = istylesheet,
-    }, common.chatContainer)
-      
+  common.onNextEvent(common.events.PARSED_ABILITIES, function()
     
-
-	end
-
-  echo('\n\nloading gear sets. if it fails you should do luaSaveGearSet("default") to save a default set\n\n')
-  loadSavedGearSets()
-
-
-	send('score &amp; eq &amp; group &amp; inv &amp; typo &amp; prep &amp; abil all')
+    if (not gmcp.Char.Score.name) then
+      cecho('\ngmcp not init, trying again in 2 seconds\n\n')
+      tempTimer(2, function()
+        common.initPlayer()
+      end)
+      return
+    end
+    
+  	player.name = gmcp.Char.Score.name
+  
+  
+  	if not (player.scripts and player.scripts[player.name]) then
+      echo('\nSetting  default player script for ' .. player.name .. '!\n')
+      player.scripts[player.name] = player.defaultConfig
+  	end
+  
+  		echo('\nRunning player script for ' .. player.name .. '!\n')
+      player.defaultConfig()
+  		player.scripts[player.name]()
+  
+  	if (not common.topContainer) then
+  
+  		-- init windows
+      common.topContainer = Geyser.Container:new({
+        name = "top_container",    -- give it a unique name here
+  			x=0,
+  			y=0,
+        width = "100%",
+  			height="25%",
+      })
+  
+      common.leftContainer = Geyser.Container:new({
+        name = "left_container",    -- give it a unique name here
+  			x=0,
+  			y="25%",
+        width = 200,
+  			height="75%",
+      })
+  
+  		common.mapContainer = Geyser.Container:new({
+        name = "map_container",    -- give it a unique name here
+  			x=0,
+  			y=0,
+        width = "40%",
+  			height="100%",
+      }, common.topContainer) --
+  
+  		common.chatContainer = Geyser.Container:new({
+        name = "chat_container",    -- give it a unique name here
+  			x = "40%",
+  			y = 0,
+        width = "60%",
+  			height = "100%",
+        padding = 10,
+      }, common.topContainer)
+  
+  				-- init windows
+      common.mapper = Geyser.Mapper:new({
+        name = "geyser_map",    -- give it a unique name here
+  			x=0,
+  			y=0,
+        width = "100%",
+  			height="100%",
+      }, common.mapContainer)
+  
+      common.chatConsole = EMCO:new({
+        x = 0,
+        y = 0,
+        width = "100%",
+        height = "100%",
+        allTab = true,
+        allTabName = "All",
+        fontSize = 14,
+        gap = 10,
+        consoles = {
+          "All",
+          "Clan",
+          "Group",
+          "Tell",
+          "Public", 
+          "Other",
+          "Log",
+        },
+        -- mapTabName = "Map",
+        mapTab = false,
+        -- activeTabCSS = stylesheet,
+        -- inactiveTabCSS = istylesheet,
+      }, common.chatContainer)
+        
+      
+  
+  	end
+  
+    echo('\n\nloading gear sets. if it fails you should do luaSaveGearSet("default") to save a default set\n\n')
+    loadSavedGearSets()
+  
+  end)
+  
+  send('score &amp; eq &amp; group &amp; inv &amp; typo &amp; prep &amp; abil all')
 
 end
 
@@ -5598,6 +5640,8 @@ player.scripts.YOUR_NAME_HERE = function ()
 	player.vessel = 'leather.waterskin'
 	player.caster = false
 	player.hasFoodBasket = false
+  player.hasSoupBarrel = false
+  player.language = 'ogrish'
   
   player.getAttackCommand = function(target)
     return 'kill ' .. target
@@ -5762,6 +5806,12 @@ function resetGear(callback)
 end
 
 
+function deleteGearSet (name)
+  table.save(getMudletHomeDir() .. "/gearsets.backup.dat", player.gearSets)
+  player.gearSets[name] = nil
+  table.save(getMudletHomeDir() .. "/gearsets.dat", player.gearSets)
+end
+
 
 function saveGearSet (name)
 
@@ -5907,7 +5957,10 @@ function equipGearSet (name, callback, partial)
       -- remove the right hand weap also in this case
       if ( player.swapItems["left hand"] and player.swapItems["left hand"].base) then
       
-        if (player.gear["left hand"] and player.gear["left hand"].base and player.gear["right hand"].base.item == player.gear["left hand"].base.item) then
+        if (
+              player.gear["left hand"] and player.gear["left hand"].base and 
+              player.gear["right hand"] and player.gear["right hand"].base and
+              player.gear["right hand"].base.item == player.gear["left hand"].base.item) then
           swapItems(player.gear["right hand"].base.item, player.gear["right hand"].base.item, "right hand", "base")
         end   
       end 
@@ -7046,7 +7099,7 @@ common.updateStatus = function(callback)
 end
 
 common.checkFull = function(callback)
-	common.checkResources(player.hp_max, player.mp_max, player.moves_max, callback)
+	common.checkResources(player.hp_max, player.mp_max, player.moves_max * 0.6, callback)
 end
 
 
@@ -7414,7 +7467,19 @@ end</script>
 		<Script isActive="yes" isFolder="no">
 			<name>leveling tools</name>
 			<packageName></packageName>
-			<script></script>
+			<script>tools = tools or {}
+
+tools.weapCheck = function(failcb)
+  common.getWeaponCondition(function(weaponConditon)
+    -- display(weaponConditon)
+    if (weaponConditon &lt; common.conditions["very worn"]) then
+      cecho('\n\n&lt;green&gt;CHECK&lt;white&gt;: weapon needs fixing' .. tostring(weaponConditon) .. '\n\n')
+      if (failcb) then failcb() end
+    else
+      cecho('\n\n&lt;green&gt;CHECK&lt;white&gt;: weapon okay still ' .. tostring(weaponConditon) .. '\n\n')
+    end
+  end)
+end</script>
 			<eventHandlerList />
 		</Script>
 		<ScriptGroup isActive="yes" isFolder="yes">

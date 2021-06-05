@@ -3841,14 +3841,38 @@ end</script>
 			<packageName></packageName>
 			<time>00:02:15.000</time>
 		</Timer>
-		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+			<name>stay hydrated</name>
+			<script>if (gmcp.Room.Info.vnum == 5117) then
+  send('drink chunky')
+end
+
+if (gmcp.Room.Info.vnum == 170) then
+  send('drink soup')
+end
+
+if (gmcp.Room.Info.vnum == 107) then
+  send('drink fountain')
+end
+
+
+if (gmcp.Room.Info.vnum == 3817) then
+  send('drink cauldron')
+end</script>
+			<command></command>
+			<packageName></packageName>
+			<time>00:01:15.000</time>
+		</Timer>
+		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>improve ticker</name>
 			<script>cecho('\n&lt;white&gt;Improve - halftick\n')
 
-improves.castSpell()</script>
+-- send('stand &amp; drink trough &amp; inventory')
+improves.castSpell()
+-- send('queue sit couch &amp; queue sleep')</script>
 			<command></command>
 			<packageName></packageName>
-			<time>00:00:35.000</time>
+			<time>00:00:40.000</time>
 		</Timer>
 		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>check last kill time and alert</name>
@@ -5943,8 +5967,6 @@ function equipGearSet (name, callback, partial)
 			removeRedundantSwap('hand finger', 'top')
 			removeRedundantSwap('wrist', 'base')
 			removeRedundantSwap('wrist', 'over')
-
-     
       
         -- ["left hand"] = {
           -- base = {

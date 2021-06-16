@@ -386,7 +386,7 @@ end
 					<script>echo('^^ --- looking at affects...\n')
 player.affects = {}
 
-local affectWatcher = tempRegexTrigger([[^(Your? .+?)\s{3,}(\S.*)$]], function ()
+local affectWatcher = tempRegexTrigger([[^((?:A|Your?|Divinely) .+?)\s{3,}(\S.*)$]], function ()
 	player.affects[matches[2]] = matches[3]
 end)
 
@@ -2295,6 +2295,68 @@ end
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>conditional prep</name>
+					<script>-- display(matches)
+
+local mana = matches[2]
+local heals = matches[3]
+local storms = matches[4]
+
+
+
+local healers = {
+  cleric = true
+}
+
+local casters = {
+  druid = true,
+  paladin = true,
+  mage = true,
+}
+
+local stormers = {
+  druid = true,
+}
+
+local class = gmcp.Char.Score.class
+
+if (healers[class] and heals ~= '') then
+  if (healer.avg_heal * healer.getPrepped() &lt; tonumber(heals)) then
+    send('gstat need prep')
+  end
+end
+
+if (casters[class] and mana ~= '') then
+  if (gmcp.Char.Vitals.en / gmcp.Char.Vitals.maxen &lt; tonumber(mana)/100) then
+    send('gstat need prep')
+  end
+end
+
+if (stormers[class] and storms ~= '') then
+  if (not player.stormSpell or not player.prepped[player.stormSpell] or player.prepped[player.stormSpell] &lt; tonumber(storms)) then
+    send('gstat need prep')
+  end
+end
+
+</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^[^"]* reports? group status: "report if(?: mana &lt; (\d+)%)?,?(?: heals &lt; (\d+)hp)?,?(?: storms &lt; (\d+))?"</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
 			</TriggerGroup>
 			<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>log messages</name>
@@ -3863,16 +3925,55 @@ end</script>
 			<packageName></packageName>
 			<time>00:01:15.000</time>
 		</Timer>
-		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>improve ticker</name>
 			<script>cecho('\n&lt;white&gt;Improve - halftick\n')
 
--- send('stand &amp; drink trough &amp; inventory')
+-- send('stand &amp; drink cauld &amp; inventory')
 improves.castSpell()
--- send('queue sit couch &amp; queue sleep')</script>
+-- send('queue sit couch &amp; queue sleep')lua </script>
 			<command></command>
 			<packageName></packageName>
 			<time>00:00:40.000</time>
+		</Timer>
+		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+			<name>improve spells w/ non combat improve filler</name>
+			<script>cecho('\n&lt;white&gt;Improve - halftick\n')
+
+improves.setFiller(player.improveNonCombat)
+
+send('stand')
+improves.castSpell(function()
+  send('|drink trough &amp; |sit couch &amp; |sleep')
+end)
+
+improves.resetFiller()</script>
+			<command></command>
+			<packageName></packageName>
+			<time>00:00:35.000</time>
+		</Timer>
+		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
+			<name>kick/swim while no improve casts queued</name>
+			<script>-- local cmd = 'queue dive pool &amp; queue climb chain'
+local cmd = 'climb chain &amp; climb chain &amp; climb chain'
+if (#improves.castQueue == 0) then
+  send(cmd)
+else
+  
+  if (improves.castFillerLastTick ~= false) then
+    improves.castFillerLastTick = false
+    tempTimer(65, function()
+      send('+')
+      murder.smokeUp('imps-no-wis','imps', 22, function()
+        improves.castSpell()
+        send('wait 3')
+      end)
+    end, 'casting buff delay')
+  end
+end</script>
+			<command></command>
+			<packageName></packageName>
+			<time>00:00:01.100</time>
 		</Timer>
 		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>check last kill time and alert</name>
@@ -6235,6 +6336,13 @@ njs50.cast = function (spell, options)
     
   end
  
+  local leachSub = {
+    ['protection/chaos'] = 'Prot Vs Chaos',
+    ['protection/good'] = 'Prot Vs Good',
+    ['protection/law'] = 'Prot Vs Law',
+    ['protection/evil'] = 'Prot Vs Evil',
+  }
+  
   
   local cmd = 'cast ' .. spell
   
@@ -6244,6 +6352,10 @@ njs50.cast = function (spell, options)
   
   if (options.queueSpellImprove) then
     if (player.skills[spell] &lt; 10) then
+      
+      if (leachSub[spell]) then
+        spell = leachSub[spell]
+      end
       
       cmd = cmd .. ' &amp; wait 1 &amp; queue leech ' .. spell
     
@@ -6900,8 +7012,6 @@ common.newRollCall = function (excludeSelf)
 
 	local roll = {}
 
-
-
 	for name, value in pairs(group.members) do
     if (common.includeInRollCalls[name]) then
 		  roll[name] = false
@@ -6967,19 +7077,50 @@ common.groupOnReady = function (cb)
 
 end
 
-common.groupPrepIfUnder = function (mana, heals, cb)
+common.groupPrepIfUnder = function (options)
 
-	local pfcb = cb
+  local cb = options.callback or function() end
 
-	common.groupOnReady(function ()
-		send('gstat Going!!!')
-		if (pfcb) then
-			pfcb()
-		end
-	end)
+  local cmd = 'gstat report if '
 
-	send('gt prep full if less than ' .. tostring(heals) .. ' cure criticals')
-	send('gt get full if under ' .. tostring(mana) .. '% mana')
+  
+  if (options.mana) then
+    cmd = cmd .. 'mana &lt; ' .. tostring(options.mana) .. '%, '
+  end
+   
+  if (options.heals) then
+    cmd = cmd .. 'heals &lt; ' .. tostring(options.heals) .. 'hp, '
+  end 
+
+  if (options.storms) then
+    cmd = cmd .. 'storms &lt; ' .. tostring(options.storms) .. ', '
+  end 
+  
+  cmd = cmd:gsub(', $', '')
+  
+  njs50.timedTempTrigger(7, 1, [[^[^"]+ reports? group status: "need prep"$]], function()
+   
+    common.groupOnReady(function ()
+    		send('gstat mudering continues')
+    		cb()
+    	end)   
+   
+    if (options.type == 'full') then
+      send('gstat pfull')
+    elseif (options.type == 'free') then
+      send('gstat pfree')
+    else
+      send('gstat get ready')
+    end  
+      
+  end, function()
+    send('gstat mudering continues')
+    cb()
+  end)
+  
+  
+  
+	send(cmd)
 
 end
 
@@ -7115,73 +7256,98 @@ end
 			<script>
 common.updateStatus = function(callback)
   common.onNextEvent(common.events.PARSED_GROUP, function ()
-  	callback()
+  	  callback()
   end)
 	send('group')
 end
 
 common.checkFull = function(callback)
-	common.checkResources(player.hp_max, player.mp_max, player.moves_max * 0.6, callback)
+	return common.checkResources(player.hp_max, player.mp_max, player.moves_max * 0.6)
 end
 
 
 common.onOffsetReady = function(lessHp, lessMp, lessMoves, callback)
 
-	common.checkResources(player.hp_max - lessHp, player.mp_max - lessMp, player.moves_max - lessMoves, function(readyStatus)
-		if(readyStatus) then
-			callback()
-		else
-			tempTimer(10, function ()
-				common.onOffsetReady(lessHp, lessMp, lessMoves, callback)
-			end, 'on offset ready')
-		end
-	end)
+	local readyStatus = common.checkResources(player.hp_max - lessHp, player.mp_max - lessMp, player.moves_max - lessMoves)
+	
+  if(readyStatus) then
+		callback()
+	else
+    common.checkFullTimer = njs50.onNextEvent('gmcp.Char.Vitals', function()
+			common.checkFullTimer = nil
+			common.onOffsetReady(lessHp, lessMp, lessMoves, callback)
+    end)
+	end
 
 end
 
 
 common.onManaReady = function(mana, callback)
 
-	common.checkResources(0, mana, 0, function(readyStatus)
-		if(readyStatus) then
-			callback()
-		else
-			tempTimer(10, function ()
-				common.onManaReady(mana, callback)
-			end, 'on mana ready')
-		end
-	end)
+	local readyStatus = common.checkResources(0, mana, 0)
+  
+	if(readyStatus) then
+		callback()
+	else
+    common.checkFullTimer = njs50.onNextEvent('gmcp.Char.Vitals', function()
+			common.checkFullTimer = nil
+			common.onManaReady(mana, callback)
+    end)
+	end
+
 
 end
 
 
-common.checkResources = function(hp, mp, moves, callback)
-	common.updateStatus( function ()
+common.checkResources = function(hp, mp, moves)
 
-		if (player.hp &gt;= hp and player.mp &gt;= mp and player.moves &gt;= moves) then
-			echo('\n\n .. READY TO KILL\n')
-			callback(true)
-		else
-			echo('\n\n .. sleep more little tank\n')
-			callback(false)
-		end
-	end)
+	if (gmcp.Char.Vitals.hp &gt;= hp and gmcp.Char.Vitals.en &gt;= mp and gmcp.Char.Vitals.mv &gt;= moves) then
+		echo('\n\n .. READY TO KILL\n')
+		return true
+	else
+		echo('\n\n .. sleep more little tank\n')
+		return false
+	end
+
+end
+
+
+
+common.checkFull = function()
+	return common.checkResources(player.hp_max, player.mp_max * 0.95, player.moves_max * 0.6)
+end
+
+-- [ 75 Pal Ogr   ] Darion              1510/1520  763/1038   306/321     16,597,229
+-- [ 75 Pal Ogr   ] Darion              1440/1576   708/728   291/296     16,597,229
+
+common.onFullish = function (hp, mp, moves, callback)
+
+	local readyStatus = common.checkResources(hp, mp, moves)
+
+	if(readyStatus) then
+		callback()
+	else 
+    common.checkFullTimer = njs50.onNextEvent('gmcp.Char.Vitals', function()
+			common.checkFullTimer = nil
+			common.onFullish(hp, mp, moves, callback)
+    end)
+	end
+
 end
 
 
 common.onFull = function (callback)
 
-	common.checkFull( function(readyStatus)
-		if(readyStatus) then
-			callback()
-		else
-			common.checkFullTimer = tempTimer(10, function ()
-				common.checkFullTimer = nil
-				common.onFull(callback)
-			end, 'on full')
-		end
-	end)
+	local readyStatus = common.checkFull()
 
+	if(readyStatus) then
+		callback()
+	else 
+    common.checkFullTimer = njs50.onNextEvent('gmcp.Char.Vitals', function()
+			common.checkFullTimer = nil
+			common.onFull(callback)
+    end)
+	end
 
 end
 </script>
@@ -7308,17 +7474,25 @@ improves.setFiller = function (spell)
 	improves.fillerSpell  = spell
 end
 
+improves.resetFiller = function ()
+	improves.fillerSpell = 'filler'
+end
 
 
-improves.castSpell = function ()
 
+
+improves.castSpell = function (cb)
+  
+  cb = cb or function() end
+  
 	if (#improves.castQueue == 0) then
     
     cecho('\n\n -= improve filler =-\n\n')
     if type(improves.fillerSpell) == 'string' then 
-  		expandAlias(improves.fillerSpell)
+  	  expandAlias(improves.fillerSpell)
+      cb()
     elseif type(improves.fillerSpell) == 'function' then   
-      improves.fillerSpell()
+      improves.fillerSpell(cb)
     end
     
     improves.castFillerLastTick = true
@@ -7329,6 +7503,7 @@ improves.castSpell = function ()
 
 			improves.castFillerLastTick = false
 			cecho('\n\n -= holding filler for real spell next tick =-\n\n')
+      cb()
 
 		else
 
@@ -7336,6 +7511,7 @@ improves.castSpell = function ()
 			improves.castFillerLastTick = true
 			cecho('\n\n -= ' .. spell .. ' =-\n\n')
 			send(spell)
+      cb()
 
 		end
 
@@ -7423,7 +7599,186 @@ improves.getImproveSpell = function ()
 
   return 'cast ' .. spell
 
-end</script>
+end
+
+
+
+improves.improveNonCombat = function(improveThings, options)
+  
+  options.cb = options.cb or function() end
+  
+  options.hpItem = options.hpItem or 'serp.ring'
+  options.bandage = options.bandage or 'a simple bandage'
+  
+  -- local improveThings = {
+    -- 
+    -- -- this one is a bit shit because you can't keep doing it in the same room
+    -- -- dowse = { cmd = 'cast dowse &amp; |fill cant puddle &amp; |empt cant &amp; |fill cant puddle &amp; |empt cant', level = 7},
+    -- 
+    -- bandage = { bandage = true, cmd = 'bandage self', reagent = 'a simple bandage', level = 10 },
+    -- compress = { bandage = true, cmd = 'compress self', reagent = 'a clump of herbs', level = 10 },
+    -- poultice = { bandage = true, cmd = 'poultice self', reagent = 'a thick aloe leaf', level = 10 },
+    -- salve = { bandage = true, cmd = 'poultice self', level = 7 },
+    -- ['healing mist'] = { heal = true, cmd = 'cast healing mist', level = 7 },
+    -- ['healing rain'] = { heal = true, cmd = 'cast healing rain', level = 10 },
+    -- 
+    -- impede = { cmd = 'cast impede', level = 10},
+    -- 
+    -- fireflies = { cmd = 'remove gold.ball &amp; | cast fireflies &amp; | remove fireflies &amp; | wear gold.ball', level = 10},
+    -- 
+    -- squall = { cmd = 'prep squall &amp; |cast squall', level = 10},
+    -- storm = { cmd = 'prep storm &amp; |cast storm', level = 10},
+    -- blizzard = { cmd = 'prep blizzard &amp; |cast blizzard', level = 7},
+    -- tornado = { cmd = 'prep tornado &amp; |cast tornado', level = 7},
+    -- tempest = { cmd = 'prep tempest &amp; |cast tempest', level = 10},
+    -- 
+    -- anemogenesis = { cmd = 'cast anemogenesis', level = 10},
+    -- xerotes = { cmd = 'cast xerotes', level = 10},
+  -- }
+  
+  -- display(thing, data)
+  local skipThing = true
+  
+  -- find thing to imp
+  for thing, data in pairs(improveThings) do 
+   
+    if (
+      player.lastImproveSkill == nil or 
+      thing == player.lastImproveSkill
+    ) then
+      skipThing = false
+    end
+    
+    if ( not skipThing and
+         player.lastImproveSkill ~= thing and
+         player.skills[thing] and 
+         player.skills[thing] &gt; 0 and 
+         player.skills[thing] &lt; data.level 
+    ) then
+    
+      cecho('\n&lt;green&gt;IMPROVE:&lt;white&gt; lets improve ' .. thing .. '\n\n')
+  
+      
+      if (data.bandage) then
+  
+        common.getReagents(data.reagent, 1, function()
+          common.getReagents(options.bandage, 1, function()
+            send('|remove ' .. options.hpItem .. ' &amp; |wear ' .. options.hpItem .. ' &amp; |sit')
+            send('|' .. data.cmd .. ' &amp; |wait 4 &amp; |stand')
+            options.cb()
+          end, function()
+            cecho('\n\nOut of ' .. options.bandage .. '!!!\n\n')
+          end)
+        end, function()
+          cecho('\n\nOut of ' .. data.reagent .. '!!!\n\n')
+        end)
+  
+      elseif (data.heal) then
+  
+        send('|remove ' .. options.hpItem .. ' &amp; |wear ' .. options.hpItem .. ' &amp; |' .. data.cmd)
+        options.cb()
+      
+      else
+        send('|' .. data.cmd)
+        options.cb()
+      end
+  
+      player.lastImproveSkill = thing
+      
+      
+      return
+  
+    end
+  
+  end
+  
+  if (player.lastImproveSkill ~= nil) then
+    player.lastImproveSkill = nil
+    improves.improveNonCombat(improveThings, options)
+  else
+    cecho('\n&lt;green&gt;IMPROVE:&lt;white&gt; nothing left to improve!!!\n\n')
+    options.cb()
+  end
+  
+end
+
+improves.improveCombat = function(improveThings, target)
+  
+  -- 
+  -- local improveThings = {
+    -- 
+    -- -- need to keep moving while doing this. bleh
+    -- dowse = { cmd = 'cast dowse &amp; |fill cant puddle &amp; |empt cant &amp; |fill cant puddle &amp; |empt cant &amp; |cast gale', level = 7},
+    -- 
+    -- -- darkness
+    -- nocturne = { cmd = 'cast nocturne', level = 7},
+    -- gloom = { cmd = 'cast gloom', level = 10},
+    -- shadowstrike = { cmd = 'cast shadowstrike', level = 7},
+    -- ['veil of darkness'] = { cmd = 'cast veil of darkness', level = 10},
+    -- 
+    -- -- for healing
+    -- ['aqueous surge'] = { cmd = 'cast aqueous surge', level = 7},
+    -- ['aqueous spirit'] = { cmd = 'cast aqueous spirit', level = 7},
+    -- 
+    -- -- wind
+    -- gust = { cmd = 'cast gust', level = 7},
+    -- ['wind shear'] = { cmd = 'cast wind shear', level = 7},
+    -- gale = { cmd = 'cast gale', level = 10},
+    -- whirlwind = { cmd = 'cast whirlwind', level = 10},
+    -- 
+    -- -- util
+    -- undergrowth = { cmd = 'cast undergrowth', level = 10},
+    -- 
+    -- -- drying (for xerotes)
+    -- dry = { cmd = 'cast dry', level = 10},
+    -- parch = { cmd = 'cast parch', level = 7},
+    -- desiccate = { cmd = 'cast desiccate', level = 7},
+    -- 
+    -- -- aoe (optional)
+    -- blizzard = { cmd = 'prep blizzard &amp; |cast blizzard &amp; |sigh', level = 7},
+    -- 
+  -- }
+  
+  -- display(thing, data)
+  local skipThing = true
+  
+  -- find thing to imp
+  for thing, data in pairs(improveThings) do 
+   
+    if (
+      player.lastImproveSkill == nil or 
+      thing == player.lastImproveSkill
+    ) then
+      skipThing = false
+    end
+    
+    if ( not skipThing and
+         player.lastImproveSkill ~= thing and
+         player.skills[thing] and 
+         player.skills[thing] &gt; 0 and 
+         player.skills[thing] &lt; data.level 
+    ) then
+    
+      cecho('\n&lt;green&gt;IMPROVE:&lt;white&gt; lets improve ' .. thing .. '\n\n')
+  
+      player.lastImproveSkill = thing
+      
+      return data.cmd .. ' ' .. target
+  
+    end
+  
+  end
+  
+  if (player.lastImproveSkill ~= nil) then
+    player.lastImproveSkill = nil
+    return improves.improveCombat(improveThings, target)
+  else
+    cecho('\n&lt;green&gt;IMPROVE:&lt;white&gt; nothing left to improve!!!\n\n')
+    return ''
+  end
+  
+end
+</script>
 			<eventHandlerList />
 		</Script>
 		<Script isActive="yes" isFolder="no">

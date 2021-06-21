@@ -238,64 +238,64 @@ local playerIgnore = {
 
 -- group row
 if (matches[3]) then
-
-	if (matches[2] == player.name or not player.tripping) then
-
-		if playerIgnore[matches[2]] then
-			echo(' &lt;-- ignored')
-			return
-		end
-
-    local status = group.data[matches[2]] or {}
-
-    status.hp = tonumber(matches[3])
-    status.hp_max = tonumber(matches[4])
-    status.mp = tonumber(matches[5])
-    status.mp_max = tonumber(matches[6])
-    status.moves = tonumber(matches[7])
-    status.moves_max = tonumber(matches[8])
-    status.xp = matches[9]
-
-    --
-    selectString(matches[1],1)
-    replace(matches[1]:gsub(matches[9], common.commaCase(matches[9])))
-    -- cecho(' &lt;- &lt;green&gt;replaced some numbers\n')
-
-		-- dupe into player info for conwenience
-		if (matches[2] == player.name) then
-			for key, val in pairs(status) do
-				player[key] = val
-			end
-		end
-
-		if (not player.tripping) then
-			group.memberCount = group.memberCount + 1
-			group.members[matches[2]] = true
-      group.data[matches[2]] = status
-		end
-
-	else
-		echo(' &lt;-- tripping')
-	end
+-- 
+	-- if (matches[2] == player.name or not player.tripping) then
+-- 
+		-- if playerIgnore[matches[2]] then
+			-- echo(' &lt;-- ignored')
+			-- return
+		-- end
+-- 
+    -- local status = group.data[matches[2]] or {}
+-- 
+    -- status.hp = tonumber(matches[3])
+    -- status.hp_max = tonumber(matches[4])
+    -- status.mp = tonumber(matches[5])
+    -- status.mp_max = tonumber(matches[6])
+    -- status.moves = tonumber(matches[7])
+    -- status.moves_max = tonumber(matches[8])
+    -- status.xp = matches[9]
+-- 
+    -- --
+    -- selectString(matches[1],1)
+    -- replace(matches[1]:gsub(matches[9], common.commaCase(matches[9])))
+    -- -- cecho(' &lt;- &lt;green&gt;replaced some numbers\n')
+-- 
+		-- -- dupe into player info for conwenience
+		-- if (matches[2] == player.name) then
+			-- for key, val in pairs(status) do
+				-- player[key] = val
+			-- end
+		-- end
+-- 
+		-- if (not player.tripping) then
+			-- group.memberCount = group.memberCount + 1
+			-- group.members[matches[2]] = true
+      -- group.data[matches[2]] = status
+		-- end
+-- 
+	-- else
+		-- echo(' &lt;-- tripping')
+	-- end
 
 -- leader row
 else
 
-	if (matches[2] == player.name or not player.tripping) then
-		group.leader = matches[2]
-		if (not player.tripping) then
-  		group.memberCount = 0
-  		group.members = {}
-      group.data = {}
-		end
-	else
-		echo(' &lt;-- tripping')
-	end
+	-- if (matches[2] == player.name or not player.tripping) then
+		-- group.leader = matches[2]
+		-- if (not player.tripping) then
+  		-- group.memberCount = 0
+  		-- group.members = {}
+      -- group.data = {}
+		-- end
+	-- else
+		-- echo(' &lt;-- tripping')
+	-- end
 
   common.onNextEvent(common.events.PARSED_PROMPT, function (evt, args)
 		-- echo('\n ^^ raising parsed group event\n\n')
 		player.initPending = false
-  	raiseEvent(common.events.PARSED_GROUP)
+    	raiseEvent(common.events.PARSED_GROUP)
   end)
 
 end</script>
@@ -1631,7 +1631,12 @@ if player.hasSoupBarrel then
 
   send('gl &amp; get barr.soup loot &amp; fill empty.' .. player.vessel .. ' soup.barrel')
   send('put soup.barr loot &amp; pl &amp; dw') 
-    
+  
+elseif player.hasWaterBarrel then
+
+  send('gl &amp; get barr.water loot &amp; fill empty.' .. player.vessel .. ' water.barrel')
+  send('put water.barr loot &amp; pl &amp; dw') 
+      
 elseif (player.caster and gmcp.Char.Score.class == 'druid') then
   
   local cmd = 'cast dowse &amp; cast dowse &amp; ' ..
@@ -2333,7 +2338,7 @@ if (casters[class] and mana ~= '') then
   end
 end
 
-if (stormers[class] and storms ~= '') then
+if (player.stormEnabled and stormers[class] and storms ~= '') then
   if (not player.stormSpell or not player.prepped[player.stormSpell] or player.prepped[player.stormSpell] &lt; tonumber(storms)) then
     send('gstat need prep')
   end
@@ -2354,6 +2359,39 @@ end
 						<string>^[^"]* reports? group status: "report if(?: mana &lt; (\d+)%)?,?(?: heals &lt; (\d+)hp)?,?(?: storms &lt; (\d+))?"</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
+					</regexCodePropertyList>
+				</Trigger>
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+					<name>refill vessel</name>
+					<script>
+send('empty ' .. player.vessel)
+
+if (matches[2] ~= '') then
+  send('fill ' .. player.vessel .. ' ' .. matches[2])
+else
+
+  send('fill ' .. player.vessel .. ' soup')
+  send('fill ' .. player.vessel .. ' water')
+  send('fill ' .. player.vessel .. ' clear.liquid')
+  
+end</script>
+					<triggerType>0</triggerType>
+					<conditonLineDelta>0</conditonLineDelta>
+					<mStayOpen>0</mStayOpen>
+					<mCommand></mCommand>
+					<packageName></packageName>
+					<mFgColor>#ff0000</mFgColor>
+					<mBgColor>#ffff00</mBgColor>
+					<mSoundFile></mSoundFile>
+					<colorTriggerFgColor>#000000</colorTriggerFgColor>
+					<colorTriggerBgColor>#000000</colorTriggerBgColor>
+					<regexCodeList>
+						<string>^.* tells? (?:the|your) group[^:]*:\s+"refill ?(.*)"$</string>
+						<string>^.* reports? group status: "refill ?(.*)"</string>
+					</regexCodeList>
+					<regexCodePropertyList>
+						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
 				</Trigger>
@@ -3560,7 +3598,7 @@ end</script>
 					<integer>2</integer>
 				</regexCodePropertyList>
 			</Trigger>
-			<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+			<TriggerGroup isActive="no" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>puzzles</name>
 				<script></script>
 				<triggerType>0</triggerType>
@@ -6666,7 +6704,7 @@ end
 combat.onRoomClear = function ()
 	-- cecho('&lt;green&gt;&lt;-- room is clear ...\n')
   combat.clearTimer()
-	if (murder.enabled and not murder.speedwalking and player.position == 'standing') then
+	if (murder.enabled and player.position == 'standing') then
     murder.scan('room clear')
 	end
   -- cecho('&lt;green&gt;&lt;-- CLEAR (no combat for ' .. tostring(combat.roomClearDelay) .. ' seconds)!!! \n')
@@ -6850,15 +6888,6 @@ end</script>
   -- Gnodrick = true,
   Grexil = true,
 }
-
-common.groupDo = function (command)
-  send('gt time to ' .. command)
-  for member in pairs(group.members) do
-    if (not common.includeInRollCalls[member]) then
-      send('tell ' .. member .. ' do ' .. command)
-    end
-  end
-end
 
 
 common.comeToMe = function (callback)
@@ -7068,7 +7097,7 @@ common.groupOnReady = function (cb)
 		end
 	end
   
-  display(roll)
+  -- display(roll)
 
 	rct = tempRegexTrigger([[^.* reports? group status[^:]*: "ready \((.*)\)"]], function ()
 		roll[matches[2]] = true
@@ -7105,9 +7134,9 @@ common.groupPrepIfUnder = function (options)
     		cb()
     	end)   
    
-    if (options.type == 'full') then
+    if (options.prepType == 'full') then
       send('gstat pfull')
-    elseif (options.type == 'free') then
+    elseif (options.prepType == 'free') then
       send('gstat pfree')
     else
       send('gstat get ready')
@@ -7882,7 +7911,8 @@ local convertRecord = function (record)
     moves_max = record.maxmv,
     hp = record.hp,
     hp_max = record.maxhp,
-    moves = record.mv
+    moves = record.mv,
+    race = record.race,
   }
 end
 

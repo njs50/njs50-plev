@@ -10,23 +10,12 @@
 -- ?p' -- MORE -- '&lt;%f?f|@R%hhp@n @G%ee@n @B?m'[%mmv]'!m'%vmv'@n %gwm %xxp?l' %llhp' %d?b' %c'&gt;%\
 
 -- need to have the group parsed aleady to have things to fill in
-if ( not player.name ) then
+if (not player.initStarted) then
 
-    if (not player.pendingGroup) then
-      
-      send('group all')
-      player.pendingGroup = true
-  
-    		echo('\nWaiting for leader/group before parsing prompt...\n')
-        
-    		if (not player.initPending) then
-        player.pendingGroup = nil
-    			player.initPending = true
-    			common.initPlayer()
-    		end
-        
-    end
-  
+    player.initStarted = true
+    player.initPending = true
+    common.initPlayer()
+
 else
 
 	-- prompt flags:
@@ -222,80 +211,18 @@ end)
 					<name>parse group</name>
 					<script>-- depricated, getting this stuff from gmcp now
 
-
--- Leader: Darion
---
--- [ 14 Pal Dwf   ] Darion                209/209     94/94   138/138       122869
--- [ 41 Pal Dwf L ] Darion                641/641   100/100   205/205     11787449
-
--- pretend these players aren't in our group
--- need to do this if they don't have the teamwork triggers
--- i.e wont respond to commands / queries
-local playerIgnore = {
-	-- Marsuvious = true,
-	-- Bashukin = true,
-}
-
 -- group row
 if (matches[3]) then
--- 
-	-- if (matches[2] == player.name or not player.tripping) then
--- 
-		-- if playerIgnore[matches[2]] then
-			-- echo(' &lt;-- ignored')
-			-- return
-		-- end
--- 
-    -- local status = group.data[matches[2]] or {}
--- 
-    -- status.hp = tonumber(matches[3])
-    -- status.hp_max = tonumber(matches[4])
-    -- status.mp = tonumber(matches[5])
-    -- status.mp_max = tonumber(matches[6])
-    -- status.moves = tonumber(matches[7])
-    -- status.moves_max = tonumber(matches[8])
-    -- status.xp = matches[9]
--- 
-    -- --
-    -- selectString(matches[1],1)
-    -- replace(matches[1]:gsub(matches[9], common.commaCase(matches[9])))
-    -- -- cecho(' &lt;- &lt;green&gt;replaced some numbers\n')
--- 
-		-- -- dupe into player info for conwenience
-		-- if (matches[2] == player.name) then
-			-- for key, val in pairs(status) do
-				-- player[key] = val
-			-- end
-		-- end
--- 
-		-- if (not player.tripping) then
-			-- group.memberCount = group.memberCount + 1
-			-- group.members[matches[2]] = true
-      -- group.data[matches[2]] = status
-		-- end
--- 
-	-- else
-		-- echo(' &lt;-- tripping')
-	-- end
 
--- leader row
+  -- all this shit comes from gmcp now
+
 else
 
-	-- if (matches[2] == player.name or not player.tripping) then
-		-- group.leader = matches[2]
-		-- if (not player.tripping) then
-  		-- group.memberCount = 0
-  		-- group.members = {}
-      -- group.data = {}
-		-- end
-	-- else
-		-- echo(' &lt;-- tripping')
-	-- end
+  -- still raising events for things waiting for a group to be parsed
 
   common.onNextEvent(common.events.PARSED_PROMPT, function (evt, args)
 		-- echo('\n ^^ raising parsed group event\n\n')
-		player.initPending = false
-    	raiseEvent(common.events.PARSED_GROUP)
+  	raiseEvent(common.events.PARSED_GROUP)
   end)
 
 end</script>
@@ -4393,6 +4320,13 @@ send(dropJunk)</script>
 				<regex>^timers$</regex>
 			</Alias>
 			<Alias isActive="yes" isFolder="no">
+				<name>show file watchers</name>
+				<script>displayFileWatchers()</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^fileWatchers$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
 				<name>show event handlers</name>
 				<script>displayEventHandlers()</script>
 				<command></command>
@@ -4659,8 +4593,31 @@ oRaiseEvent = oRaiseEvent or raiseEvent
 oRegisterAnonymousEventHandler = oRegisterAnonymousEventHandler or registerAnonymousEventHandler
 oKillAnonymousEventHandler = oKillAnonymousEventHandler or killAnonymousEventHandler
 
+oAddFileWatch = oAddFileWatch or addFileWatch
+oRemoveFileWatch = oRemoveFileWatch or removeFileWatch
 
 eventHandlers = eventHandlers or {}
+
+fileWatchers = fileWatchers or {}
+
+addFileWatch = function(path)  
+  if (fileWatchers[path]) then
+    cecho('\n&lt;red&gt;DEBUG: &lt;white&gt;tried to add a duplicate file watch - ' .. path .. '\n')
+    return nil
+  end
+  fileWatchers[path] = true
+  return oAddFileWatch(path)
+end
+
+removeFileWatch = function(path)
+  fileWatchers[path] = nil
+  return oRemoveFileWatch(path)
+end
+
+
+displayFileWatchers = function()
+  display(table.keys(fileWatchers))
+end
 
 function registerAnonymousEventHandler(evt, fn, selfDestruct)
 
@@ -5669,7 +5626,7 @@ common.wm.groupWatcher = registerAnonymousEventHandler(common.events.PARSED_GROU
 
 
 common.initPlayer = function ()
-
+  
 	echo('\n\nINITIAL STATUS CHECK\n\n')
   
   -- rest to defaults for init

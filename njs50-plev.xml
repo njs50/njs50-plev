@@ -395,7 +395,7 @@ elseif (matches[2] == 'Weight') then
 	-- cecho(' &lt; --- parsing end')
 	-- display(player.gear)
 
-else
+elseif player.gear.parsing then
 
  	-- if this line has a slot, get rid of the redundant part and set it to be the current slot
 	if (matches[2] ~= '') then

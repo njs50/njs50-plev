@@ -1554,7 +1554,13 @@ end)
 
 local vessel = common.dotCase(matches[2])
 
-if player.hasSoupBarrel then
+if player.hasBarrel then
+
+  send('gl &amp; get ' .. player.barrelBag .. ' loot &amp; get barrel.' .. player.barrelContains .. ' ' .. player.barrelBag)
+  send('fill empty.' .. player.vessel .. ' ' .. player.barrelContains .. '.barrel')
+  send('put ' .. player.barrelContains .. '.barrel ' .. player.barrelBag .. ' &amp; put ' .. player.barrelBag .. ' loot &amp; pl &amp; dw') 
+
+elseif player.hasSoupBarrel then
 
   send('gl &amp; get barr.soup loot &amp; fill empty.' .. player.vessel .. ' soup.barrel')
   send('put soup.barr loot &amp; pl &amp; dw') 
@@ -1619,7 +1625,7 @@ end
 
 send('queue lang vya &amp; queue intro ' .. vic)
 send('queue lang human &amp; queue intro ' .. vic)
-send('queue lang ogris &amp; queue intro ' .. vic)</script>
+-- send('queue lang ogris &amp; queue intro ' .. vic)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1837,11 +1843,11 @@ end</script>
 						<integer>2</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>sprawling</name>
 					<script>disableTrigger('sprawling')
-send('stand &amp; ord all stand')
-tempTimer(2, function () enableTrigger('sprawling') end)</script>
+send('|stand &amp; |ord all stand')
+tempTimer(1, function () enableTrigger('sprawling') end)</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -1853,7 +1859,7 @@ tempTimer(2, function () enableTrigger('sprawling') end)</script>
 					<colorTriggerFgColor>#000000</colorTriggerFgColor>
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
-						<string>^A(n)? .* sends you sprawling on the ground!</string>
+						<string>sends you sprawling (on|in) the \w+!$</string>
 						<string>^A(n)? .* delivers a quick kick, knocking you down to the ground!</string>
 						<string>^Perhaps you should stand first.</string>
 						<string>^The fall .* you!</string>
@@ -2617,7 +2623,8 @@ raiseEvent(common.events.PARRY_STATE_CHANGE)
 				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>disarmed</name>
 					<script>echo('disarmed!!!')
-send('wear ' .. common.dotCase(matches[3]))</script>
+send('wear ' .. common.dotCase(matches[3]))
+</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
 					<mStayOpen>0</mStayOpen>
@@ -2631,8 +2638,10 @@ send('wear ' .. common.dotCase(matches[3]))</script>
 					<regexCodeList>
 						<string>^\+\+\+ .+ disarms your (enchanted )?([^!]+)!  \+\+\+</string>
 						<string>thrusts (his|her|their) shield against your ([^,]*),</string>
+						<string>parries your attack and quickly moves to disarm you, sending your ?(enchanted )?(.*) flying!$</string>
 					</regexCodeList>
 					<regexCodePropertyList>
+						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
@@ -3859,7 +3868,7 @@ end</script>
 			<script>send('\n', false)</script>
 			<command></command>
 			<packageName></packageName>
-			<time>00:01:00.000</time>
+			<time>00:03:00.000</time>
 		</Timer>
 		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>stay hydrated</name>
@@ -3878,7 +3887,7 @@ if (gmcp.Room.Info.vnum == 170) then
   send('drink soup')
 end
 
-if (gmcp.Room.Info.vnum == 107) then
+if (gmcp.Room.Info.vnum == 107 or gmcp.Room.Info.vnum == 27008) then
   send('drink fountain')
 end
 
@@ -3909,13 +3918,13 @@ improves.setFiller(player.improveNonCombat)
 
 send('stand')
 improves.castSpell(function()
-  send('|drink trough &amp; |sit couch &amp; |sleep')
+  send('|drink trough &amp; |drink kettle &amp; |drink cauld &amp; |sit couch &amp; |sleep')
 end)
 
 improves.resetFiller()</script>
 			<command></command>
 			<packageName></packageName>
-			<time>00:00:35.000</time>
+			<time>00:00:40.000</time>
 		</Timer>
 		<Timer isActive="no" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>kick/swim while no improve casts queued</name>
@@ -3929,7 +3938,7 @@ else
     improves.castFillerLastTick = false
     tempTimer(65, function()
       send('+')
-      murder.smokeUp('imps-no-wis','imps', 22, function()
+      murder.smokeUp('imps-no-wis','imps-regen', 22, function()
         improves.castSpell()
         send('wait 3')
       end)
@@ -4575,6 +4584,19 @@ cecho('Entire level would take: &lt;purple&gt;' .. common.formatElapsedTime(enti
 				<command></command>
 				<packageName></packageName>
 				<regex>^xp$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>refill barrel</name>
+				<script>
+  send('gl &amp; get ' .. player.barrelBag .. ' loot &amp; get barrel.' .. player.barrelContains .. ' ' .. player.barrelBag)
+  
+  send('empty barrel &amp; |fill barrel ' .. matches[2])
+  
+  send('put ' .. player.barrelContains .. '.barrel ' .. player.barrelBag .. ' &amp; put ' .. player.barrelBag .. ' loot &amp; pl &amp; dw') 
+</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^refill-barrel (.*)$</regex>
 			</Alias>
 		</AliasGroup>
 	</AliasPackage>
@@ -5782,6 +5804,8 @@ end</script>
 --                                             --
 -- Note that you can also use external Scripts --
 -------------------------------------------------
+local maxLength = 130
+
 
 player = player or {}
 
@@ -6245,7 +6269,7 @@ function performSwap (callback)
   		end -- end layer loop
 
 
-  		if (wearLength &gt; 150 or removeLength &gt; 150) then
+  		if (wearLength &gt; maxLength or removeLength &gt; maxLength) then
   			-- gotta remove items in the reverse order (i.e top layer first)
   			swapCommands(common.reverseList(removeList), wearList)
   			removeList = {}
@@ -6339,7 +6363,7 @@ njs50.cast = function (spell, options)
   }
   
   
-  local cmd = 'cast ' .. spell
+  local cmd = '|cast ' .. spell
   
   if (target and target ~= '') then
     cmd = cmd .. ' ' .. target
@@ -6408,6 +6432,7 @@ njs50.cast = function (spell, options)
     
     castFailed = tempRegexTrigger([[^&gt;&gt; Your ]] .. spell .. [[ casting is disrupted. &lt;&lt;$]], function ()
       msg = 'casting ' .. spell .. ' was disrupted'
+      send('stand')
       cecho('\n&lt;red&gt;CAST: &lt;white&gt;' .. msg .. '\n\n')
       cleanTriggers()
       if (failCallback) then failCallback(msg) end    
@@ -7002,6 +7027,10 @@ common.newRollCall = function (excludeSelf)
     if (common.includeInRollCalls[name]) then
 		  roll[name] = false
     end
+    -- pets get a free pass
+    if (group.data[name].race == 'unkown') then
+		  roll[name] = true
+    end
 	end
 
 	if (excludeSelf) then
@@ -7592,6 +7621,7 @@ end
 improves.improveNonCombat = function(improveThings, options)
   
   options.cb = options.cb or function() end
+  options.doneCallback = options.doneCallback or function() end
   
   options.hpItem = options.hpItem or 'serp.ring'
   options.bandage = options.bandage or 'a simple bandage'
@@ -7684,6 +7714,7 @@ improves.improveNonCombat = function(improveThings, options)
   else
     cecho('\n&lt;green&gt;IMPROVE:&lt;white&gt; nothing left to improve!!!\n\n')
     options.cb()
+    options.doneCallback()
   end
   
 end

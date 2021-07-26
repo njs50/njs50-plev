@@ -10678,6 +10678,65 @@ end</script>
 				</eventHandlerList>
 			</Script>
 		</ScriptGroup>
+		<ScriptGroup isActive="no" isFolder="yes">
+			<name>auto reconnect</name>
+			<packageName></packageName>
+			<script></script>
+			<eventHandlerList />
+			<Script isActive="yes" isFolder="no">
+				<name>autoconnect</name>
+				<packageName></packageName>
+				<script>autoconnect = autoconnect or {}
+
+autoconnect.connectionEvent = function()
+  cecho('\n&lt;green&gt;AUTOCONNECT: &lt;white&gt;connected to server\n')
+  autoconnect.connected = true
+  
+end
+
+autoconnect.disconnectEvent = function()
+  cecho('\n&lt;red&gt;AUTOCONNECT: &lt;white&gt;disconnected from server\n')
+  autoconnect.connected = false
+
+  autoconnect.checkConnection()
+
+end
+
+autoconnect.checkConnection = function()
+
+  if not autoconnect.connected then
+    cecho('\n&lt;orange&gt;AUTOCONNECT: &lt;white&gt;reconnecting...\n')
+    autoconnect.reconnect()
+  end
+
+end
+
+autoconnect.reconnect = function()
+
+  reconnect()
+  tempTimer(15, autoconnect.checkConnection, 'checking connection after 15s')
+
+end</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>autoconnect.connectionEvent</name>
+				<packageName></packageName>
+				<script>
+</script>
+				<eventHandlerList>
+					<string>sysConnectionEvent</string>
+				</eventHandlerList>
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>autoconnect.disconnectEvent</name>
+				<packageName></packageName>
+				<script></script>
+				<eventHandlerList>
+					<string>sysDisconnectionEvent</string>
+				</eventHandlerList>
+			</Script>
+		</ScriptGroup>
 	</ScriptPackage>
 	<KeyPackage />
 	<HelpPackage>

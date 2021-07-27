@@ -381,19 +381,19 @@ player.itemSlot = player.itemSlot or {}
 if (matches[2] == 'Equipment') then
 	-- start of parsing
 
-	player.gear.parsing = true
-	player.gear = {}
+  player.gear = {}
+  player.gear.parsing = true
 	-- cecho(' &lt;--- parsing start')
-
-elseif (matches[2] == 'Weight') then
-
-	-- end of parsing
-	player.gear.parsing = nil
-	player.gear.currentSlot = nil
-
-	raiseEvent(common.events.PARSED_EQUIPMENT)
-	-- cecho(' &lt; --- parsing end')
-	-- display(player.gear)
+  
+  -- end on next prompt
+  tempRegexTrigger([[^&lt;]], function()
+    	-- end of parsing
+    	player.gear.parsing = nil
+    	player.gear.currentSlot = nil
+    
+    	raiseEvent(common.events.PARSED_EQUIPMENT)
+    	-- cecho(' &lt; --- parsing end')  
+  end, 1)
 
 elseif player.gear.parsing then
 
@@ -427,11 +427,9 @@ end
 					<colorTriggerBgColor>#000000</colorTriggerBgColor>
 					<regexCodeList>
 						<string>^\s+ \+\+\+ (Equipment) \+\+\+</string>
-						<string>^(Weight):</string>
 						<string>^(.*?)\s+(bottom|under|base|over|top)\s+(.*?)\s+(worthless|damaged|very worn|worn|very scratch|scratched|reasonable|good|very good|excellent|perfect)</string>
 					</regexCodeList>
 					<regexCodePropertyList>
-						<integer>1</integer>
 						<integer>1</integer>
 						<integer>1</integer>
 					</regexCodePropertyList>
@@ -6032,13 +6030,19 @@ function equipGearSet (name, callback, partial)
 
   		-- remove any items that have empty slots in new set
 			if (not partial) then
-    	  for slot, layers in pairs(player.gear) do
-          for layer, item in pairs(layers) do
-    				if (not (newSet[slot] and newSet[slot][layer])) then
-  						-- echo('\nneed to remove ' .. item.item)
-  						swapItems(item.item, '', slot, layer)
-  					end
-    			end
+      	  for slot, layers in pairs(player.gear) do
+
+          if (type(layers) ~= 'table') then  
+            for layer, item in pairs(layers) do
+        				if (not (newSet[slot] and newSet[slot][layer])) then
+      						-- echo('\nneed to remove ' .. item.item)
+      						swapItems(item.item, '', slot, layer)
+      					end
+        			end
+          else
+            cecho('&lt;red&gt;Outfit Error: &lt;white&gt;layer is empty?: ', slot )
+            -- display(layers)
+          end
         end
 			end
 

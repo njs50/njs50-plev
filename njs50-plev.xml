@@ -382,6 +382,8 @@ if (matches[2] == 'Equipment') then
 	-- start of parsing
 
   player.gear = {}
+  player.itemSlot = {}
+  
   player.gear.parsing = true
 	-- cecho(' &lt;--- parsing start')
   
@@ -389,7 +391,7 @@ if (matches[2] == 'Equipment') then
   tempRegexTrigger([[^&lt;]], function()
     	-- end of parsing
     	player.gear.parsing = nil
-    	player.gear.currentSlot = nil
+    	player.gearCurrentSlot = nil
     
     	raiseEvent(common.events.PARSED_EQUIPMENT)
     	-- cecho(' &lt; --- parsing end')  
@@ -399,15 +401,15 @@ elseif player.gear.parsing then
 
  	-- if this line has a slot, get rid of the redundant part and set it to be the current slot
 	if (matches[2] ~= '') then
-		player.gear.currentSlot = rex.gsub(matches[2], [[^(floating|worn on|worn around|worn about) ]], "", 1)
+		player.gearCurrentSlot = rex.gsub(matches[2], [[^(floating|worn on|worn around|worn about) ]], "", 1)
 	end
 
 	local item = common.itemSanitize(matches[4])
 
-	player.gear[player.gear.currentSlot] = player.gear[player.gear.currentSlot] or {}
-	player.gear[player.gear.currentSlot][matches[3]] = {item = item, condition = matches[5] }
+	player.gear[player.gearCurrentSlot] = player.gear[player.gearCurrentSlot] or {}
+	player.gear[player.gearCurrentSlot][matches[3]] = {item = item, condition = matches[5] }
 
-	player.itemSlot[item] = {slot=player.gear.currentSlot, layer=matches[3]}
+	player.itemSlot[item] = {slot=player.gearCurrentSlot, layer=matches[3]}
 	-- cecho(' &lt;--- its some gear ')
 
 end
@@ -1900,7 +1902,7 @@ tempTimer(2, function ()
 
   tfe.gotoRoom(rnum, function ()
     	tempTimer(1, function ()
-    		send('gstat ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
+    		send('gstat ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.num))
     	end)
   end)
 
@@ -2001,7 +2003,7 @@ if (pname == player.name) then
 
     tfe.gotoRoom(rnum, function ()
     	tempTimer(1, function ()
-    		send('gstat ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.vnum))
+    		send('gstat ' .. player.name .. ' is now at ' .. tostring(tfe.roomInfo.num))
     	end)
     end)
 
@@ -2029,7 +2031,7 @@ end</script>
 					<script>local pname = matches[3]
 
 if (pname == "" or pname == player.name) then
-   send('gstat ' .. player.name .. ' is at ' .. tostring(tfe.roomInfo.vnum))
+   send('gstat ' .. player.name .. ' is at ' .. tostring(tfe.roomInfo.num))
 end</script>
 					<triggerType>0</triggerType>
 					<conditonLineDelta>0</conditonLineDelta>
@@ -3511,7 +3513,7 @@ table.insert(xp_record, {dt = getEpoch(), val = tonumber(matches[2])})</script>
 			</Trigger>
 			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 				<name>You have been KILLED!!</name>
-				<script>send('gstat I died in room #' .. tostring(gmcp.Room.Info.vnum))
+				<script>send('gstat I died in room #' .. tostring(gmcp.Room.Info.num))
 if (group.leader == player.name) then
   murder.groupDo('recite recall')
 end</script>
@@ -3877,20 +3879,20 @@ end</script>
 		</Timer>
 		<Timer isActive="yes" isFolder="no" isTempTimer="no" isOffsetTimer="no">
 			<name>stay hydrated</name>
-			<script>if (gmcp.Room.Info.vnum == 5117) then
+			<script>if (gmcp.Room.Info.num == 5117) then
   send('drink chunky')
 end
 
-if (gmcp.Room.Info.vnum == 170) then
+if (gmcp.Room.Info.num == 170) then
   send('drink soup')
 end
 
-if (gmcp.Room.Info.vnum == 107 or gmcp.Room.Info.vnum == 27008) then
+if (gmcp.Room.Info.num == 107 or gmcp.Room.Info.num == 27008) then
   send('drink fountain')
 end
 
 
-if (gmcp.Room.Info.vnum == 3817) then
+if (gmcp.Room.Info.num == 3817) then
   send('drink cauldron')
 end</script>
 			<command></command>
@@ -6900,7 +6902,7 @@ common.comeToMe = function (callback)
 		mapper.paused = true
 
   	atTrig = tempRegexTrigger([[^.+ reports group status[^:]*: "(\w+) is now at (\d+)"]], function ()
-  		if (tostring(tfe.roomInfo.vnum) == matches[3]) then
+  		if (tostring(tfe.roomInfo.num) == matches[3]) then
 
 				roll[matches[2]] = true
 
@@ -6913,12 +6915,12 @@ common.comeToMe = function (callback)
 
 			else
 				send('mutter')
-				send('gstat ' .. matches[2] .. ' go to ' .. tostring(tfe.roomInfo.vnum))
+				send('gstat ' .. matches[2] .. ' go to ' .. tostring(tfe.roomInfo.num))
 			end
 
   	end)
 
-		send('gstat meet at ' .. tostring(tfe.roomInfo.vnum))
+		send('gstat meet at ' .. tostring(tfe.roomInfo.num))
 
 
 	end, 'comeToMe')
@@ -6966,7 +6968,7 @@ common.collectFollowers = function (callback)
 
 		local vnum = tonumber(matches[3])
 
-		if (tfe.roomInfo.vnum == vnum) then
+		if (tfe.roomInfo.num == vnum) then
 			roll[matches[2]] = true
 		else
 			roll[matches[2]] = vnum

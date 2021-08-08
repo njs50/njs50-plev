@@ -1843,7 +1843,7 @@ end</script>
 						<integer>2</integer>
 					</regexCodePropertyList>
 				</Trigger>
-				<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
 					<name>sprawling</name>
 					<script>disableTrigger('sprawling')
 send('|stand &amp; |ord all stand')
@@ -3891,9 +3891,12 @@ if (gmcp.Room.Info.num == 107 or gmcp.Room.Info.num == 27008) then
   send('drink fountain')
 end
 
-
 if (gmcp.Room.Info.num == 3817) then
   send('drink cauldron')
+end
+
+if (gmcp.Room.Info.num == 37013) then
+  send('drink well')
 end</script>
 			<command></command>
 			<packageName></packageName>
@@ -4031,7 +4034,9 @@ njs50plev.finishInstall = function()
     expandAlias("setOption Auto.Assist true")
     expandAlias("setOption Join.Fight true")
     expandAlias("setOption Show.Language false")
-    send('opt autoscan 3')
+    
+    -- send('scan -o enable.autoscan')
+    
     send('opt autoloot 3')
     send('opt room.info 1')
 
@@ -4652,8 +4657,8 @@ function registerAnonymousEventHandler(evt, fn, selfDestruct)
   local callback
 
 	if (type(thisData.lcb) == 'string') then
-  		callback =thisData.lcb
-			cecho('\n&lt;red&gt;EVENT: &lt;white&gt;event handler defined as string - ' .. thisData.lcb .. ' : ' .. '\n')
+  		callback = thisData.lcb
+		cecho('\n&lt;orange&gt;EVENT: &lt;white&gt;warning: event handler defined as string - ' .. thisData.lcb ..  '\n')
 	else
 		callback = function (...)
     		local cb = thisData.lcb
@@ -4720,6 +4725,11 @@ local wrapTrigger = function (triggerCommand)
   	local trigId = nil
   	local oCode = code
   	local expires = expireAfter
+    
+  if (type(oCode) == 'string') then
+    -- cecho('\n\n&lt;orange&gt;WARNING:&lt;white&gt; timer code, is not a function: ' .. oCode .. '\n\n')
+    oCode = loadstring(oCode)
+  end    
 
   	local newCode = function (...)
 
@@ -4784,6 +4794,11 @@ tempTimer = function(seconds, code, repeating, description)
 
 	local oCode = code
 
+  if (type(oCode) == 'string') then
+    -- cecho('\n\n&lt;orange&gt;WARNING:&lt;white&gt; timer code, is not a function: ' .. oCode .. '\n\n')
+    oCode = loadstring(oCode)
+  end
+
 	local decoratedCode = function (...)
 		-- cecho('\n&lt;green&gt;TIMER: &lt;white&gt;timer ran - ' .. tostring(timerId)  .. ' : ' .. (tempTimers[timerId] or '???') .. '\n')
 		-- display(tempTimers)
@@ -4793,11 +4808,10 @@ tempTimer = function(seconds, code, repeating, description)
       tempTimers[timerId] = nil
     end
     
-    if (type(oCode) == 'string') then
-      cecho('\n\nERROR in timer code, not a function: ' .. oCode .. '\n\n')
-    end
+    
+    oCode(...)
+    
 
-		oCode(...)
 	end
 
 	timerId = oTempTimer(seconds, decoratedCode, repeating)

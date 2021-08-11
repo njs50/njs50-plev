@@ -1314,6 +1314,10 @@ end)
 
 if (not player.gettingFull) then
 	player.gettingFull = true
+  -- in case we are interrupted and this isn't reset
+  common.onNextEvent(tfe.events.ROOM_CHANGED, function()
+    player.gettingFull = nil
+  end)
   send('ef &amp; dw &amp; dismount')
 
   tempTimer(2, function ()
@@ -1556,9 +1560,9 @@ local vessel = common.dotCase(matches[2])
 
 if player.hasBarrel then
 
-  send('gl &amp; get ' .. player.barrelBag .. ' loot &amp; get barrel.' .. player.barrelContains .. ' ' .. player.barrelBag)
+  send('gl &amp; get ' .. player.barrelBag .. ' loot &amp; pl &amp; get barrel.' .. player.barrelContains .. ' ' .. player.barrelBag)
   send('fill empty.' .. player.vessel .. ' ' .. player.barrelContains .. '.barrel')
-  send('put ' .. player.barrelContains .. '.barrel ' .. player.barrelBag .. ' &amp; put ' .. player.barrelBag .. ' loot &amp; pl &amp; dw') 
+  send('put ' .. player.barrelContains .. '.barrel ' .. player.barrelBag .. ' &amp; gl &amp; put ' .. player.barrelBag .. ' loot &amp; pl &amp; dw') 
 
 elseif player.hasSoupBarrel then
 
@@ -1969,7 +1973,13 @@ local nextRoom = {
 }
 
 if (group.leader == tank) then
-  player.nextRoom = nextRoom
+  
+  if (player.pendingAttack) then
+    cecho('\n\n&lt;orange&gt;TEAMWORK:&lt;white&gt; skipping room update while an attack is pending\n\n')
+  else
+    player.nextRoom = nextRoom
+  end
+  
 else
   cecho('\n\n&lt;red&gt;TEAMWORK:&lt;white&gt; next room command came from non tank\n\n')
 end
@@ -2261,6 +2271,13 @@ local class = gmcp.Char.Score.class
 
 if (healers[class] and heals ~= '') then
   if (healer.avg_heal * healer.getPrepped() &lt; tonumber(heals)) then
+    send('gstat need prep')
+  end
+end
+
+-- paladins only need a couple of backup heals ready to go. vs 1000hp for healer &gt; 450hp = 3xrally
+if (class == 'paladin' and heals ~= '') then
+  if (healer.avg_heal * healer.getPrepped() &lt; (tonumber(heals) * 0.45)) then
     send('gstat need prep')
   end
 end
@@ -6047,18 +6064,14 @@ function equipGearSet (name, callback, partial)
   		-- remove any items that have empty slots in new set
 			if (not partial) then
       	  for slot, layers in pairs(player.gear) do
-
-          if (type(layers) ~= 'table') then  
-            for layer, item in pairs(layers) do
-        				if (not (newSet[slot] and newSet[slot][layer])) then
-      						-- echo('\nneed to remove ' .. item.item)
-      						swapItems(item.item, '', slot, layer)
-      					end
-        			end
-          else
-            cecho('&lt;red&gt;Outfit Error: &lt;white&gt;layer is empty?: ', slot )
-            -- display(layers)
-          end
+ 
+          for layer, item in pairs(layers) do
+      				if (not (newSet[slot] and newSet[slot][layer])) then
+    						-- echo('\nneed to remove ' .. item.item)
+    						swapItems(item.item, '', slot, layer)
+    					end
+      			end
+        
         end
 			end
 
@@ -6087,15 +6100,15 @@ function equipGearSet (name, callback, partial)
 			-- make sure we aren't just switching left/right things
       
 			local removeRedundantSwap = function (slot, layer)
-					if (player.swapItems["left " .. slot] and player.swapItems["left " .. slot][layer] and
-						player.swapItems["right " .. slot] and player.swapItems["right " .. slot][layer] and
-						(player.swapItems["left " .. slot][layer].from == player.swapItems["right " .. slot][layer].to) and
-  					(player.swapItems["left " .. slot][layer].to == player.swapItems["right " .. slot][layer].from)) then
-  					-- remove redundant swap
-  					cecho('\n&lt;green&gt;GEAR SWAP: &lt;white&gt;removed redundant swap (left/right ' .. slot .. '.' .. layer .. ')')
-  					player.swapItems["left " .. slot][layer] = nil
-  					player.swapItems["right " .. slot][layer] = nil
-  			end
+        if (player.swapItems["left " .. slot] and player.swapItems["left " .. slot][layer] and
+          player.swapItems["right " .. slot] and player.swapItems["right " .. slot][layer] and
+          (player.swapItems["left " .. slot][layer].from == player.swapItems["right " .. slot][layer].to) and
+          (player.swapItems["left " .. slot][layer].to == player.swapItems["right " .. slot][layer].from)) then
+          -- remove redundant swap
+          cecho('\n&lt;green&gt;GEAR SWAP: &lt;white&gt;removed redundant swap (left/right ' .. slot .. '.' .. layer .. ')')
+          player.swapItems["left " .. slot][layer] = nil
+          player.swapItems["right " .. slot][layer] = nil
+        end
 			end
 
       
@@ -6164,16 +6177,17 @@ function equipGearSet (name, callback, partial)
       if #table.keys(player.swapItems) == 0 then
         
         cecho('\n&lt;green&gt;GEAR SWAP: &lt;white&gt;no gear needs swapping\n')
-    		player.equippingSet = nil
-    		if cb then cb() end
-    		raiseEvent(common.events.CHANGED_EQUIPMENT)
-        
-      else
-  
-  			-- lets do it...
-  			performSwap(cb)
+      		player.equippingSet = nil
+          
+      		if cb then cb() end
+      		  raiseEvent(common.events.CHANGED_EQUIPMENT)
+          
+        else
     
-      end
+      			-- lets do it...
+      			performSwap(cb)
+      
+        end
 
 		end -- end check if this was a valid set
 
@@ -6690,13 +6704,14 @@ combat.roomClearDelay = 5
 
 -- starting a 4 sec timer to make sure nothing else
 -- wants to get fighty before declaring the room clear
-combat.startTimer = function ()
+combat.startTimer = function (delayoverride)
+  local delay = delayoverride or combat.roomClearDelay
 	if(combat.clear_timer) then
 		-- cecho('&lt;yellow&gt;&lt;-- restarting room clear timer\n')
 		combat.clearTimer()
 	end  
-  -- cecho('&lt;yellow&gt;&lt;-- setting room clear timer for 5s\n')
-	combat.clear_timer = tempTimer(combat.roomClearDelay, function()
+  cecho('&lt;yellow&gt;&lt;-- setting room clear timer for ' .. tostring(delay) .. 's\n')
+	combat.clear_timer = tempTimer(delay, function()
     combat.clear_timer = nil
     -- cecho('&lt;yellow&gt;&lt;-- running on room clear\n')
     combat.onRoomClear()
@@ -6705,6 +6720,12 @@ end
 
 combat.onRoomClear = function ()
 	-- cecho('&lt;green&gt;&lt;-- room is clear ...\n')
+  
+  -- room isn't really clear if an attack is pending. restart timer...
+  if (player.pendingAttack) then
+    return combat.startTimer()
+  end
+  
   combat.clearTimer()
 	if (murder.enabled and player.position == 'standing') then
     murder.scan('room clear')

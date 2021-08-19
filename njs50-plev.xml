@@ -5322,6 +5322,7 @@ common.events = {
 	ROOM_CLEAR = 'COMMON::current_room_is_clear',
 	PARRY_STATE_CHANGE = 'COMMON::parry_state_change',
   SCAN_PROCESSED = 'COMMON::scan_data_processed',
+  UI_LOADED = 'COMMON:UI_loaded',
 }
 
 common.tableHasValue =  function (tab, val)
@@ -5779,8 +5780,10 @@ common.initPlayer = function ()
   
   	end
   
-    echo('\n\nloading gear sets. if it fails you should do luaSaveGearSet("default") to save a default set\n\n')
+    echo('\n\nloading gear sets. if it fails you should do "gear-save default" to save a default set\n\n')
     loadSavedGearSets()
+    
+    raiseEvent(common.events.UI_LOADED)
   
   end)
   
